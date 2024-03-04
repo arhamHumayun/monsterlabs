@@ -40,8 +40,13 @@ export async function POST(request: Request) {
     ],
     model: "gpt-3.5-turbo",
     functions: tools,
-    function_call: "auto"
+    temperature: 0.5,
+    function_call: {
+      name: "generate_monster",
+    }
   });
+
+  console.log(completion);
 
   let responseBody = ""
   try {

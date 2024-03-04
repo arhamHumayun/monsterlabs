@@ -70,19 +70,16 @@ const sensesSchema = z.object({
 
 const damageTypeSchema = z.enum(['acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic', 'piercing', 'poison', 'psychic', 'radiant', 'slashing', 'thunder']);
 
-const damageMultiplierSchema = z.enum(['normal', 'resistance', 'immunity', 'vulnerability'])
+export type damageMultiplierLiteral = 'normal' | 'resistance' | 'immunity' | 'vulnerability';
+const damageMultiplierSchema = z.enum(['normal', 'resistance', 'immunity', 'vulnerability']).describe('Normal means normal damage, resistance means half damage, immunity means no damage, and vulnerability means double damage.');
 
 const damagesBaseSchema = z.object({
-  nonMagical: z.object({
-    bludgeoning: damageMultiplierSchema,
-    slashing: damageMultiplierSchema,
-    piercing: damageMultiplierSchema,
-  }).describe("Basic non-magical physical damage type. Give the monster a resistance or immunity to this if they are high level or very magical."),
-  magical: z.object({
-    bludgeoning: damageMultiplierSchema,
-    slashing: damageMultiplierSchema,
-    piercing: damageMultiplierSchema,
-  }).describe("Magical physical damage types. Only give the monster resistance to this if their physical form directly resists this type of damage."),
+  nonMagicalBludgeoning: damageMultiplierSchema,
+  nonMagicalSlashing: damageMultiplierSchema,
+  nonMagicalPiercing: damageMultiplierSchema,
+  magicalBludgeoning: damageMultiplierSchema,
+  magicalSlashing: damageMultiplierSchema,
+  magicalPiercing: damageMultiplierSchema,
   acid: damageMultiplierSchema,
   cold: damageMultiplierSchema,
   fire: damageMultiplierSchema,
@@ -94,6 +91,24 @@ const damagesBaseSchema = z.object({
   radiant: damageMultiplierSchema,
   thunder: damageMultiplierSchema
 });
+
+export enum conditionSchemaEnum {
+  blinded = 'blinded',
+  charmed = 'charmed',
+  deafened = 'deafened',
+  frightened = 'frightened',
+  grappled = 'grappled',
+  incapacitated = 'incapacitated',
+  invisible = 'invisible',
+  paralyzed = 'paralyzed',
+  petrified = 'petrified',
+  poisoned = 'poisoned',
+  prone = 'prone',
+  restrained = 'restrained',
+  stunned = 'stunned',
+  unconscious = 'unconscious',
+}
+const conditionsSchema = z.enum(['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious']);
 
 const conditionImmunitiesSchema = z.object({
   blinded: z.boolean().optional(),
@@ -110,7 +125,7 @@ const conditionImmunitiesSchema = z.object({
   restrained: z.boolean().optional(),
   stunned: z.boolean().optional(),
   unconscious: z.boolean().optional(),
-});
+}).describe('The conditions the monster is immune to. Only make the monster immune to conditions that make sense for the monster. True means the monster is immune to the condition, false means the monster is not immune to the condition.');
 
 const specialTraitsSchema = z.object({
   name: z.string(),
@@ -125,24 +140,52 @@ const diceSchema = z.object({
   })
 });
 
+const attackHitSchema = z.object({
+  damage: z.object({
+    primary: z.object({
+      attackStat: singleStatSchema.optional().describe('The stat bonus the monster uses for the attack, only used if the attack is a weapon attack. If the attack is a spell attack use the spellcasting stat bonus.'),
+      damageDice: diceSchema,
+      damageType: damageTypeSchema,
+      alternateDamageDice: z.object({
+        condition: z.enum(['critical', 'advantage', 'two-handed']).describe('The condition that triggers the alternate damage dice'),
+        damageDice: diceSchema,
+      }).optional().describe('The alternate damage dice the monster uses if the condition is met.'),
+    }),
+    secondary: z.object({
+      damageDice: diceSchema,
+      damageType: damageTypeSchema,
+    }).optional(),
+  }).optional(),
+  conditions: z.array(z.object({
+    name: conditionsSchema.describe('The condition the target will be affected by.'),
+    save: singleStatSchema.optional().describe('The stat the target must save against.'),
+    description: z.string().describe('Details about the condition and what it does to the target. Include information about how the target can end the condition if it can.'),
+  })).optional().describe('The conditions the target will be affected by from the attack. Think of the condition before the description'),
+});
+
+const spellSaveAttackSchema = z.object({
+  name: z.string(),
+  recharge: z.number().min(0).max(6).optional().describe('The number of turns before the attack can be used again. Leave out or 0 if the attack can be used every turn.'),
+  attackStat: singleStatSchema.describe('The stat the monster uses for the attack. Should be the same as the spellcasting stat.'),
+  saveStat: singleStatSchema.describe('The stat the target must save against.'),
+  ranges: z.object({
+    melee: z.number().min(5).max(30).optional().describe('The reach of the attack if it is a melee spell attack.'),
+    ranged: z.number().min(10).optional().describe('The normal range of the attack if it is a ranged spell attack.'),
+    targetCount : z.number().min(1).describe('The number of targets the spell can affect.'),
+  }),
+  hit: attackHitSchema,
+});
+
 const targetedAttackSchema = z.object({
   name: z.string(),
   recharge: z.number().min(0).max(6).optional().describe('The number of turns before the attack can be used again. Leave out or 0 if the attack can be used every turn.'),
   attackType: z.enum(['spell', 'weapon']).describe('The type of attack. Default to weapon unless the attack is a spell.'),
-  targetType: z.enum(['creature', 'target']).describe('The type of target. Default to target unless the attack depends on target a living creature.'),
+  targetType: z.enum(['creature', 'target']).describe('The type of target. Default to target unless the attack depends on targeting a living creature.'),
   ranges: z.object({
-    melee: z.number().min(0).max(30).optional().describe('The reach of the attack if it is a melee attack.'),
-    ranged: z.number().min(0).optional().describe('The normal range of the attack if it is a ranged attack.'),
+    melee: z.number().min(5).max(30).optional().describe('The reach of the attack if it is a melee attack.'),
+    ranged: z.number().min(10).optional().describe('The normal range of the attack if it is a ranged attack.'),
   }),
-  hit: z.array(z.object({
-    statBonus: singleStatSchema.optional(),
-    damageDice: diceSchema,
-    alternateDamageDice: z.object({
-      condition: z.enum(['critical', 'advantage', 'two-handed']).describe('The condition that triggers the alternate damage dice'),
-      damageDice: diceSchema,
-    }).optional(),
-    damageType: damageTypeSchema,
-  }))
+  hit: attackHitSchema
 });
 
 const areaOfEffectAttackSchema = z.object({
@@ -158,18 +201,14 @@ const areaOfEffectAttackSchema = z.object({
     areaSize: z.number().min(0).describe('The size of the area of effect attack. In feet.'),
     areaShape: z.enum(['cone', 'cube', 'cylinder', 'line', 'sphere'])
   }),
-  fail: z.array(z.object({
-    statBonus: singleStatSchema.optional(),
-    damageDice: diceSchema,
-    damageType: damageTypeSchema,
-  })).describe('The damage the target takes if they fail the saving throw.'),
-  pass: z.enum(['none', 'half']).describe('The damage the target takes if they pass the saving throw.'),
+  fail: attackHitSchema,
+  pass: z.enum(['none', 'half']).optional().describe('The damage the target takes if they pass the saving throw.'),
 });
 
-const actionSchema = z.object({
+const genericActionSchema = z.object({
   name: z.string(),
   description: z.string()
-}).describe('A special or generic action the monster can take that is not an attack.');
+}).describe('A special or generic action the monster can take that is not a weapon or spell attack, area of effect attack or spell save attack. Only used for monsters that have special abilities or actions that are not attacks as defined by the other attack types.');
 
 const languagesSchema = z.object({
   common: z.boolean().optional(),
@@ -213,20 +252,97 @@ export const monsterSchema = z.object({
   armorClass: armorClassSchema,
   size: z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']),
   type: z.enum(['aberration', 'beast', 'celestial', 'construct', 'dragon', 'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity', 'ooze', 'plant', 'undead']),
-  alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'neutral', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']),
+  alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'true neutral', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']),
   challengeRating: z.number().min(0).max(30).describe('The challenge rating of the monster. This represents the difficulty of the monster in combat and what level of players it is suitable for.'),
   speed: speedSchema,
   savingThrows: savingThrowSchema.describe('Which saving throws the monster is proficient in. Only pick the ones that make sense for the monster.'),
   skills: skillsSchema.describe('Which skills the monster is proficient in. Only pick the ones that make sense for the monster.'),
   senses: sensesSchema.describe('The senses the monster has and their range. 0 if the monster does not have the sense. Only pick the ones that make sense for the monster.'),
-  damageTakenModifiers: damagesBaseSchema.describe('The damage multipliers the monster has for each damage type. If the monster is themed around a damage type it should have resistance or immunity to it. If the monster is weak to a damage type it should have vulnerability to it. If the monster is resistant to a damage type it should have resistance to it. If the monster is immune to a damage type it should have immunity to it. If the monster is not affected by a damage type it should have normal damage to it. Only pick the ones that make sense for the monster.'),
-  conditionImmunities: conditionImmunitiesSchema.describe('The conditions the monster is immune to. Only pick the ones that make sense for the monster.'),
+  damageTakenModifiers: damagesBaseSchema.describe('The damage multipliers the monster has for each damage type.'),
+  conditionImmunities: conditionImmunitiesSchema,
   languages: languagesSchema.describe('The languages the monster can speak and understand. Only pick the ones that make sense for the monster.'),
   traits: z.array(specialTraitsSchema),
   actions: z.object({
-    targetedAttacks: z.array(targetedAttackSchema).optional(),
-    areaOfEffectAttacks: z.array(areaOfEffectAttackSchema).optional(),
-    specialActions: z.array(actionSchema).optional(),
+    targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('The targeted attacks the monster can take. Only used for monsters that can make weapon or natural attacks. This attack requires an attack roll.'),
+    targetedSpellAttacks: z.array(spellSaveAttackSchema).optional().describe('The spell save attacks the monster can take. Only used for spellcasting monsters. This attack does not require an attack roll, the target must save against the attack.'),
+    areaOfEffectAttacks: z.array(areaOfEffectAttackSchema).optional().describe('The area of effect attacks the monster can take. Only used for monsters that can make area of effect attacks such as breath weapons or spells. This attack requires a saving throw from the target.'),
+    specialActions: z.array(genericActionSchema).optional().describe('The special actions the monster can take. Only used for monsters that have special abilities or actions that are not attacks.'),
   }),
   // legendary: legendarySchema.optional().describe('The legendary actions the monster can take. Only used for high level or boss monsters.'),
 });
+
+export type monsterSchemaType = z.infer<typeof monsterSchema>;
+export type damageTakenModifiersType = z.infer<typeof damagesBaseSchema>;
+export type speedType = z.infer<typeof speedSchema>;
+export type statsType = z.infer<typeof statSchema>;
+export type savingThrowsType = z.infer<typeof savingThrowSchema>;
+export type skillsType = z.infer<typeof skillsSchema>;
+
+export const sizeToHitDice = {
+  tiny: 4,
+  small: 6,
+  medium: 8,
+  large: 10,
+  huge: 12,
+  gargantuan: 20,
+};
+
+export const statToBonus = (stat: number) => Math.floor((stat - 10) / 2);
+
+export const skillToStat : Record<string, string> = {
+  acrobatics: 'dexterity',
+  animalHandling: 'wisdom',
+  arcana: 'intelligence',
+  athletics: 'strength',
+  deception: 'charisma',
+  history: 'intelligence',
+  insight: 'wisdom',
+  intimidation: 'charisma',
+  investigation: 'intelligence',
+  medicine: 'wisdom',
+  nature: 'intelligence',
+  perception: 'wisdom',
+  performance: 'charisma',
+  persuasion: 'charisma',
+  religion: 'intelligence',
+  sleightOfHand: 'dexterity',
+  stealth: 'dexterity',
+  survival: 'wisdom',
+};
+
+export const challengeRatingToXP : Record<number, number> = {
+  0: 0,
+  0.125: 25, // 1/8
+  0.25: 50, // 1/4
+  0.5: 100, // 1/2
+  1: 200,
+  2: 450,
+  3: 700,
+  4: 1100,
+  5: 1800,
+  6: 2300,
+  7: 2900,
+  8: 3900,
+  9: 5000,
+  10: 5900,
+  11: 7200,
+  12: 8400,
+  13: 10000,
+  14: 11500,
+  15: 13000,
+  16: 15000,
+  17: 18000,
+  18: 20000,
+  19: 22000,
+  20: 25000,
+  21: 33000,
+  22: 41000,
+  23: 50000,
+  24: 62000,
+  25: 75000,
+  26: 90000,
+  27: 105000,
+  28: 120000,
+  29: 135000,
+  30: 155000
+};
