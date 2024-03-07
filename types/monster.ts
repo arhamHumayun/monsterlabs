@@ -98,6 +98,7 @@ export enum conditionSchemaEnum {
   deafened = 'deafened',
   frightened = 'frightened',
   grappled = 'grappled',
+  exhaustion = 'exhaustion',
   incapacitated = 'incapacitated',
   invisible = 'invisible',
   paralyzed = 'paralyzed',
@@ -108,7 +109,7 @@ export enum conditionSchemaEnum {
   stunned = 'stunned',
   unconscious = 'unconscious',
 }
-const conditionsSchema = z.enum(['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious']);
+const conditionsSchema = z.enum(['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'exhaustion', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious']);
 
 const conditionImmunitiesSchema = z.object({
   blinded: z.boolean().optional(),
@@ -143,7 +144,7 @@ const diceSchema = z.object({
 const attackHitSchema = z.object({
   damage: z.object({
     primary: z.object({
-      attackStat: singleStatSchema.optional().describe('The stat bonus the monster uses for the attack, only used if the attack is a weapon attack. If the attack is a spell attack use the spellcasting stat bonus.'),
+      damageStat: singleStatSchema.optional().describe('The stat bonus the monster uses for the attack, only used if the attack is a weapon attack. If the attack is a spell attack use the spellcasting stat bonus.'),
       damageDice: diceSchema,
       damageType: damageTypeSchema,
       alternateDamageDice: z.object({
@@ -154,32 +155,29 @@ const attackHitSchema = z.object({
     secondary: z.object({
       damageDice: diceSchema,
       damageType: damageTypeSchema,
-    }).optional(),
+    }).optional().describe('The potential secondary damage the monster deals if the attack hits. Typically an elemental or magical damage.'),
   }).optional(),
-  conditions: z.array(z.object({
-    name: conditionsSchema.describe('The condition the target will be affected by.'),
-    save: singleStatSchema.optional().describe('The stat the target must save against.'),
-    description: z.string().describe('Details about the condition and what it does to the target. Include information about how the target can end the condition if it can.'),
-  })).optional().describe('The conditions the target will be affected by from the attack. Think of the condition before the description'),
+  affect: z.string().optional().describe('The affect the target will be affected by from the attack. Think of the condition before the description. Describe what happens to them and how they can get rid of it.'),
 });
 
 const spellSaveAttackSchema = z.object({
   name: z.string(),
+  targetCount : z.number().min(1).describe('The number of targets the spell can affect.'),
   recharge: z.number().min(0).max(6).optional().describe('The number of turns before the attack can be used again. Leave out or 0 if the attack can be used every turn.'),
   attackStat: singleStatSchema.describe('The stat the monster uses for the attack. Should be the same as the spellcasting stat.'),
   saveStat: singleStatSchema.describe('The stat the target must save against.'),
   ranges: z.object({
     melee: z.number().min(5).max(30).optional().describe('The reach of the attack if it is a melee spell attack.'),
     ranged: z.number().min(10).optional().describe('The normal range of the attack if it is a ranged spell attack.'),
-    targetCount : z.number().min(1).describe('The number of targets the spell can affect.'),
   }),
   hit: attackHitSchema,
 });
 
 const targetedAttackSchema = z.object({
   name: z.string(),
+  targetCount: z.number().min(1).describe('The number of targets the attack can affect.'),
+  attackStat: singleStatSchema.describe('The stat the monster uses for the attack.'),
   recharge: z.number().min(0).max(6).optional().describe('The number of turns before the attack can be used again. Leave out or 0 if the attack can be used every turn.'),
-  attackType: z.enum(['spell', 'weapon']).describe('The type of attack. Default to weapon unless the attack is a spell.'),
   targetType: z.enum(['creature', 'target']).describe('The type of target. Default to target unless the attack depends on targeting a living creature.'),
   ranges: z.object({
     melee: z.number().min(5).max(30).optional().describe('The reach of the attack if it is a melee attack.'),
@@ -244,9 +242,17 @@ const legendarySchema = z.object({
   }),
 });
 
+const actionSchema = z.object({
+  targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('The targeted attacks the monster can take. Only used for monsters that can make weapon or natural attacks. This attack requires an attack roll.'),
+  targetedSpellAttacks: z.array(spellSaveAttackSchema).optional().describe('The spell save attacks the monster can take. Only used for spellcasting monsters. This attack does not require an attack roll, the target must save against the attack.'),
+  areaOfEffectAttacks: z.array(areaOfEffectAttackSchema).optional().describe('The area of effect attacks the monster can take. Only used for monsters that can make area of effect attacks such as breath weapons or spells. This attack requires a saving throw from the target.'),
+  specialActions: z.array(genericActionSchema).optional().describe('The special actions the monster can take. Only used for monsters that have special abilities or actions that are not attacks.'),
+});
+
 export const monsterSchema = z.object({
   name: z.string(),
-  description: z.string().describe('A description of the monster. This can be used to give the monster a backstory or to describe its appearance.'),
+  lore: z.string().optional().describe('A description of the monster. This can be used to give the monster a backstory.'),
+  appearance: z.string().optional().describe('A description of the appearance of the monster. This can be used to give the monster a visual description.'),
   stats: statSchema.describe('The stats of the monster'),
   hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the monster. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
   armorClass: armorClassSchema,
@@ -262,12 +268,7 @@ export const monsterSchema = z.object({
   conditionImmunities: conditionImmunitiesSchema,
   languages: languagesSchema.describe('The languages the monster can speak and understand. Only pick the ones that make sense for the monster.'),
   traits: z.array(specialTraitsSchema),
-  actions: z.object({
-    targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('The targeted attacks the monster can take. Only used for monsters that can make weapon or natural attacks. This attack requires an attack roll.'),
-    targetedSpellAttacks: z.array(spellSaveAttackSchema).optional().describe('The spell save attacks the monster can take. Only used for spellcasting monsters. This attack does not require an attack roll, the target must save against the attack.'),
-    areaOfEffectAttacks: z.array(areaOfEffectAttackSchema).optional().describe('The area of effect attacks the monster can take. Only used for monsters that can make area of effect attacks such as breath weapons or spells. This attack requires a saving throw from the target.'),
-    specialActions: z.array(genericActionSchema).optional().describe('The special actions the monster can take. Only used for monsters that have special abilities or actions that are not attacks.'),
-  }),
+  actions: actionSchema
   // legendary: legendarySchema.optional().describe('The legendary actions the monster can take. Only used for high level or boss monsters.'),
 });
 
@@ -277,6 +278,7 @@ export type speedType = z.infer<typeof speedSchema>;
 export type statsType = z.infer<typeof statSchema>;
 export type savingThrowsType = z.infer<typeof savingThrowSchema>;
 export type skillsType = z.infer<typeof skillsSchema>;
+export type actionType = z.infer<typeof actionSchema>;
 
 export const sizeToHitDice = {
   tiny: 4,
@@ -346,3 +348,16 @@ export const challengeRatingToXP : Record<number, number> = {
   29: 135000,
   30: 155000
 };
+
+export const digitToWord = {
+  1: 'one',
+  2: 'two',
+  3: 'three',
+  4: 'four',
+  5: 'five',
+  6: 'six',
+  7: 'seven',
+  8: 'eight',
+  9: 'nine',
+  10: 'ten',
+}

@@ -9,13 +9,15 @@ import {
   statsType,
   skillsType,
   challengeRatingToXP,
+  actionType,
 } from '@/types/monster';
 import { Separator } from './ui/separator';
 
 export default function MonsterBlock(monsterData: monsterSchemaType) {
   const {
     name,
-    description,
+    lore,
+    appearance,
     stats,
     hitDiceAmount,
     armorClass,
@@ -33,7 +35,12 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
     traits,
   } = monsterData as monsterSchemaType;
 
+  const strBonus = statToBonus(stats.strength);
+  const dexBonus = statToBonus(stats.dexterity);
   const conBonus = statToBonus(stats.constitution);
+  const intBonus = statToBonus(stats.intelligence);
+  const wisBonus = statToBonus(stats.wisdom);
+  const chaBonus = statToBonus(stats.charisma);
 
   const proficiencyBonus = Math.floor(challengeRating / 4) + 2;
 
@@ -47,23 +54,24 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
 
   return (
     <div>
-      <p className="text-xl pb-4 italic">{description}</p>
+      <p className="text-xl pb-4 italic">{lore}</p>
+      <p className="text-xl pb-4 italic">{appearance}</p>
       <div className="p-6 border-2 border-gray-200 rounded-lg">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
           {capitalizeFirstLetter(`${size} ${type}, ${alignment}`)}
         </p>
         <Separator className="my-4" />
-        <StyledSentences s1="Armor Class" s2={armorClass.base.toString()} />
-        <StyledSentences
+        <StyledStatSentences s1="Armor Class" s2={armorClass.base.toString()} />
+        <StyledStatSentences
           s1="Hit Points"
           s2={`${maxHp} (${hitDiceAmount}d${hitDiceSize}) + ${totalConHpBonus}`}
         />
-        <StyledSentences s1="Speed" s2={buildSpeedStringResult(speed)} />
+        <StyledStatSentences s1="Speed" s2={buildSpeedStringResult(speed)} />
         <Separator className="my-4" />
         <StatsBlock stats={stats} />
         <Separator className="my-4" />
-        <StyledSentences
+        <StyledStatSentences
           s1="Saving Throws"
           s2={buildSavingThrowsStringResult(
             savingThrows,
@@ -71,38 +79,38 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
             proficiencyBonus
           )}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Skills"
           s2={buildSkillsStringResult(skills, stats, proficiencyBonus)}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Damage Vulnerabilities"
           s2={buildDamageTakenModifiersString(vulnerabilities)}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Damage Resistances"
           s2={buildDamageTakenModifiersString(resistances)}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Damage Immunities"
           s2={buildDamageTakenModifiersString(immunities)}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Condition Immunities"
           s2={Object.keys(conditionImmunities).join(', ')}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Senses"
           s2={Object.entries(senses)
             .filter(([_, value]) => value)
             .map(([sense, value]) => `${sense} ${value} ft.`)
             .join(', ')}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Languages"
           s2={Object.keys(languages).join(', ')}
         />
-        <StyledSentences
+        <StyledStatSentences
           s1="Challenge"
           s2={`${challengeRating.toString()} (${challengeRatingToXP[
             challengeRating
@@ -110,19 +118,121 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
         />
         <Separator className="my-4" />
         {traits.map((trait, index) => (
-          <StyledSentences
+          <StyledTraitSentences
             key={index}
             s1={`${trait.name}.`}
             s2={trait.description}
           />
         ))}
-        <h1 className='mt-4 text-xl font-bold'>Actions</h1>
+        <h1 className="mt-4 text-xl font-bold">Actions</h1>
         <Separator className="mb-4" />
-        {/* TODO add actions */}
+        {actionSection(monsterData, proficiencyBonus)}
+        {
+          monsterData.actions.specialActions && 
+          <div>
+            {monsterData.actions.specialActions.map((action, index) => (
+              <StyledActionSentences
+                key={index}
+                s1={`${action.name}.`}
+                s2={action.description}
+              />
+            ))}
+          </div>
+        }
       </div>
     </div>
   );
 }
+
+const actionSection = (monsterData: monsterSchemaType, proficiencyBonus: number) => {
+
+  const { actions } = monsterData;
+
+  const {
+    targetedWeaponAttacks,
+    targetedSpellAttacks,
+    areaOfEffectAttacks,
+    specialActions,
+  } = actions;
+
+  const actionUI = [];
+
+  if (targetedWeaponAttacks) {
+    const targetedWeaponAttacksUI = targetedWeaponAttacks.map(
+      (action, index) => {
+        
+        const { name, attackStat, targetCount, hit, ranges } = action;
+
+        if (!hit) {
+          return null;
+        }
+
+        const { damage } = hit;
+
+        const attackBonus =  statToBonus(monsterData.stats[attackStat]) + proficiencyBonus;
+        const sign = attackBonus > 0 ? '+' : '';
+        const targetCountDescription = targetCount > 1 ? `up to ${targetCount} targets` : 'one target';
+
+        const meleeAttackDescription = ranges.melee && ranges.melee > 0 ?`${sign}${attackBonus} to hit, reach ${ranges.melee} ft., ${targetCountDescription}.` : null;
+        const rangedAttackDescription = ranges.ranged && ranges.ranged > 0 ? `${sign}${attackBonus} to hit, range ${ranges.ranged}/${ranges.ranged*4} ft., ${targetCountDescription}.` : null;
+
+        const attackDescriptionPrefix = () => {
+          if (meleeAttackDescription && rangedAttackDescription) {
+            return `Melee or Ranged Weapon Attack: `;
+          }
+          if (meleeAttackDescription) {
+            return `Melee Weapon Attack: `;
+          }
+          if (rangedAttackDescription) {
+            return `Ranged Weapon Attack: `;
+          }
+          return null;
+        }
+
+        const attackDescription = () => {
+          if (meleeAttackDescription && rangedAttackDescription) {
+            return `${meleeAttackDescription} or ${rangedAttackDescription}`;
+          }
+          if (meleeAttackDescription) {
+            return meleeAttackDescription;
+          }
+          if (rangedAttackDescription) {
+            return rangedAttackDescription;
+          }
+          return null;
+        }
+
+        const damageDescription = () => {
+          if (damage) {
+            const damageBonus = statToBonus(monsterData.stats[attackStat]);
+            const sign = damageBonus > 0 ? '+' : '';
+            const averageDamage = (damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2 + damageBonus;
+            const averageDamageSecondary = damage.secondary ? (damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1)) / 2 : 0;
+            
+            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides} ${sign} ${damageBonus}) ${damage.primary.damageType} damage${damage.secondary ? `,plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage.` : ''}`;
+          } 
+          return ``;
+        }
+
+        const conditionsDescription = hit.affect ? `, ${hit.affect.charAt(0).toLocaleLowerCase() + hit.affect.slice(1)}` : '.';
+
+        return (
+          <div key={index} className='mb-4'>
+            <p>
+              <span className="font-semibold italic">{name}. </span>
+              <span className='italic'>{attackDescriptionPrefix()}</span>
+              {attackDescription()}
+              <span className='italic'> Hit: </span>
+              {damageDescription()}{conditionsDescription}
+            </p>
+          </div>
+        );
+      }
+    );
+    actionUI.push(targetedWeaponAttacksUI);
+  }
+  return actionUI;
+};
 
 function StatsBlock({ stats }: { stats: statsType }) {
   const statBlocks = Object.entries(stats).map(([stat, value]) => {
@@ -142,7 +252,33 @@ function StatsBlock({ stats }: { stats: statsType }) {
   return <div className="grid grid-cols-6 gap-2 flex">{statBlocks}</div>;
 }
 
-function StyledSentences({ s1, s2 }: { s1: string; s2: string }) {
+function StyledActionSentences({ s1, s2 }: { s1: string; s2: string }) {
+  if (s2 === '') {
+    return null;
+  }
+
+  return (
+    <div className='mb-4'>
+      <span className="font-bold italic">{s1} </span>
+      <span>{s2}</span>
+    </div>
+  );
+}
+
+function StyledTraitSentences({ s1, s2 }: { s1: string; s2: string }) {
+  if (s2 === '') {
+    return null;
+  }
+
+  return (
+    <div className='mb-2'>
+      <span className="font-bold">{s1} </span>
+      <span>{s2}</span>
+    </div>
+  );
+}
+
+function StyledStatSentences({ s1, s2 }: { s1: string; s2: string }) {
   if (s2 === '') {
     return null;
   }

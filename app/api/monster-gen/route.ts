@@ -18,6 +18,7 @@ Remember to keep in mind the following:
 - The monster should have a multi-attack or a special attack that is unique to the monster if it's challenge rating is 3 or higher.
 - The more powerful a monster is, the more attacks and abilities it should have.
 - The monster should follow rules and guidelines for monster creation as described in the Dungeon Master's Guide and the Monster Manual for DnD 5e.
+- Come up with the idea first, then stats, then the attacks, then the other actions.
 `;
 export async function POST(request: Request) {
 

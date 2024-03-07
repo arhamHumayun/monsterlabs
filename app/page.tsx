@@ -4,22 +4,23 @@ import { monsterSchemaType } from "@/types/monster";
 
 const tempData : monsterSchemaType = {
   name: "Vampire Dragon",
-  description: "A terrifying creature that combines the cunning and power of a dragon with the dark and supernatural abilities of a vampire. Its scales shimmer with an eerie crimson hue, and its eyes glow with an unholy light.",
+  lore: "A fearsome creature born from the unholy union of a vampire and a dragon, possessing the deadly powers of both",
+  appearance: "A massive dragon with dark, leathery wings and blood-red scales, its eyes glowing with a sinister crimson light",
   stats: {
-    strength: 25,
+    strength: 22,
     dexterity: 14,
-    constitution: 22,
-    intelligence: 20,
+    constitution: 20,
+    intelligence: 16,
     wisdom: 18,
-    charisma: 18
+    charisma: 20
   },
   hitDiceAmount: 18,
   armorClass: {
-    base: 19,
+    base: 18,
     type: "natural"
   },
   size: "huge",
-  type: "dragon",
+  type: "undead",
   alignment: "chaotic evil",
   challengeRating: 15,
   speed: {
@@ -39,25 +40,24 @@ const tempData : monsterSchemaType = {
   senses: {
     blindsight: 60,
     darkvision: 120,
-    tremorsense: 0,
     truesight: 60
   },
   damageTakenModifiers: {
     nonMagicalBludgeoning: "resistance",
-    nonMagicalSlashing: "resistance",
     nonMagicalPiercing: "resistance",
-    magicalBludgeoning: "normal",
-    magicalSlashing: "normal",
-    magicalPiercing: "normal",
+    nonMagicalSlashing: "resistance",
+    magicalBludgeoning: "resistance",
+    magicalSlashing: "resistance",
+    magicalPiercing: "resistance",
     acid: "normal",
     cold: "normal",
     fire: "normal",
     force: "normal",
     lightning: "normal",
-    necrotic: "resistance",
+    necrotic: "immunity",
     poison: "immunity",
     psychic: "normal",
-    radiant: "normal",
+    radiant: "vulnerability",
     thunder: "normal"
   },
   conditionImmunities: {
@@ -72,23 +72,24 @@ const tempData : monsterSchemaType = {
   },
   traits: [
     {
-      name: "Legendary Resistance (3/day)",
-      description: "If the vampire dragon fails a saving throw, it can choose to succeed instead."
+      name: "Legendary Resistance",
+      description: "If the vampire dragon fails a saving throw, it can choose to succeed instead three times per day."
     },
     {
       name: "Misty Escape",
-      description: "When it drops to 0 hit points, the vampire dragon can turn into mist and move up to 60 feet without provoking opportunity attacks. It reverts to its true form if it takes radiant damage."
+      description: "When the vampire dragon drops to 0 hit points, it can transform into a cloud of mist instead of falling unconscious. It can move up to its speed without provoking opportunity attacks and reverts to its true form when it takes any action."
     },
     {
-      name: "Vampire Weaknesses",
-      description: "The vampire dragon has the vampire weaknesses of sunlight hypersensitivity, running water, and the need to be invited into a residence."
+      name: "Regeneration",
+      description: "The vampire dragon regains 20 hit points at the start of its turn if it has at least 1 hit point and isn't in sunlight or running water."
     }
   ],
   actions: {
     targetedWeaponAttacks: [
       {
         name: "Bite",
-        attackType: "weapon",
+        targetCount: 1,
+        attackStat: "strength",
         targetType: "creature",
         ranges: {
           melee: 10
@@ -96,25 +97,21 @@ const tempData : monsterSchemaType = {
         hit: {
           damage: {
             primary: {
-              attackStat: "strength",
               damageDice: {
                 count: 2,
                 sides: 10
               },
-              damageType: "piercing"
+              damageType: "piercing",
+              damageStat: "strength"
             }
           },
-          conditions: [
-            {
-              name: "charmed",
-              description: "The target must succeed on a DC 18 Wisdom saving throw or be charmed by the vampire dragon."
-            }
-          ]
+          affect: "The target must succeed on a DC 18 Constitution saving throw or be paralyzed for 1 minute."
         }
       },
       {
         name: "Claw",
-        attackType: "weapon",
+        targetCount: 1,
+        attackStat: "strength",
         targetType: "creature",
         ranges: {
           melee: 5
@@ -122,12 +119,12 @@ const tempData : monsterSchemaType = {
         hit: {
           damage: {
             primary: {
-              attackStat: "strength",
               damageDice: {
                 count: 2,
-                sides: 6
+                sides: 8
               },
-              damageType: "slashing"
+              damageType: "slashing",
+              damageStat: "strength"
             }
           }
         }
@@ -135,12 +132,12 @@ const tempData : monsterSchemaType = {
     ],
     specialActions: [
       {
-        name: "Blood Drain",
-        description: "The vampire dragon targets one creature it can see within 5 feet of it that has blood and is incapacitated. The target must make a DC 18 Constitution saving throw against this magic. On a failed save, the target takes 14 (4d6) necrotic damage, and the vampire dragon regains hit points equal to the necrotic damage dealt."
+        name: "Vampiric Drain",
+        description: "The vampire dragon targets one creature it can see within 30 feet of it. The target must succeed on a DC 18 Constitution saving throw or take 21 (6d6) necrotic damage and the vampire dragon regains hit points equal to the damage dealt."
       },
       {
-        name: "Charm",
-        description: "The vampire dragon targets one humanoid it can see within 30 feet of it. If the target can see the vampire dragon, the target must succeed on a DC 18 Wisdom saving throw against this magic or be charmed by the vampire dragon. The charmed target regards the vampire dragon as a trusted friend to be heeded and protected. Although the target isn't under the vampire dragon's control, it takes the vampire dragon's requests or actions in the most favorable way it can."
+        name: "Shadow Breath",
+        description: "The vampire dragon exhales a blast of shadows in a 60-foot cone. Each creature in that area must make a DC 18 Dexterity saving throw, taking 45 (10d8) necrotic damage on a failed save, or half as much damage on a successful one."
       }
     ]
   }
