@@ -8,10 +8,8 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -38,6 +36,17 @@ export function LandingForm() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
+
+    // For example, send the form data to your API.
+    const response = fetch("/api/monster-gen", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+
+    // Handle the response.
   }
 
   return (

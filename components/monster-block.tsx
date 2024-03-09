@@ -8,8 +8,7 @@ import {
   savingThrowsType,
   statsType,
   skillsType,
-  challengeRatingToXP,
-  actionType,
+  challengeRatingToXP
 } from '@/types/monster';
 import { Separator } from './ui/separator';
 
@@ -33,14 +32,10 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
     languages,
     damageTakenModifiers,
     traits,
+    legendary,
   } = monsterData as monsterSchemaType;
 
-  const strBonus = statToBonus(stats.strength);
-  const dexBonus = statToBonus(stats.dexterity);
   const conBonus = statToBonus(stats.constitution);
-  const intBonus = statToBonus(stats.intelligence);
-  const wisBonus = statToBonus(stats.wisdom);
-  const chaBonus = statToBonus(stats.charisma);
 
   const proficiencyBonus = Math.floor(challengeRating / 4) + 2;
 
@@ -49,13 +44,13 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
   const maxHp =
     Math.floor(hitDiceAmount * ((hitDiceSize + 1) / 2)) + totalConHpBonus;
 
-  const { vulnerabilities, resistances, immunities, normal } =
+  const { vulnerabilities, resistances, immunities } =
     sortDamageTakenModifiers(damageTakenModifiers);
 
   return (
     <div>
       <p className="text-xl pb-4 italic">{lore}</p>
-      <p className="text-xl pb-4 italic">{appearance}</p>
+      {/* <p className="text-xl pb-4 italic">{appearance}</p> */}
       <div className="p-6 border-2 border-gray-200 rounded-lg">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
@@ -108,7 +103,7 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
         />
         <StyledStatSentences
           s1="Languages"
-          s2={Object.keys(languages).join(', ')}
+          s2={Object.keys(languages).filter(lang => lang !== "telepathy").join(', ') + (languages.telepathy ? `, telepathy ${languages.telepathy.range} ft.` : '')}
         />
         <StyledStatSentences
           s1="Challenge"
@@ -124,44 +119,122 @@ export default function MonsterBlock(monsterData: monsterSchemaType) {
             s2={trait.description}
           />
         ))}
-        <h1 className="mt-4 text-xl font-bold">Actions</h1>
+        {legendary?.resistance ? (
+          <StyledTraitSentences
+            s1={`Legendary Resistance (${legendary.resistance}/Day).`}
+            s2={`If${monsterData.isUnique ? "" : " the" } ${name} fails a saving throw, it can choose to succeed instead.`}
+          />
+        ) : null}
+        <h1 className="mt-4 text-xl font-semibold">Actions</h1>
         <Separator className="mb-4" />
         {actionSection(monsterData, proficiencyBonus)}
-        {
-          monsterData.actions.specialActions && 
-          <div>
-            {monsterData.actions.specialActions.map((action, index) => (
-              <StyledActionSentences
-                key={index}
-                s1={`${action.name}.`}
-                s2={action.description}
-              />
-            ))}
-          </div>
-        }
+        {reactionActionSection(monsterData)}
+        {legendaryActionSelection(monsterData)}
       </div>
     </div>
   );
 }
 
-const actionSection = (monsterData: monsterSchemaType, proficiencyBonus: number) => {
+const reactionActionSection = (monsterData: monsterSchemaType) => {
+  const { reactions } = monsterData;
 
+  if (!reactions) {
+    return null;
+  }
+
+  const separator = (
+    <div>
+      <h1 className="mt-4 text-xl font-semibold">Reactions</h1>
+      <Separator className="mb-4" />
+    </div>
+  )
+
+  const actionMap = reactions.map((action, index) => {
+    const { name, description } = action;
+    return (
+      <div key={index} className='mb-4'>
+        <p>
+          <span className="font-semibold italic">{name}. </span>
+          <span className=''>{description}</span>
+        </p>
+      </div>
+    );
+  }
+  );
+
+  return (
+    <div>
+      {separator}
+      {actionMap}
+    </div>
+  );
+}
+
+const legendaryActionSelection = (monsterData: monsterSchemaType) => {
+  const { legendary } = monsterData;
+
+  if (!legendary) {
+    return null;
+  }
+
+  const separator = (
+    <div>
+      <h1 className="mt-4 text-xl font-semibold">Legendary Actions</h1>
+      <Separator className="mb-4" />
+      <p className='mb-4'>{`${monsterData.isUnique ? "" : "The " }${monsterData.name} can take ${legendary.actionsPerTurn} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${monsterData.isUnique ? "" : "The " }${monsterData.name} regains spend legendary actions at the start of ${monsterData.isUnique ? "their " : "its " } turn.`}</p>
+    </div>
+  )
+
+  const actionMap = legendary.actions.map((action, index) => {
+    const { name, cost, description } = action;
+
+    return (
+      <div key={index} className='mb-4'>
+        <p>
+          <span className="font-semibold italic">{name}{cost && cost > 1 ? ` (Costs ${cost} Actions)` : ``}. </span>
+          <span className=''>{description}</span>
+        </p>
+      </div>
+    );
+  }
+  );
+
+  return (
+    <div>
+      {separator}
+      {actionMap}
+    </div>
+  );
+}
+
+const actionSection = (monsterData: monsterSchemaType, proficiencyBonus: number) => {
   const { actions } = monsterData;
 
   const {
     targetedWeaponAttacks,
-    targetedSpellAttacks,
-    areaOfEffectAttacks,
+    savingThrowAttacks,
     specialActions,
+    multiAttack
   } = actions;
 
   const actionUI = [];
+
+  if (multiAttack) {
+    actionUI.push(
+      <div key={0} className='mb-4'>
+        <p>
+          <span className="font-semibold italic">Multiattack. </span>
+          <span>{actions.multiAttack}</span>
+        </p>
+      </div>
+    );
+  }
 
   if (targetedWeaponAttacks) {
     const targetedWeaponAttacksUI = targetedWeaponAttacks.map(
       (action, index) => {
         
-        const { name, attackStat, targetCount, hit, ranges } = action;
+        const { name, attackStat, attackType, targetCount, hit, range, recharge } = action;
 
         if (!hit) {
           return null;
@@ -173,20 +246,21 @@ const actionSection = (monsterData: monsterSchemaType, proficiencyBonus: number)
         const sign = attackBonus > 0 ? '+' : '';
         const targetCountDescription = targetCount > 1 ? `up to ${targetCount} targets` : 'one target';
 
-        const meleeAttackDescription = ranges.melee && ranges.melee > 0 ?`${sign}${attackBonus} to hit, reach ${ranges.melee} ft., ${targetCountDescription}.` : null;
-        const rangedAttackDescription = ranges.ranged && ranges.ranged > 0 ? `${sign}${attackBonus} to hit, range ${ranges.ranged}/${ranges.ranged*4} ft., ${targetCountDescription}.` : null;
+        const meleeAttackDescription = range.melee && range.melee > 0 ?`${sign}${attackBonus} to hit, reach ${range.melee} ft., ${targetCountDescription}.` : null;
+        const rangedAttackDescription = range.ranged && range.ranged > 0 ? `${sign}${attackBonus} to hit, range ${range.ranged}/${range.ranged*4} ft., ${targetCountDescription}.` : null;
 
         const attackDescriptionPrefix = () => {
+          const attackTypeDescription = attackType.charAt(0).toUpperCase() + attackType.slice(1);
           if (meleeAttackDescription && rangedAttackDescription) {
-            return `Melee or Ranged Weapon Attack: `;
+            return `Melee or Ranged ${attackTypeDescription} Attack: `;
           }
-          if (meleeAttackDescription) {
-            return `Melee Weapon Attack: `;
+          else if (meleeAttackDescription) {
+            return `Melee ${attackTypeDescription} Attack: `;
           }
-          if (rangedAttackDescription) {
-            return `Ranged Weapon Attack: `;
+          else if (rangedAttackDescription) {
+            return `Ranged ${attackTypeDescription} Attack: `;
           }
-          return null;
+          return ``;
         }
 
         const attackDescription = () => {
@@ -209,17 +283,19 @@ const actionSection = (monsterData: monsterSchemaType, proficiencyBonus: number)
             const averageDamage = (damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2 + damageBonus;
             const averageDamageSecondary = damage.secondary ? (damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1)) / 2 : 0;
             
-            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides} ${sign} ${damageBonus}) ${damage.primary.damageType} damage${damage.secondary ? `,plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage.` : ''}`;
+            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides} ${sign} ${damageBonus}) ${damage.primary.damageType} damage${damage.secondary ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage` : ''}.`;
           } 
           return ``;
         }
 
-        const conditionsDescription = hit.affect ? `, ${hit.affect.charAt(0).toLocaleLowerCase() + hit.affect.slice(1)}` : '.';
+        const conditionsDescription = hit.affect ? ` ${hit.affect}` : '.';
+
+        const rechargeDescription = recharge ? ` (Recharge ${recharge}-6)` : '';
 
         return (
           <div key={index} className='mb-4'>
             <p>
-              <span className="font-semibold italic">{name}. </span>
+              <span className="font-semibold italic">{name}{rechargeDescription}. </span>
               <span className='italic'>{attackDescriptionPrefix()}</span>
               {attackDescription()}
               <span className='italic'> Hit: </span>
@@ -231,8 +307,39 @@ const actionSection = (monsterData: monsterSchemaType, proficiencyBonus: number)
     );
     actionUI.push(targetedWeaponAttacksUI);
   }
+
+  if (savingThrowAttacks) {
+    const saveAttacksUI = savingThrowAttacks.map((action, index) => {
+      const { name, recharge, description } = action;
+      return (
+        <div key={index} className='mb-4'>
+          <p>
+            <span className="font-semibold italic">{name}{recharge ? ` (Recharge ${recharge}-6)` : ''}. </span>
+            <span className=''>{description}.</span>
+          </p>
+        </div>
+      );
+    });
+    actionUI.push(saveAttacksUI);
+  }
+
+  if (specialActions) {
+    const specialActionsUI = specialActions.map((action, index) => {
+      const { name, description } = action;
+      return (
+        <div key={index} className='mb-4'>
+          <p>
+            <span className="font-semibold italic">{name}. </span>
+            <span className=''>{description}</span>
+          </p>
+        </div>
+      );
+    });
+    actionUI.push(specialActionsUI);
+  }
+
   return actionUI;
-};
+}
 
 function StatsBlock({ stats }: { stats: statsType }) {
   const statBlocks = Object.entries(stats).map(([stat, value]) => {
@@ -243,26 +350,13 @@ function StatsBlock({ stats }: { stats: statsType }) {
 
     return (
       <div key={short} className="shrink">
-        <div className="text-center">{short}</div>
+        <div className="text-center font-semibold">{short}</div>
         <div className="text-center">{`${value} (${sign}${bonus})`}</div>
       </div>
     );
   });
 
   return <div className="grid grid-cols-6 gap-2 flex">{statBlocks}</div>;
-}
-
-function StyledActionSentences({ s1, s2 }: { s1: string; s2: string }) {
-  if (s2 === '') {
-    return null;
-  }
-
-  return (
-    <div className='mb-4'>
-      <span className="font-bold italic">{s1} </span>
-      <span>{s2}</span>
-    </div>
-  );
 }
 
 function StyledTraitSentences({ s1, s2 }: { s1: string; s2: string }) {
@@ -272,7 +366,7 @@ function StyledTraitSentences({ s1, s2 }: { s1: string; s2: string }) {
 
   return (
     <div className='mb-2'>
-      <span className="font-bold">{s1} </span>
+      <span className="font-semibold italic">{s1} </span>
       <span>{s2}</span>
     </div>
   );
@@ -285,7 +379,7 @@ function StyledStatSentences({ s1, s2 }: { s1: string; s2: string }) {
 
   return (
     <div>
-      <span className="font-bold">{s1} </span>
+      <span className="font-semibold">{s1} </span>
       <span>{s2}</span>
     </div>
   );
@@ -334,9 +428,6 @@ const buildSkillsStringResult = (
   let key: keyof skillsType;
   for (key in skills) {
     if (skills[key]) {
-      console.log('key', key);
-      console.log('skills[key]', skills[key]);
-
       const stat = skillToStat[key] as keyof statsType;
       const statScore = stats[stat];
 
@@ -388,7 +479,7 @@ const buildDamageTakenModifiersString = (
     }`;
   }
 
-  result += `; ${resultPhysicalList.join(', ')} from nonmagical attacks.`;
+  result += `${result.length > 0 ? `; ` : ``} ${resultPhysicalList.join(', ')} from nonmagical attacks.`;
   return result;
 };
 
@@ -398,7 +489,6 @@ function sortDamageTakenModifiers(
   let vulnerabilities: Partial<damageTakenModifiersType> = {};
   let resistances: Partial<damageTakenModifiersType> = {};
   let immunities: Partial<damageTakenModifiersType> = {};
-  let normal: Partial<damageTakenModifiersType> = {};
 
   let key: keyof damageTakenModifiersType;
   for (key in damageTakenModifiers) {
@@ -410,10 +500,8 @@ function sortDamageTakenModifiers(
       resistances[key] = value;
     } else if (value === 'immunity') {
       immunities[key] = value;
-    } else {
-      normal[key] = value;
     }
   }
 
-  return { vulnerabilities, resistances, immunities, normal };
+  return { vulnerabilities, resistances, immunities };
 }

@@ -1,153 +1,153 @@
 import LandingPage from "@/components/landing-page";
 import MonsterBlock from "@/components/monster-block";
-import { monsterSchemaType } from "@/types/monster";
+import { monsterSchema, monsterSchemaType } from "@/types/monster";
 
 const tempData : monsterSchemaType = {
-  name: "Vampire Dragon",
-  lore: "A fearsome creature born from the unholy union of a vampire and a dragon, possessing the deadly powers of both",
-  appearance: "A massive dragon with dark, leathery wings and blood-red scales, its eyes glowing with a sinister crimson light",
+  name: "Dwarf King's Guard",
+  isUnique: true,
+  lore: "The elite protectors of the Dwarf King, sworn to defend the royal family and the kingdom with unwavering loyalty and unmatched skill.",
+  appearance: "Clad in intricately crafted armor adorned with the royal crest, the Dwarf King's Guard stand tall and proud, wielding mighty warhammers and shields.",
   stats: {
-    strength: 22,
-    dexterity: 14,
-    constitution: 20,
-    intelligence: 16,
-    wisdom: 18,
-    charisma: 20
+    strength: 18,
+    dexterity: 12,
+    constitution: 16,
+    intelligence: 10,
+    wisdom: 14,
+    charisma: 10
   },
-  hitDiceAmount: 18,
+  hitDiceAmount: 8,
   armorClass: {
     base: 18,
-    type: "natural"
+    type: "armor",
+    hasShield: true
   },
-  size: "huge",
-  type: "undead",
-  alignment: "chaotic evil",
-  challengeRating: 15,
+  size: "medium",
+  type: "humanoid",
+  alignment: "lawful good",
+  challengeRating: 5,
   speed: {
-    walk: 40,
-    fly: 80
+    walk: 30
   },
   savingThrows: {
-    dexterity: true,
-    constitution: true,
-    wisdom: true,
-    charisma: true
+    strength: true,
+    constitution: true
   },
   skills: {
-    perception: true,
-    stealth: true
+    athletics: true,
+    perception: true
   },
   senses: {
-    blindsight: 60,
-    darkvision: 120,
-    truesight: 60
+    darkvision: 60
   },
   damageTakenModifiers: {
     nonMagicalBludgeoning: "resistance",
-    nonMagicalPiercing: "resistance",
     nonMagicalSlashing: "resistance",
-    magicalBludgeoning: "resistance",
-    magicalSlashing: "resistance",
-    magicalPiercing: "resistance",
-    acid: "normal",
-    cold: "normal",
-    fire: "normal",
-    force: "normal",
-    lightning: "normal",
-    necrotic: "immunity",
-    poison: "immunity",
-    psychic: "normal",
-    radiant: "vulnerability",
-    thunder: "normal"
+    nonMagicalPiercing: "resistance"
   },
   conditionImmunities: {
-    charmed: true,
-    frightened: true,
-    paralyzed: true,
-    poisoned: true
+    charmed: false,
+    frightened: false
   },
   languages: {
-    draconic: true,
-    common: true
+    common: true,
+    dwarvish: true
   },
   traits: [
     {
-      name: "Legendary Resistance",
-      description: "If the vampire dragon fails a saving throw, it can choose to succeed instead three times per day."
+      name: "Dwarven Resilience",
+      description: "The Dwarf King's Guard has advantage on saving throws against poison and resistance against poison damage."
     },
     {
-      name: "Misty Escape",
-      description: "When the vampire dragon drops to 0 hit points, it can transform into a cloud of mist instead of falling unconscious. It can move up to its speed without provoking opportunity attacks and reverts to its true form when it takes any action."
-    },
-    {
-      name: "Regeneration",
-      description: "The vampire dragon regains 20 hit points at the start of its turn if it has at least 1 hit point and isn't in sunlight or running water."
+      name: "Royal Protector",
+      description: "The Guard can use its reaction to impose disadvantage on an attack against a creature within 5 feet of it."
     }
   ],
   actions: {
+    multiAttack: "The Dwarf King's Guard makes two warhammer attacks.",
     targetedWeaponAttacks: [
       {
-        name: "Bite",
+        name: "Warhammer",
+        attackType: "weapon",
         targetCount: 1,
         attackStat: "strength",
         targetType: "creature",
-        ranges: {
-          melee: 10
-        },
-        hit: {
-          damage: {
-            primary: {
-              damageDice: {
-                count: 2,
-                sides: 10
-              },
-              damageType: "piercing",
-              damageStat: "strength"
-            }
-          },
-          affect: "The target must succeed on a DC 18 Constitution saving throw or be paralyzed for 1 minute."
-        }
-      },
-      {
-        name: "Claw",
-        targetCount: 1,
-        attackStat: "strength",
-        targetType: "creature",
-        ranges: {
+        range: {
           melee: 5
         },
         hit: {
           damage: {
             primary: {
               damageDice: {
-                count: 2,
+                count: 1,
                 sides: 8
               },
-              damageType: "slashing",
-              damageStat: "strength"
+              damageType: "bludgeoning"
             }
           }
         }
-      }
-    ],
-    specialActions: [
-      {
-        name: "Vampiric Drain",
-        description: "The vampire dragon targets one creature it can see within 30 feet of it. The target must succeed on a DC 18 Constitution saving throw or take 21 (6d6) necrotic damage and the vampire dragon regains hit points equal to the damage dealt."
       },
       {
-        name: "Shadow Breath",
-        description: "The vampire dragon exhales a blast of shadows in a 60-foot cone. Each creature in that area must make a DC 18 Dexterity saving throw, taking 45 (10d8) necrotic damage on a failed save, or half as much damage on a successful one."
+        name: "Shield Bash",
+        attackType: "weapon",
+        targetCount: 1,
+        attackStat: "strength",
+        targetType: "creature",
+        range: {
+          melee: 5
+        },
+        hit: {
+          damage: {
+            primary: {
+              damageDice: {
+                count: 1,
+                sides: 6
+              },
+              damageType: "bludgeoning"
+            }
+          },
+          affect: "The target must succeed on a DC 14 Strength saving throw or be knocked prone."
+        }
+      },
+      {
+        name: "Dwarven Battle Cry",
+        attackType: "innate",
+        targetCount: 5,
+        attackStat: "charisma",
+        targetType: "target",
+        range: {
+          ranged: 30
+        },
+        hit: {
+          damage: {
+            primary: {
+              damageDice: {
+                count: 2,
+                sides: 6
+              },
+              damageType: "thunder"
+            }
+          },
+          affect: "Each target must succeed on a DC 14 Constitution saving throw or be deafened for 1 minute."
+        }
       }
     ]
-  }
+  },
+  reactions: [
+    {
+      name: "Shield Block",
+      description: "When a creature the Guard can see attacks a target other than the Guard that is within 5 feet of it, the Guard can use its reaction to impose disadvantage on the attack roll."
+    }
+  ]
 }
 
 export default function Home() {
+
+  const actualData = monsterSchema.parse(tempData);
+
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-stretch pb-28 px-4 sm:px-6">
       <LandingPage/>
-      <MonsterBlock {...tempData}/>
+      <MonsterBlock {...actualData}/>
     </main>
   );
 }
