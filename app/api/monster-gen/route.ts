@@ -60,10 +60,12 @@ async function routeLogic(prompt: string, attempts: number = 0) {
   });
 
   try {
-    console.log("attempt: ", attempts);
+    console.log("attempt at parsing: ", attempts);
     let parsedMonster = monsterSchema.parse(JSON.parse(completion.choices[0].message.function_call?.arguments!));
-    return parsedMonster
 
+    console.log("successfully parsed monster: ", parsedMonster);
+
+    return parsedMonster
   } catch (error) {
     console.error(error);
     if (attempts < 3) {

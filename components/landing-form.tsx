@@ -13,6 +13,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useRecoilState } from "recoil"
+import { monsterState } from "@/lib/state"
+import { monsterSchemaType } from "@/types/monster"
 
 const formSchema = z.object({
   prompt: z.string().min(2, {
@@ -23,6 +26,10 @@ const formSchema = z.object({
 });
 
 export function LandingForm() {
+
+  
+  const [monster, setMonster] = useRecoilState(monsterState);
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,13 +39,13 @@ export function LandingForm() {
   })
  
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
 
     // For example, send the form data to your API.
-    const response = fetch("/api/monster-gen", {
+    const response = await fetch("/api/monster-gen", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +53,20 @@ export function LandingForm() {
       body: JSON.stringify(values),
     })
 
-    // Handle the response.
+    console.log(response);
+
+    if (response.ok) {
+
+      console.log("in ok", response);
+
+      const jsonResponse = await response.json();
+      console.log(jsonResponse);
+      // Handle the response.
+      // For example, update the monster state with the received data.
+      setMonster(jsonResponse as monsterSchemaType);
+    } else {
+      console.error("Failed to fetch monster data");
+    }
   }
 
   return (

@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 import { Inter as FontSans } from 'next/font/google';
 import { Navbar } from '@/components/navbar';
+import { RecoilRoot } from 'recoil';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -37,9 +38,9 @@ export default function RootLayout({
         >
           <div className="container mx-auto px-4">
             <Navbar />
-            <div className="mt-12 flex justify-center items-center w-full">
-            {children}
-            </div>
+              <div className="mt-12 flex justify-center items-center w-full">
+                {children}
+              </div>
           </div>
         </ThemeProvider>
       </body>
