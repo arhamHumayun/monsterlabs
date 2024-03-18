@@ -62,7 +62,9 @@ export function LandingForm() {
     setIsLoading(false);
   }
 
-  const loading = isLoading ? "Generating your monster..." : null;
+  const loading = isLoading ? <p className="text-center text-md font-medium animate-pulse duration-800 ease-in-out" 
+  >
+    Generating your monster...</p> : null;
 
   return (
     <Form {...form} aria-busy={isLoading}>
