@@ -59,7 +59,7 @@ export default function MonsterBlock() {
   return (
     <div>
       <p className="text-xl pb-4 italic">{lore}</p>
-      {/* <p className="text-xl pb-4 italic">{appearance}</p> */}
+      <p className="text-xl pb-4 italic">{appearance}</p>
       <div className="p-6 border-2 border-gray-200 rounded-lg">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
@@ -289,10 +289,10 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
           if (damage) {
             const damageBonus = statToBonus(monster.stats[attackStat]);
             const sign = damageBonus > 0 ? '+' : '';
-            const averageDamage = (damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2 + damageBonus;
-            const averageDamageSecondary = damage.secondary ? (damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1)) / 2 : 0;
-            
-            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides} ${sign} ${damageBonus}) ${damage.primary.damageType} damage${damage.secondary ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage` : ''}.`;
+            const averageDamage = Math.floor((damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2) + damageBonus;
+            const averageDamageSecondary = damage.secondary ? Math.floor(damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1) / 2) : 0;
+
+            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides} ${sign} ${damageBonus}) ${damage.primary.damageType} damage${damage.secondary ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage` : ''}`;
           } 
           return ``;
         }

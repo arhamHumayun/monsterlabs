@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { useRecoilState } from "recoil"
 import { monsterState } from "@/lib/state"
 import { monsterSchemaType } from "@/types/monster"
+import React from "react"
 
 const formSchema = z.object({
   prompt: z.string().min(2, {
@@ -25,10 +26,9 @@ const formSchema = z.object({
   }),
 });
 
-export function LandingForm() {
-
-  
-  const [monster, setMonster] = useRecoilState(monsterState);
+export function LandingForm() {  
+  const [_, setMonster] = useRecoilState(monsterState);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -40,9 +40,8 @@ export function LandingForm() {
  
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+
+    setIsLoading(true);
 
     // For example, send the form data to your API.
     const response = await fetch("/api/monster-gen", {
@@ -53,24 +52,20 @@ export function LandingForm() {
       body: JSON.stringify(values),
     })
 
-    console.log(response);
-
     if (response.ok) {
-
-      console.log("in ok", response);
-
       const jsonResponse = await response.json();
-      console.log(jsonResponse);
-      // Handle the response.
-      // For example, update the monster state with the received data.
       setMonster(jsonResponse as monsterSchemaType);
     } else {
       console.error("Failed to fetch monster data");
     }
+
+    setIsLoading(false);
   }
 
+  const loading = isLoading ? "Generating your monster..." : null;
+
   return (
-    <Form {...form}>
+    <Form {...form} aria-busy={isLoading}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -78,7 +73,7 @@ export function LandingForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="A vampire dragon" {...field} />
+                <Input placeholder="Describe your monster..." {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,6 +81,7 @@ export function LandingForm() {
         />
         <Button type="submit">Submit</Button>
       </form>
+      {loading}
     </Form>
   )
 }

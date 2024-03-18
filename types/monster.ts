@@ -71,7 +71,7 @@ const sensesSchema = z.object({
 const damageTypeSchema = z.enum(['acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic', 'piercing', 'poison', 'psychic', 'radiant', 'slashing', 'thunder']);
 
 export type damageMultiplierLiteral = 'resistance' | 'immunity' | 'vulnerability';
-const damageMultiplierSchema = z.enum(['resistance', 'immunity', 'vulnerability']).describe('Resistance means half damage, immunity means no damage, and vulnerability means double damage.');
+const damageMultiplierSchema = z.enum(['resistance', 'immunity', 'vulnerability']).describe('Resistance means half damage, immunity means no damage, and vulnerability means double damage. Leave it out if the monster has relation to the damage type. Do not enter normal.');
 
 const damagesBaseSchema = z.object({
   nonMagicalBludgeoning: damageMultiplierSchema.optional(),
