@@ -8,7 +8,8 @@ import {
   savingThrowsType,
   statsType,
   skillsType,
-  challengeRatingToXP
+  challengeRatingToXP,
+  spellcastingType
 } from '@/types/monster';
 import { Separator } from './ui/separator';
 import { useRecoilValue } from 'recoil';
@@ -42,6 +43,7 @@ export default function MonsterBlock() {
     damageTakenModifiers,
     traits,
     legendary,
+    spellcasting
   } = monster as monsterSchemaType;
 
   const conBonus = statToBonus(stats.constitution);
@@ -63,7 +65,7 @@ export default function MonsterBlock() {
       <div className="p-6 border-2 border-gray-200 rounded-lg">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
-          {capitalizeFirstLetter(`${size} ${type}, ${alignment}`)}
+          {capitalizeFirstLetters([`${size} ${type}, ${alignment}`])}
         </p>
         <Separator className="my-4" />
         <StyledStatSentences s1="Armor Class" s2={armorClass.base.toString()} />
@@ -112,7 +114,11 @@ export default function MonsterBlock() {
         />
         <StyledStatSentences
           s1="Languages"
-          s2={Object.keys(languages).filter(lang => lang !== "telepathy").join(', ') + (languages.telepathy ? `, telepathy ${languages.telepathy.range} ft.` : '')}
+          s2={
+            Object.keys(languages)
+            .map(lang => capitalizeFirstLetters(lang.split(' ')).join(' '))
+            .filter(lang => lang !== "telepathy")
+            .join(', ') + (languages.telepathy ? `, telepathy ${languages.telepathy.range} ft.` : '')}
         />
         <StyledStatSentences
           s1="Challenge"
@@ -143,6 +149,7 @@ export default function MonsterBlock() {
     </div>
   );
 }
+
 
 const reactionActionSection = (monster: monsterSchemaType) => {
   const { reactions } = monster;
@@ -190,7 +197,7 @@ const legendaryActionSelection = (monster: monsterSchemaType) => {
     <div>
       <h1 className="mt-4 text-xl font-semibold">Legendary Actions</h1>
       <Separator className="mb-4" />
-      <p className='mb-4'>{`${monster.isUnique ? "" : "The " }${monster.name} can take ${legendary.actionsPerTurn} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${monster.isUnique ? "" : "The " }${monster.name} regains spend legendary actions at the start of ${monster.isUnique ? "their " : "its " } turn.`}</p>
+      <p className='mb-4'>{`${monster.isUnique ? "The " : "" }${monster.name} can take ${legendary.actionsPerTurn} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${monster.isUnique ? "" : "The " }${monster.name} regains spend legendary actions at the start of ${monster.isUnique ? "their " : "its " } turn.`}</p>
     </div>
   )
 
@@ -292,12 +299,12 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
             const averageDamage = Math.floor((damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2) + damageBonus;
             const averageDamageSecondary = damage.secondary ? Math.floor(damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1) / 2) : 0;
 
-            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides} ${sign} ${damageBonus}) ${damage.primary.damageType} damage${damage.secondary ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage` : ''}`;
+            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides}${`${damageBonus ? ` ${sign} ${damageBonus}` : ''}`}) ${damage.primary.damageType} damage${damage.secondary ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage` : ''}`;
           } 
           return ``;
         }
 
-        const conditionsDescription = hit.affect ? ` ${hit.affect}` : '.';
+        const conditionsDescription = hit.affect ? ` ${hit.affect}` : '';
 
         const rechargeDescription = recharge ? ` (Recharge ${recharge}-6)` : '';
 
@@ -324,7 +331,7 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
         <div key={index} className='mb-4'>
           <p>
             <span className="font-semibold italic">{name}{recharge ? ` (Recharge ${recharge}-6)` : ''}. </span>
-            <span className=''>{description}.</span>
+            <span className=''>{description}</span>
           </p>
         </div>
       );
@@ -394,9 +401,9 @@ function StyledStatSentences({ s1, s2 }: { s1: string; s2: string }) {
   );
 }
 
-function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+function capitalizeFirstLetters(str: string[]) : string[] {
+  return str.map(s => s.charAt(0).toUpperCase() + s.slice(1));
+};
 
 const buildSpeedStringResult = (speed: speedType) => {
   let result = '';

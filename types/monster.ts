@@ -62,16 +62,16 @@ const armorClassSchema = z.object({
 const sensesNumSchema = z.number().min(0);
 
 const sensesSchema = z.object({
-  blindsight: sensesNumSchema.optional().describe('The range of the monsters ability to see without relying on sight. 0 if the monster does not have blindsight.'),
-  darkvision: sensesNumSchema.optional().describe('The range of the monsters ability to see in the dark. 0 if the monster does not have darkvision.'),
-  tremorsense: sensesNumSchema.optional().describe('The range of the monsters ability to sense vibrations in the ground. 0 if the monster does not have tremorsense.'),
-  truesight: sensesNumSchema.optional().describe('The range of the monsters ability to see in normal and magical darkness, see illusions and invisible objects. The strongest and truest sense that exists. 0 if the monster does not have truesight.'),
+  blindsight: sensesNumSchema.optional().describe('The range of the creatures ability to see without relying on sight. 0 if the monster does not have blindsight.'),
+  darkvision: sensesNumSchema.optional().describe('The range of the creatures ability to see in the dark. 0 if the monster does not have darkvision.'),
+  tremorsense: sensesNumSchema.optional().describe('The range of the creatures ability to sense vibrations in the ground. 0 if the monster does not have tremorsense.'),
+  truesight: sensesNumSchema.optional().describe('The range of the creatures ability to see in normal and magical darkness, see illusions and invisible objects. The strongest and truest sense that exists. 0 if the monster does not have truesight.'),
 });
 
 const damageTypeSchema = z.enum(['acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic', 'piercing', 'poison', 'psychic', 'radiant', 'slashing', 'thunder']);
 
-export type damageMultiplierLiteral = 'resistance' | 'immunity' | 'vulnerability';
-const damageMultiplierSchema = z.enum(['resistance', 'immunity', 'vulnerability']).describe('Resistance means half damage, immunity means no damage, and vulnerability means double damage. Leave it out if the monster has relation to the damage type. Do not enter normal.');
+export type damageMultiplierLiteral = 'resistance' | 'immunity' | 'vulnerability' | 'normal';
+const damageMultiplierSchema = z.enum(['resistance', 'immunity', 'vulnerability', 'normal']).describe('Resistance means half damage, immunity means no damage, and vulnerability means double damage. Leave it out if the monster has relation to the damage type. Do not enter normal.');
 
 const damagesBaseSchema = z.object({
   nonMagicalBludgeoning: damageMultiplierSchema.optional(),
@@ -187,7 +187,7 @@ const saveAttackSchema = z.object({
 const genericActionSchema = z.object({
   name: z.string(),
   description: z.string()
-}).describe('A special or generic action the monster can take that is not a weapon or spell attack or spell save attack. Only used for monsters that have special abilities or actions that are not attacks as defined by the other attack types.');
+}).describe('A special or generic action the monster can take that is not a weapon or spell attack or spell save attack. Only used for creatures that have special abilities or actions that are not attacks as defined by the other attack types.');
 
 const languagesSchema = z.object({
   common: z.boolean().optional(),
@@ -201,7 +201,7 @@ const languagesSchema = z.object({
   abyssal: z.boolean().optional(),
   celestial: z.boolean().optional(),
   draconic: z.boolean().optional(),
-  deepSpeech: z.boolean().optional(),
+  "deep speech": z.boolean().optional(),
   infernal: z.boolean().optional(),
   primordial: z.boolean().optional(),
   sylvan: z.boolean().optional(),
@@ -224,10 +224,20 @@ const legendarySchema = z.object({
 });
 
 const actionSchema = z.object({
-  multiAttack: z.string().optional().describe('The multi-attack the monster can take. Only used for monsters that can make multiple weapon or natural attacks in a single turn. Simply describe the attacks the monster can make in a single turn.'),
+  multiAttack: z.string().optional().describe('The multi-attack the monster can take. Only used for creatures that can make multiple weapon or natural attacks in a single turn. Simply describe the attacks the monster can make in a single turn.'),
   targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('The targeted attacks the monster can take. This attack requires an attack roll.'),
   savingThrowAttacks: z.array(saveAttackSchema).optional().describe('The save attacks the monster can take. This type of attack requires the target to make a saving throw. If the target fails the save, they take the full effect of the attack. This could be a spell or a special ability such as a breath attack.'),
-  specialActions: z.array(genericActionSchema).optional().describe('The special actions the monster can take. Only used for monsters that have special abilities which are not targeted attacks or save attacks or actions that are not attacks.'),
+  specialActions: z.array(genericActionSchema).optional().describe('The special actions the monster can take. Only used for creatures that have special abilities which are not targeted attacks or save attacks or actions that are not attacks.'),
+});
+
+const spellcastingSchema = z.object({
+  spellcastingStat: singleStatSchema.describe('The stat the monster uses for spellcasting.'),
+  spellcastingLevel: z.number().min(1).max(20).describe('The level of the spellcasting the monster has.'),
+  spellcastingClass: z.enum(['bard', 'cleric', 'druid', 'paladin', 'ranger', 'sorcerer', 'warlock', 'wizard']).describe('The class the monster uses for spellcasting.'),
+  spells: z.array(z.object({
+    name: z.string(),
+    level: z.number().min(0).max(9)
+  })),
 });
 
 export const monsterSchema = z.object({
@@ -240,7 +250,7 @@ export const monsterSchema = z.object({
   armorClass: armorClassSchema,
   size: z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']),
   type: z.enum(['aberration', 'beast', 'celestial', 'construct', 'dragon', 'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity', 'ooze', 'plant', 'undead']),
-  alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'true neutral', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']),
+  alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'true neutral', 'neutral', 'unaligned', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']).describe('The alignment of the monster. Always fill in the alignment. If no alignment is given, the monster is true neutral.'),
   challengeRating: z.number().min(0).max(30),
   speed: speedSchema,
   savingThrows: savingThrowSchema.describe('Which saving throws the monster is proficient in.'),
@@ -251,8 +261,9 @@ export const monsterSchema = z.object({
   languages: languagesSchema,
   traits: z.array(specialTraitsSchema),
   actions: actionSchema,
-  reactions: z.array(genericActionSchema).optional().nullable().describe('Only used for monsters that can take a reaction. Do not describe legendary resistance.'),
-  legendary: legendarySchema.optional().describe('Only used for high level or boss monsters.'),
+  // spellcasting: spellcastingSchema.optional().describe('Only used for creatures that can cast spells.'),
+  legendary: legendarySchema.optional().describe('Only used for high level or boss creatures.'),
+  reactions: z.array(genericActionSchema).optional().nullable().describe('Only used for creatures that can take a reaction. Do not describe legendary resistance.'),
 });
 
 export type monsterSchemaType = z.infer<typeof monsterSchema>;

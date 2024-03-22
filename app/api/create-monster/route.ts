@@ -1,6 +1,7 @@
 import { monsterSchema } from "@/types/monster";
 import OpenAI from "openai";
 import zodToJsonSchema from "zod-to-json-schema";
+// import { Client } from "@octoai/client";
 
 const openai = new OpenAI();
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   const { prompt } = await body;
 
   console.log("Received prompt: ", prompt);
-  const responseBody = await routeLogic(prompt, 0);
+  const responseBody = await routeLogicGPT(prompt, 0);
 
   return new Response(JSON.stringify(responseBody, null, 2), {
     headers: {
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
   });
 }
 
-async function routeLogic(prompt: string, attempts: number = 0) {
+async function routeLogicGPT(prompt: string, attempts: number = 0) {
   const tools = [
     {
       name: "generate_monster",
@@ -48,8 +49,8 @@ async function routeLogic(prompt: string, attempts: number = 0) {
 
   const completion = await openai.chat.completions.create({
     messages: [
-      { "role": "system", "content": systemPrompt},
-      { "role": "user", "content": prompt }, 
+      { "role": "system", "content": systemPrompt },
+      { "role": "user", "content": prompt },
     ],
     model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo-preview
     functions: tools,
@@ -69,7 +70,7 @@ async function routeLogic(prompt: string, attempts: number = 0) {
   } catch (error) {
     console.error(error);
     if (attempts < 3) {
-      return routeLogic(prompt, attempts + 1);
+      return routeLogicGPT(prompt, attempts + 1);
     } else {
       return {
         error: "We were unable to generate a monster. Please try again."
@@ -77,3 +78,46 @@ async function routeLogic(prompt: string, attempts: number = 0) {
     }
   }
 }
+
+// async function routeLogicOcto(prompt: string, attempts: number = 0) {
+
+//   // const models = client.chat.listAllModels();
+
+//   const OCTOAI_TOKEN = process.env.OCTOAI_TOKEN;
+//   const client = new Client(OCTOAI_TOKEN);
+
+//   const response = await client.chat.completions.create({
+//     messages: [
+//       { role: "system", content: systemPrompt },
+//       { role: "user", content: prompt },
+//     ],
+//     stream: false,
+//     top_p: 0.9,
+//     model: "mistral-7b-instruct",
+//     temperature: 0.2,
+//     presence_penalty: 0,
+//     max_tokens: 8192,
+//     response_format: {
+//       type: "json_object",
+//       schema: zodToJsonSchema(monsterSchema)
+//     }
+//   });
+
+//   try {
+//     console.log("attempt at parsing: ", attempts);
+//     let parsedMonster = monsterSchema.parse(JSON.parse(response.choices[0].message.content!));
+
+//     console.log("successfully parsed monster: ", parsedMonster);
+
+//     return parsedMonster
+//   } catch (error) {
+//     console.error(error);
+//     if (attempts < 3) {
+//       return routeLogicOcto(prompt, attempts + 1);
+//     } else {
+//       return {
+//         error: "We were unable to generate a monster. Please try again."
+//       }
+//     }
+//   }
+// }

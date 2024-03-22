@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/navigation-menu';
 import { ModeToggle } from './dark-mode-toggle';
 
-
 export function Navbar() {
   let navItemList = [
     { title: 'Home', href: '/' },

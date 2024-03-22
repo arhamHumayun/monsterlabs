@@ -44,7 +44,7 @@ export function LandingForm() {
     setIsLoading(true);
 
     // For example, send the form data to your API.
-    const response = await fetch("/api/monster-gen", {
+    const response = await fetch("/api/create-monster", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
