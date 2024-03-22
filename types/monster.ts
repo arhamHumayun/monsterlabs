@@ -225,8 +225,8 @@ const legendarySchema = z.object({
 
 const actionSchema = z.object({
   multiAttack: z.string().optional().describe('The multi-attack the monster can take. Only used for creatures that can make multiple weapon or natural attacks in a single turn. Simply describe the attacks the monster can make in a single turn.'),
-  targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('The targeted attacks the monster can take. This attack requires an attack roll.'),
-  savingThrowAttacks: z.array(saveAttackSchema).optional().describe('The save attacks the monster can take. This type of attack requires the target to make a saving throw. If the target fails the save, they take the full effect of the attack. This could be a spell or a special ability such as a breath attack.'),
+  savingThrowAttacks: z.array(saveAttackSchema).optional().describe('The save attacks the monster can take. This type of attack requires the target to make a saving throw. If the target fails the save, they take the full effect of the attack. This could be a spell or a special ability such as a breath attack. Describe AoE attacks here.'),
+  targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('The targeted attacks the monster can take. This attack requires an attack roll. Do not describe AoE attacks here.'),
   specialActions: z.array(genericActionSchema).optional().describe('The special actions the monster can take. Only used for creatures that have special abilities which are not targeted attacks or save attacks or actions that are not attacks.'),
 });
 
