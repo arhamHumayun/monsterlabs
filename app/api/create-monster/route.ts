@@ -11,6 +11,7 @@ export const runtime = 'edge';
 const systemPrompt = `
 You use the generate_monster function in order to generate monsters that the user requests.
 The user provides a prompt that describes the monster they want to generate.
+Always fill in required fields in the schema.
 
 Remember to keep in mind the following:
 - First thing about what the overall theme of the monster is, and then think about what kind of abilities and stats it should have. Its abilities and stats should reflect its theme.
@@ -18,9 +19,9 @@ Remember to keep in mind the following:
 - The monster should have a multi-attack or a special attack that is unique to the monster if it's challenge rating is 3 or higher.
 - The more powerful a monster is, the more attacks and abilities it should have.
 - The monster should follow rules and guidelines for monster creation as described in the Dungeon Master's Guide and the Monster Manual for DnD 5e.
-- If a monster has a spell attack or an area of affect attack, it should fit in the schema. Make special actions only after targeted attacks and saving throw attacks. 
+- Put AoE attacks under saving throw attacks.
+- Only put actions under special actions if they are not attacks.
 - Never describe the action cost in a name of an action.
-- Always fill in required fields in the schema.
 `;
 export async function POST(request: Request) {
 

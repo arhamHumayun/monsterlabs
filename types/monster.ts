@@ -14,11 +14,11 @@ const statSchema = z.object({
 const speedNumSchema = z.number().min(0);
 
 const speedSchema = z.object({
-  walk: speedNumSchema.describe('The speed of the monster on foot'),
-  fly: speedNumSchema.optional().describe('The speed of the monster while flying'),
-  swim: speedNumSchema.optional().describe('The speed of the monster while swimming'),
-  burrow: speedNumSchema.optional().describe('The speed of the monster while burrowing'),
-  climb: speedNumSchema.optional().describe('The speed of the monster while climbing'),
+  walk: speedNumSchema,
+  fly: speedNumSchema.optional(),
+  swim: speedNumSchema.optional(),
+  burrow: speedNumSchema.optional(),
+  climb: speedNumSchema.optional()
 });
 
 const savingThrowSchema = z.object({
@@ -111,22 +111,7 @@ export enum conditionSchemaEnum {
 }
 const conditionsSchema = z.enum(['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'exhaustion', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious']);
 
-const conditionImmunitiesSchema = z.object({
-  blinded: z.boolean().optional(),
-  charmed: z.boolean().optional(),
-  deafened: z.boolean().optional(),
-  frightened: z.boolean().optional(),
-  grappled: z.boolean().optional(),
-  incapacitated: z.boolean().optional(),
-  invisible: z.boolean().optional(),
-  paralyzed: z.boolean().optional(),
-  petrified: z.boolean().optional(),
-  poisoned: z.boolean().optional(),
-  prone: z.boolean().optional(),
-  restrained: z.boolean().optional(),
-  stunned: z.boolean().optional(),
-  unconscious: z.boolean().optional(),
-}).describe('The conditions the monster is immune to. Only make the monster immune to conditions that make sense for the monster. True means the monster is immune to the condition, false means the monster is not immune to the condition.');
+const conditionImmunitiesSchema = z.array(conditionsSchema).optional().describe('The conditions the monster is immune to. Leave out if the monster is not immune to any conditions.');
 
 const specialTraitsSchema = z.object({
   name: z.string(),
@@ -254,14 +239,13 @@ export const monsterSchema = z.object({
   challengeRating: z.number().min(0).max(30),
   speed: speedSchema,
   savingThrows: savingThrowSchema.describe('Which saving throws the monster is proficient in.'),
-  skills: skillsSchema,
+  skills: skillsSchema.optional(),
   senses: sensesSchema,
   damageTakenModifiers: damagesBaseSchema.describe('The damage multipliers the monster has for each damage type.'),
-  conditionImmunities: conditionImmunitiesSchema,
+  conditionImmunities: conditionImmunitiesSchema.optional(),
   languages: languagesSchema,
   traits: z.array(specialTraitsSchema),
   actions: actionSchema,
-  // spellcasting: spellcastingSchema.optional().describe('Only used for creatures that can cast spells.'),
   legendary: legendarySchema.optional().nullable().describe('Only used for high level or boss creatures.'),
   reactions: z.array(genericActionSchema).optional().nullable().describe('Only used for creatures that can take a reaction. Do not describe legendary resistance.'),
 });

@@ -102,7 +102,7 @@ export default function MonsterBlock() {
         />
         <StyledStatSentences
           s1="Condition Immunities"
-          s2={Object.keys(conditionImmunities).join(', ')}
+          s2={conditionImmunities?.filter(condition => condition).join(', ') || ''}
         />
         <StyledStatSentences
           s1="Senses"
@@ -125,7 +125,7 @@ export default function MonsterBlock() {
             challengeRating
           ].toLocaleString()} XP)`}
         />
-        <Separator className="my-4" />
+        {traits.length > 0 ? <Separator className="my-4" /> : null }
         {traits.map((trait, index) => (
           <StyledTraitSentences
             key={index}
