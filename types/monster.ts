@@ -262,7 +262,7 @@ export const monsterSchema = z.object({
   traits: z.array(specialTraitsSchema),
   actions: actionSchema,
   // spellcasting: spellcastingSchema.optional().describe('Only used for creatures that can cast spells.'),
-  legendary: legendarySchema.optional().describe('Only used for high level or boss creatures.'),
+  legendary: legendarySchema.optional().nullable().describe('Only used for high level or boss creatures.'),
   reactions: z.array(genericActionSchema).optional().nullable().describe('Only used for creatures that can take a reaction. Do not describe legendary resistance.'),
 });
 

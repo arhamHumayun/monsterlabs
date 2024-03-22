@@ -43,7 +43,6 @@ export default function MonsterBlock() {
     damageTakenModifiers,
     traits,
     legendary,
-    spellcasting
   } = monster as monsterSchemaType;
 
   const conBonus = statToBonus(stats.constitution);
