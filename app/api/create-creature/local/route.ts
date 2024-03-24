@@ -1,8 +1,6 @@
 import { creatureSchema, creatureSchemaType } from "@/types/creature";
 import { OllamaFunctions } from "langchain/experimental/chat_models/ollama_functions";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { JsonOutputFunctionsParser } from "langchain/output_parsers";
-import { PromptTemplate } from "@langchain/core/prompts";
 import zodToJsonSchema from "zod-to-json-schema";
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
