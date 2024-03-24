@@ -12,15 +12,19 @@ import {
 } from '@/components/ui/navigation-menu';
 import { ModeToggle } from './dark-mode-toggle';
 
+type NavbarItemAlignment = 'justify-self-end' | 'justify-self-start';
+
 export function Navbar() {
   let navItemList = [
-    { title: 'Home', href: '/' },
-    { title: 'About us', href: '/about' },
+    { title: 'Home', href: '/', alignment: 'justify-self-start'},
+    { title: 'About', href: '/about', alignment: 'justify-self-start'},
+    { title: 'Login', href: '/login', alignment: 'justify-self-end'},
+    { title: 'Sign up', href: '/signup', alignment: 'justify-self-end'},
   ];
 
   const navItems = navItemList.map((navItem, i) => {
     return (
-      <div className="p-3 items-center" key={i}>
+      <div className={`p-2 px-4 items-center`} key={i}>
         <NavigationMenuItem>
           <Link href={navItem.href} legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -33,7 +37,7 @@ export function Navbar() {
   });
 
   return (
-    <NavigationMenu>
+    <NavigationMenu className='mx-auto'>
       <NavigationMenuList>
         {navItems}
         <ModeToggle/>
