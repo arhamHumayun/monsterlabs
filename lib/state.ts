@@ -1,7 +1,7 @@
-import { monsterSchemaType } from "@/types/monster";
+import { creatureSchemaType } from "@/types/creature";
 import { atom } from "recoil";
 
-export const monsterState = atom({
-  key: 'monsterState',
-  default: null as monsterSchemaType | null,
+export const creatureState = atom({
+  key: 'creatureState',
+  default: null as creatureSchemaType | null,
 });

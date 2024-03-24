@@ -1,5 +1,5 @@
 import {
-  monsterSchemaType,
+  creatureSchemaType,
   sizeToHitDice,
   skillToStat,
   statToBonus,
@@ -8,18 +8,17 @@ import {
   savingThrowsType,
   statsType,
   skillsType,
-  challengeRatingToXP,
-  spellcastingType
-} from '@/types/monster';
+  challengeRatingToXP
+} from '@/types/creature';
 import { Separator } from './ui/separator';
 import { useRecoilValue } from 'recoil';
-import { monsterState } from '@/lib/state';
+import { creatureState } from '@/lib/state';
 
 export default function MonsterBlock() {
 
-  const monster = useRecoilValue(monsterState);
+  const creature = useRecoilValue(creatureState);
 
-  if (!monster) {
+  if (!creature) {
     return null;
   }
 
@@ -27,6 +26,7 @@ export default function MonsterBlock() {
     name,
     lore,
     appearance,
+    pronoun,
     stats,
     hitDiceAmount,
     armorClass,
@@ -43,7 +43,7 @@ export default function MonsterBlock() {
     damageTakenModifiers,
     traits,
     legendary,
-  } = monster as monsterSchemaType;
+  } = creature as creatureSchemaType;
 
   const conBonus = statToBonus(stats.constitution);
 
@@ -136,22 +136,22 @@ export default function MonsterBlock() {
         {legendary?.resistance ? (
           <StyledTraitSentences
             s1={`Legendary Resistance (${legendary.resistance}/Day).`}
-            s2={`If${monster.isUnique ? "" : " the" } ${name} fails a saving throw, it can choose to succeed instead.`}
+            s2={`If${creature.isUnique ? "" : " the" } ${name} fails a saving throw, ${pronoun} can choose to succeed instead.`}
           />
         ) : null}
         <h1 className="mt-4 text-xl font-semibold">Actions</h1>
         <Separator className="mb-4" />
-        {actionSection(monster, proficiencyBonus)}
-        {reactionActionSection(monster)}
-        {legendaryActionSelection(monster)}
+        {actionSection(creature, proficiencyBonus)}
+        {reactionActionSection(creature)}
+        {legendaryActionSelection(creature)}
       </div>
     </div>
   );
 }
 
 
-const reactionActionSection = (monster: monsterSchemaType) => {
-  const { reactions } = monster;
+const reactionActionSection = (creature: creatureSchemaType) => {
+  const { reactions } = creature;
 
   if (!reactions) {
     return null;
@@ -185,8 +185,8 @@ const reactionActionSection = (monster: monsterSchemaType) => {
   );
 }
 
-const legendaryActionSelection = (monster: monsterSchemaType) => {
-  const { legendary } = monster;
+const legendaryActionSelection = (creature: creatureSchemaType) => {
+  const { legendary } = creature;
 
   if (!legendary) {
     return null;
@@ -196,7 +196,7 @@ const legendaryActionSelection = (monster: monsterSchemaType) => {
     <div>
       <h1 className="mt-4 text-xl font-semibold">Legendary Actions</h1>
       <Separator className="mb-4" />
-      <p className='mb-4'>{`${monster.isUnique ? "The " : "" }${monster.name} can take ${legendary.actionsPerTurn} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${monster.isUnique ? "" : "The " }${monster.name} regains spend legendary actions at the start of ${monster.isUnique ? "their " : "its " } turn.`}</p>
+      <p className='mb-4'>{`${creature.isUnique ? "" : "The " }${creature.name} can take ${legendary.actionsPerTurn} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${creature.isUnique ? "" : "The " }${creature.name} regains spend legendary actions at the start of ${creature.isUnique ? "their " : "its " } turn.`}</p>
     </div>
   )
 
@@ -222,8 +222,8 @@ const legendaryActionSelection = (monster: monsterSchemaType) => {
   );
 }
 
-const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => {
-  const { actions } = monster;
+const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) => {
+  const { actions } = creature;
 
   const {
     targetedWeaponAttacks,
@@ -249,7 +249,7 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
     const targetedWeaponAttacksUI = targetedWeaponAttacks.map(
       (action, index) => {
         
-        const { name, attackStat, attackType, targetCount, hit, range, recharge } = action;
+        const { name, attackStat, attackType, targetCount, hit, range, rechargeRange } = action;
 
         if (!hit) {
           return null;
@@ -257,7 +257,7 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
 
         const { damage } = hit;
 
-        const attackBonus =  statToBonus(monster.stats[attackStat]) + proficiencyBonus;
+        const attackBonus =  statToBonus(creature.stats[attackStat]) + proficiencyBonus;
         const sign = attackBonus > 0 ? '+' : '';
         const targetCountDescription = targetCount > 1 ? `up to ${targetCount} targets` : 'one target';
 
@@ -293,7 +293,7 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
 
         const damageDescription = () => {
           if (damage) {
-            const damageBonus = statToBonus(monster.stats[attackStat]);
+            const damageBonus = statToBonus(creature.stats[attackStat]);
             const sign = damageBonus > 0 ? '+' : '';
             const averageDamage = Math.floor((damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2) + damageBonus;
             const averageDamageSecondary = damage.secondary ? Math.floor(damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1) / 2) : 0;
@@ -305,7 +305,7 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
 
         const conditionsDescription = hit.affect ? ` ${hit.affect}` : '';
 
-        const rechargeDescription = recharge ? ` (Recharge ${recharge}-6)` : '';
+        const rechargeDescription = rechargeRange ? ` (Recharge ${rechargeRange.min}-${rechargeRange.max})` : '';
 
         return (
           <div key={index} className='mb-4'>
@@ -325,11 +325,11 @@ const actionSection = (monster: monsterSchemaType, proficiencyBonus: number) => 
 
   if (savingThrowAttacks) {
     const saveAttacksUI = savingThrowAttacks.map((action, index) => {
-      const { name, recharge, description } = action;
+      const { name, rechargeRange, description } = action;
       return (
         <div key={index} className='mb-4'>
           <p>
-            <span className="font-semibold italic">{name}{recharge ? ` (Recharge ${recharge}-6)` : ''}. </span>
+            <span className="font-semibold italic">{name}{rechargeRange ? ` (Recharge ${rechargeRange.min}-${rechargeRange.max})` : ''}. </span>
             <span className=''>{description}</span>
           </p>
         </div>

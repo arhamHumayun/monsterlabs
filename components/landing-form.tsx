@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useRecoilState } from "recoil"
-import { monsterState } from "@/lib/state"
-import { monsterSchemaType } from "@/types/monster"
+import { creatureState } from "@/lib/state"
+import { creatureSchemaType } from "@/types/creature"
 import React from "react"
 
 const formSchema = z.object({
@@ -27,7 +27,7 @@ const formSchema = z.object({
 });
 
 export function LandingForm() {  
-  const [_, setMonster] = useRecoilState(monsterState);
+  const [_, setMonster] = useRecoilState(creatureState);
   const [isLoading, setIsLoading] = React.useState(false);
 
   // 1. Define your form.
@@ -44,7 +44,7 @@ export function LandingForm() {
     setIsLoading(true);
 
     // For example, send the form data to your API.
-    const response = await fetch("/api/create-monster", {
+    const response = await fetch("/api/create-creature/v1", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export function LandingForm() {
 
     if (response.ok) {
       const jsonResponse = await response.json();
-      setMonster(jsonResponse as monsterSchemaType);
+      setMonster(jsonResponse as creatureSchemaType);
     } else {
       console.error("Failed to fetch monster data");
     }

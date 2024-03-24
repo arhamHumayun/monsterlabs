@@ -1,6 +1,5 @@
-import { monsterSchema, monsterSchemaType } from "@/types/monster";
+import { creatureSchema, creatureSchemaType } from "@/types/creature";
 import OpenAI from "openai";
-import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 
 const openai = new OpenAI();
@@ -17,7 +16,7 @@ If there are multiple actions with the same name, remove the old one.
 Keep everything else the same.
 `;
 
-const monsterSchemaUpdate =  monsterSchema;
+const creatureSchemaUpdate =  creatureSchema;
 
 export async function POST(request: Request) {
 
@@ -38,12 +37,12 @@ export async function POST(request: Request) {
   });
 }
 
-async function routeLogic(prompt: string, monster: monsterSchemaType, attempts: number = 0) {
+async function routeLogic(prompt: string, monster: creatureSchemaType, attempts: number = 0) {
   const tools = [
     {
       name: "update_monster",
       description: "Generate a monster with parameters that adhere to this schema that matches the updates the user asks for. Always fill in required fields in the schema.",
-      parameters: zodToJsonSchema(monsterSchemaUpdate)
+      parameters: zodToJsonSchema(creatureSchemaUpdate)
     }
   ];
 
@@ -63,7 +62,7 @@ async function routeLogic(prompt: string, monster: monsterSchemaType, attempts: 
 
   try {
     console.log("attempt at parsing: ", attempts);
-    let parsedMonster = monsterSchemaUpdate.parse(JSON.parse(completion.choices[0].message.function_call?.arguments!));
+    let parsedMonster = creatureSchemaUpdate.parse(JSON.parse(completion.choices[0].message.function_call?.arguments!));
 
     console.log("successfully parsed monster: ", parsedMonster);
 

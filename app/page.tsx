@@ -1,7 +1,7 @@
 "use client"
 
 import LandingPage from "@/components/landing-page";
-import MonsterBlock from "@/components/monster-block";
+import MonsterBlock from "@/components/creature-block";
 import { RecoilRoot } from "recoil";
 
 export default function Home() {
