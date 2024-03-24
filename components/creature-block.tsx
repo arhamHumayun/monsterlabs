@@ -14,7 +14,7 @@ import { Separator } from './ui/separator';
 import { useRecoilValue } from 'recoil';
 import { creatureState } from '@/lib/state';
 
-export default function MonsterBlock() {
+export default function CreatureBlock() {
 
   const creature = useRecoilValue(creatureState);
 
