@@ -26,10 +26,10 @@ const creatureGenFunctions: Record<chunkedMonsterParts, ToolDefinition> = {
     description: "Generate a creature's base stats.",
     parameters: zodToJsonSchema(chunkedMonsterSchema.base)
   },
-  info: {
-    name: "generate_creature_info",
-    description: "Generate a creature's info.",
-    parameters: zodToJsonSchema(chunkedMonsterSchema.info)
+  spells: {
+    name: "generate_creature_spells",
+    description: "Generate the creature's spells.",
+    parameters: zodToJsonSchema(chunkedMonsterSchema.spells)
   },
   actions: {
     name: "generate_creature_actions",
@@ -58,12 +58,10 @@ export async function POST(request: Request) {
 
   console.log("Received prompt: ", prompt);
   const baseJson = await routeLogicGPT(prompt, 0, 'base');
-  const infoJson = await routeLogicGPT(prompt, 0, 'info');
-  const actionsJson = await routeLogicGPT(prompt, 0, 'actions', { ...baseJson, ...infoJson });
+  const actionsJson = await routeLogicGPT(prompt, 0, 'actions', { ...baseJson, });
 
   const responseBody = {
     ...baseJson,
-    ...infoJson,
     actions: actionsJson
   }
   

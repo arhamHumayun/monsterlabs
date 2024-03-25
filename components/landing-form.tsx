@@ -22,14 +22,7 @@ import { creatureSchemaType } from '@/types/creature';
 import React from 'react';
 
 const formSchema = z.object({
-  prompt: z
-    .string()
-    // .min(2, {
-    //   message: 'Prompt must be at least 2 characters.',
-    // })
-    // .max(500, {
-    //   message: 'Prompt must be at most 500 characters.',
-    // }),
+  prompt: z.string()
 });
 
 export function LandingForm() {
@@ -80,23 +73,24 @@ export function LandingForm() {
     <Form {...form} aria-busy={isLoading}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex w-full rounded border"
       >
-        <FormField
-          control={form.control}
-          name="prompt"
-          render={({ field }) => (
-            <FormItem className='w-full'>
-              <FormControl>
-                <Input className='border-0' placeholder="Describe your monster..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" variant='outline' className="rounded sticky right-0 border-0">
-          <CornerDownLeft className="h-4 w-4" />
-        </Button>
+        <div className="flex w-full rounded border">
+          <FormField
+            control={form.control}
+            name="prompt"
+            render={({ field }) => (
+              <FormItem className='w-full'>
+                <FormControl>
+                  <Input className='border-0' placeholder="Describe your monster..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" variant='outline' className="rounded sticky right-0 border-0">
+            <CornerDownLeft className="h-4 w-4" />
+          </Button>
+        </div>
       </form>
       {loading}
     </Form>

@@ -1,3 +1,5 @@
+"use client"
+
 import {
   creatureSchemaType,
   sizeToHitDice,
@@ -9,6 +11,8 @@ import {
   statsType,
   skillsType,
   challengeRatingToXP,
+  pronounToSubject,
+  spellSlotsPerLevelMapping
 } from '@/types/creature';
 import { Separator } from './ui/separator';
 import { useRecoilValue } from 'recoil';
@@ -151,6 +155,7 @@ export default function CreatureBlock() {
             } ${name} fails a saving throw, ${pronoun} can choose to succeed instead.`}
           />
         ) : null}
+        {spellcastingSection(creature, proficiencyBonus)}
         <h1 className="mt-4 text-xl font-semibold">Actions</h1>
         <Separator className="mb-4" />
         {actionSection(creature, proficiencyBonus)}
@@ -159,6 +164,68 @@ export default function CreatureBlock() {
       </div>
     </div>
   );
+}
+
+const spellcastingSection = (creature: creatureSchemaType, proficiencyBonus: number) => {
+  const { spellcasting } = creature;
+
+  if (!spellcasting) {
+    return null;
+  }
+
+  const {
+    spellcastingClass,
+    spellcastingLevel,
+    spellcastingStat,
+    spells
+  } = spellcasting;
+
+  const spellAttackBonus = proficiencyBonus + statToBonus(creature.stats[spellcastingStat]);
+  const spellSaveDC = 8 + spellAttackBonus;
+  const sign = spellAttackBonus > 0 ? '+' : '';
+
+  const entryDescription = (
+    <div>
+    <span className="font-semibold italic">Spellcasting. </span>
+    <span>
+      {creature.isUnique ? '' : 'The '} {creature.name} is a {spellcastingLevel}th-level spellcaster.{' '}
+      {capitalizeFirstLetter(pronounToSubject[creature.pronoun])} spellcasting ability is{' '}
+      {capitalizeFirstLetter(spellcastingStat)}{' '}
+      (spell save DC {spellSaveDC},{' '}
+      {sign}{spellAttackBonus} to hit with spell attacks).{' '}
+      {capitalizeFirstLetter(creature.pronoun)} {creature.isUnique ? 'have' : 'has'} the following {spellcastingClass} spells prepared:
+    </span>
+  </div>
+  )
+
+  const cantripsKnown = spells.filter(spell => spell.level === 0);
+
+  const cantripsDescription = cantripsKnown.length > 0 ? (
+    <div>
+      <span>Cantrips (at will): </span>
+      <span>{cantripsKnown.map((spell) => spell.name).join(', ')}</span>
+    </div>
+  ) : null;
+  
+  const spellsDescription = spellSlotsPerLevelMapping[spellcastingLevel].map((spellSlots) => {
+
+    const spellsKnown = spells.filter(spell => spell.level === spellSlots.level);
+
+    return (
+      <div key={spellSlots.level}>
+        <span>{`${convertNumToCount(spellSlots.level)} Level`} ({spellSlots.count} slots): </span>
+        <span>{spellsKnown.map((spell) => spell.name).join(', ')}</span>
+      </div>
+    )
+  });
+
+  return (
+    <div>
+      {entryDescription} 
+      {cantripsDescription}
+      {spellsDescription}
+    </div>
+  )
 }
 
 const reactionActionSection = (creature: creatureSchemaType) => {
@@ -591,4 +658,21 @@ function sortDamageTakenModifiers(
   }
 
   return { vulnerabilities, resistances, immunities };
+}
+
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function convertNumToCount(num: number) {
+  switch (num) {
+    case 1:
+      return '1st';
+    case 2:
+      return '2nd';
+    case 3:
+      return '3rd';
+    default:
+      return num + 'th';
+  }
 }

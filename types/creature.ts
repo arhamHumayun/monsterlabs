@@ -215,10 +215,10 @@ const legendarySchema = z.object({
 
 const actionSchema = z.object({
   multiAttack: z.string().optional().describe('The multi-attack the creature can take. Only used for creatures that can make multiple weapon or natural attacks in a single turn. Simply describe the attacks the creature can make in a single turn.'),
-  savingThrowAttacks: z.array(saveAttackSchema).optional().describe('The save attacks the creature can take. This type of attack requires the target to make a saving throw. If the target fails the save, they take the full effect of the attack. This could be a spell or a special ability such as a breath attack. Describe AoE attacks here.'),
-  targetedWeaponAttacks: z.array(targetedAttackSchema).min(1).describe('The targeted attacks the creature can take. This attack requires an attack roll. Do not describe AoE attacks here.'),
-  specialActions: z.array(genericActionSchema).optional().describe('The special actions the creature can take. Only used for creatures that have special abilities which are not targeted attacks or save attacks or actions that are not attacks.'),
-});
+  savingThrowAttacks: z.array(saveAttackSchema).optional().describe('This type of attack requires the target to make a saving throw. This could be a spell or a special ability such as a breath attack. Describe AoE attacks here.'),
+  targetedWeaponAttacks: z.array(targetedAttackSchema).min(1).describe('This attack requires an attack roll and is typically a weapon or non-AoE spell attacks.'),
+  specialActions: z.array(genericActionSchema).optional().describe('Other special actions the creature can take. Fill this in last. Do not describe spells here.'),
+}).describe('The actions the creature can take. Never describe just plain spells here.');
 
 const spellcastingSchema = z.object({
   spellcastingStat: singleStatSchema.describe('The stat the creature uses for spellcasting.'),
@@ -227,15 +227,15 @@ const spellcastingSchema = z.object({
   spells: z.array(z.object({
     name: z.string(),
     level: z.number().min(0).max(9)
-  })),
-});
+  })).describe('The spells the creature can cast. Include cantrips as level 0 spells. Make sure to include at least one spell per each level that the creature can cast. '),
+}).describe("Make sure to include at least one spell per each level that the creature can cast. ");
 
 export const creatureSchema = z.object({
   name: z.string(),
   isUnique: z.boolean().describe('If the creature is unique, meaning there is only one of its kind in the world.'),
   lore: z.string(),
   appearance: z.string(),
-  pronoun: z.enum(['he', 'she', 'they']).optional(),
+  pronoun: z.enum(['he', 'she', 'they', 'it']).describe('The pronoun of the creature. If the creature is a unique creature, always fill in the pronoun.'),
   stats: statSchema,
   hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the creature. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
   armorClass: armorClassSchema,
@@ -251,12 +251,13 @@ export const creatureSchema = z.object({
   conditionImmunities: conditionImmunitiesSchema.optional(),
   languages: languagesSchema,
   traits: z.array(specialTraitsSchema).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait.'),
+  spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
   actions: actionSchema,
-  legendary: legendarySchema.optional().nullable().describe('Only used for high level or boss creatures.'),
-  reactions: z.array(genericActionSchema).optional().nullable().describe('Only used for creatures that can take a reaction. Do not describe legendary resistance.'),
+  reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
+  legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
 });
 
-export type chunkedMonsterParts = 'base' | 'info' | 'actions' | 'legendary' | 'reactions'; 
+export type chunkedMonsterParts = 'base' | 'spells' | 'actions' | 'legendary' | 'reactions'; 
 
 export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject | z.ZodArray<z.AnyZodObject>> = {
   base: z.object({
@@ -271,9 +272,7 @@ export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject |
     type: z.enum(['aberration', 'beast', 'celestial', 'construct', 'dragon', 'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity', 'ooze', 'plant', 'undead']),
     alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'true neutral', 'neutral', 'unaligned', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']).describe('The alignment of the creature. Always fill in the alignment. If no alignment is given, the creature is true neutral.'),
     challengeRating: z.number().min(0).max(30),
-    speed: speedSchema
-  }),
-  info: z.object({
+    speed: speedSchema,
     savingThrows: savingThrowSchema.describe('Which saving throws the creature is proficient in.'),
     skills: skillsSchema,
     senses: sensesSchema,
@@ -282,6 +281,7 @@ export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject |
     languages: languagesSchema,
     traits: z.array(specialTraitsSchema),
   }),
+  spells: spellcastingSchema.describe('The spells the creature can cast. Only fill in if the creature can cast spells.'),
   actions: actionSchema.describe('The actions the creature can take. Always include multi-attack if the creature can make multiple attacks in a single turn.'),
   legendary: legendarySchema,
   reactions: z.array(genericActionSchema),
@@ -324,6 +324,169 @@ export const skillToStat : Record<string, string> = {
   sleightOfHand: 'dexterity',
   stealth: 'dexterity',
   survival: 'wisdom',
+};
+
+export const pronounToSubject = {
+  he: 'his',
+  she: 'her',
+  they: 'their',
+  it: 'its',
+};
+
+interface spellSlotsPerLevel {
+  level: number,
+  count: number
+}
+
+
+export const spellSlotsPerLevelMapping : Record<number, spellSlotsPerLevel[]> = {
+  1: [
+    { level: 1, count: 2 }
+  ],
+  2: [
+    { level: 1, count: 3 }
+  ],
+  3: [
+    { level: 1, count: 4 },
+    { level: 2, count: 2 }
+  ],
+  4: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 }
+  ],
+  5: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 2 }
+  ],
+  6: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 }
+  ],
+  7: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 1 }
+  ],
+  8: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 2 }
+  ],
+  9: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 }
+  ],
+  10: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 1 }
+  ],
+  11: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 }
+  ],
+  12: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 }
+  ],
+  13: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 },
+    { level: 7, count: 1 }
+  ],
+  14: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 },
+    { level: 7, count: 1 }
+  ],
+  15: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 },
+    { level: 7, count: 1 },
+    { level: 8, count: 1 }
+  ],
+  16: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 },
+    { level: 7, count: 1 },
+    { level: 8, count: 1 }
+  ],
+  17: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 2 },
+    { level: 6, count: 1 },
+    { level: 7, count: 1 },
+    { level: 8, count: 1 },
+    { level: 9, count: 1 }
+  ],
+  18: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 3 },
+    { level: 6, count: 1 },
+    { level: 7, count: 1 },
+    { level: 8, count: 1 },
+    { level: 9, count: 1 }
+  ],
+  19: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 3 },
+    { level: 6, count: 2 },
+    { level: 7, count: 1 },
+    { level: 8, count: 1 },
+    { level: 9, count: 1 }
+  ],
+  20: [
+    { level: 1, count: 4 },
+    { level: 2, count: 3 },
+    { level: 3, count: 3 },
+    { level: 4, count: 3 },
+    { level: 5, count: 3 },
+    { level: 6, count: 2 },
+    { level: 7, count: 2 },
+    { level: 8, count: 1 },
+    { level: 9, count: 1 }
+  ]
 };
 
 export const challengeRatingToXP : Record<number, number> = {

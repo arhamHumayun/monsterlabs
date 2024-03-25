@@ -33,6 +33,8 @@ export function Navbar(
 
   if (!user) {
     navItemList.push({ title: 'Login', href: '/sign-in', alignment: 'justify-self-end'});
+  } else {
+    navItemList.push({ title: 'Profile', href: '/profile', alignment: 'justify-self-end'});
   }
 
   const navItems = navItemList.map((navItem, i) => {
