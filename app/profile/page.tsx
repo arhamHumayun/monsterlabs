@@ -1,4 +1,5 @@
 import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
+import { creatureSchemaType } from "@/types/creature";
 import { redirect } from "next/navigation";
 
 export default async function Profile() {
@@ -24,9 +25,25 @@ export default async function Profile() {
 
   const creatures = usersCreatures.data;
 
+  if (!creatures) {
+    return (
+      <div>
+        <h1>No creatures found</h1>
+      </div>
+    )
+  }
+
+  const creaturesJson = creatures.map(creatures => creatures.json) as creatureSchemaType[];
+
+  console.log("creatures as json: ", creaturesJson);
+
   return (
-    <div>
-      {JSON.stringify(usersCreatures.data, null, 2)}
+    <div className="grid grid-cols-3 gap-4">
+      {creaturesJson.map((creature) => (
+        <div key={creature.name} className="p-4 rounded-md border border-gray-200">
+          <h2 className="text-lg font-bold">{creature.name}</h2>
+        </div>
+      ))}
     </div>
   )
 }
