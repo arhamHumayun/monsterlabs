@@ -79,39 +79,59 @@ export default function CreatureBlock() {
         <Separator className="my-4" />
         <StatsBlock stats={stats} />
         <Separator className="my-4" />
-        <StyledStatSentences
-          s1="Saving Throws"
-          s2={buildSavingThrowsStringResult(
-            savingThrows,
-            stats,
-            proficiencyBonus
-          )}
-        />
+        {
+          savingThrows ? (
+            <StyledStatSentences
+              s1="Saving Throws"
+              s2={buildSavingThrowsStringResult(
+                savingThrows,
+                stats,
+                proficiencyBonus
+              )}
+            />
+          ) : null
+        }
         {skills ? (
           <StyledStatSentences
             s1="Skills"
             s2={buildSkillsStringResult(skills, stats, proficiencyBonus)}
           />
         ) : null}
-        <StyledStatSentences
-          s1="Damage Vulnerabilities"
-          s2={buildDamageTakenModifiersString(vulnerabilities)}
-        />
-        <StyledStatSentences
-          s1="Damage Resistances"
-          s2={buildDamageTakenModifiersString(resistances)}
-        />
-        <StyledStatSentences
-          s1="Damage Immunities"
-          s2={buildDamageTakenModifiersString(immunities)}
-        />
-        <StyledStatSentences
-          s1="Condition Immunities"
-          s2={
-            conditionImmunities?.filter((condition) => condition).join(', ') ||
-            ''
-          }
-        />
+        {
+          vulnerabilities ? (
+            <StyledStatSentences
+              s1="Damage Vulnerabilities"
+              s2={buildDamageTakenModifiersString(vulnerabilities)}
+            />
+          ) : null
+        }
+        {
+          resistances ? (
+            <StyledStatSentences
+              s1="Damage Resistances"
+              s2={buildDamageTakenModifiersString(resistances)}
+            />
+          ) : null
+        }
+        {
+          immunities ? (
+            <StyledStatSentences
+              s1="Damage Immunities"
+              s2={buildDamageTakenModifiersString(immunities)}
+            />
+          ) : null
+        }
+        {
+          conditionImmunities ? (
+            <StyledStatSentences
+              s1="Condition Immunities"
+              s2={conditionImmunities
+                .filter((condition) => condition)
+                .join(', ')
+              }
+            />
+          ) : null
+        }
         {senses ? (
           <StyledStatSentences
             s1="Senses"
@@ -638,11 +658,15 @@ const buildDamageTakenModifiersString = (
 };
 
 function sortDamageTakenModifiers(
-  damageTakenModifiers: damageTakenModifiersType
+  damageTakenModifiers?: damageTakenModifiersType
 ) {
   let vulnerabilities: Partial<damageTakenModifiersType> = {};
   let resistances: Partial<damageTakenModifiersType> = {};
   let immunities: Partial<damageTakenModifiersType> = {};
+
+  if (!damageTakenModifiers) {
+    return { vulnerabilities, resistances, immunities };
+  }
 
   let key: keyof damageTakenModifiersType;
   for (key in damageTakenModifiers) {
