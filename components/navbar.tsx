@@ -1,6 +1,4 @@
-'use client';
-
-import * as React from 'react';
+"use client";
 import Link from 'next/link';
 
 import {
@@ -12,15 +10,30 @@ import {
 } from '@/components/ui/navigation-menu';
 import { ModeToggle } from './dark-mode-toggle';
 
-type NavbarItemAlignment = 'justify-self-end' | 'justify-self-start';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
+import { User } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation'
 
-export function Navbar() {
+export function Navbar(
+  { user }: { user: User | undefined }
+) {
+
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    router.push('/logged-out');
+  }
+
   let navItemList = [
     { title: 'Home', href: '/', alignment: 'justify-self-start'},
-    { title: 'About', href: '/about', alignment: 'justify-self-start'},
-    { title: 'Login', href: '/login', alignment: 'justify-self-end'},
-    { title: 'Sign up', href: '/signup', alignment: 'justify-self-end'},
+    { title: 'About', href: '/about', alignment: 'justify-self-start'}
   ];
+
+  if (!user) {
+    navItemList.push({ title: 'Login', href: '/sign-in', alignment: 'justify-self-end'});
+  }
 
   const navItems = navItemList.map((navItem, i) => {
     return (
@@ -35,6 +48,18 @@ export function Navbar() {
       </div>
     );
   });
+
+  if (user) {
+    navItems.push(
+      <div className={`p-2 px-4 items-center`} key={navItems.length}>
+        <NavigationMenuItem>
+          <button onClick={logout} className={navigationMenuTriggerStyle()}>
+            Logout
+          </button>
+        </NavigationMenuItem>
+      </div>
+    );
+  }
 
   return (
     <NavigationMenu className='mx-auto'>

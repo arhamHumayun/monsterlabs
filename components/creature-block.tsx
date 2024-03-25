@@ -8,14 +8,13 @@ import {
   savingThrowsType,
   statsType,
   skillsType,
-  challengeRatingToXP
+  challengeRatingToXP,
 } from '@/types/creature';
 import { Separator } from './ui/separator';
 import { useRecoilValue } from 'recoil';
 import { creatureState } from '@/lib/state';
 
 export default function CreatureBlock() {
-
   const creature = useRecoilValue(creatureState);
 
   if (!creature) {
@@ -84,10 +83,12 @@ export default function CreatureBlock() {
             proficiencyBonus
           )}
         />
-        <StyledStatSentences
-          s1="Skills"
-          s2={buildSkillsStringResult(skills, stats, proficiencyBonus)}
-        />
+        {skills ? (
+          <StyledStatSentences
+            s1="Skills"
+            s2={buildSkillsStringResult(skills, stats, proficiencyBonus)}
+          />
+        ) : null}
         <StyledStatSentences
           s1="Damage Vulnerabilities"
           s2={buildDamageTakenModifiersString(vulnerabilities)}
@@ -102,22 +103,31 @@ export default function CreatureBlock() {
         />
         <StyledStatSentences
           s1="Condition Immunities"
-          s2={conditionImmunities?.filter(condition => condition).join(', ') || ''}
+          s2={
+            conditionImmunities?.filter((condition) => condition).join(', ') ||
+            ''
+          }
         />
-        <StyledStatSentences
-          s1="Senses"
-          s2={Object.entries(senses)
-            .filter(([_, value]) => value)
-            .map(([sense, value]) => `${sense} ${value} ft.`)
-            .join(', ')}
-        />
+        {senses ? (
+          <StyledStatSentences
+            s1="Senses"
+            s2={Object.entries(senses)
+              .filter(([_, value]) => value)
+              .map(([sense, value]) => `${sense} ${value} ft.`)
+              .join(', ')}
+          />
+        ) : null}
         <StyledStatSentences
           s1="Languages"
           s2={
             Object.keys(languages)
-            .map(lang => capitalizeFirstLetters(lang.split(' ')).join(' '))
-            .filter(lang => lang !== "telepathy")
-            .join(', ') + (languages.telepathy ? `, telepathy ${languages.telepathy.range} ft.` : '')}
+              .map((lang) => capitalizeFirstLetters(lang.split(' ')).join(' '))
+              .filter((lang) => lang !== 'telepathy')
+              .join(', ') +
+            (languages.telepathy
+              ? `, telepathy ${languages.telepathy.range} ft.`
+              : '')
+          }
         />
         <StyledStatSentences
           s1="Challenge"
@@ -125,8 +135,8 @@ export default function CreatureBlock() {
             challengeRating
           ].toLocaleString()} XP)`}
         />
-        {traits.length > 0 ? <Separator className="my-4" /> : null }
-        {traits.map((trait, index) => (
+        {traits && traits.length > 0 ? <Separator className="my-4" /> : null}
+        {traits && traits.map((trait, index) => (
           <StyledTraitSentences
             key={index}
             s1={`${trait.name}.`}
@@ -136,7 +146,9 @@ export default function CreatureBlock() {
         {legendary?.resistance ? (
           <StyledTraitSentences
             s1={`Legendary Resistance (${legendary.resistance}/Day).`}
-            s2={`If${creature.isUnique ? "" : " the" } ${name} fails a saving throw, ${pronoun} can choose to succeed instead.`}
+            s2={`If${
+              creature.isUnique ? '' : ' the'
+            } ${name} fails a saving throw, ${pronoun} can choose to succeed instead.`}
           />
         ) : null}
         <h1 className="mt-4 text-xl font-semibold">Actions</h1>
@@ -148,7 +160,6 @@ export default function CreatureBlock() {
     </div>
   );
 }
-
 
 const reactionActionSection = (creature: creatureSchemaType) => {
   const { reactions } = creature;
@@ -162,20 +173,19 @@ const reactionActionSection = (creature: creatureSchemaType) => {
       <h1 className="mt-4 text-xl font-semibold">Reactions</h1>
       <Separator className="mb-4" />
     </div>
-  )
+  );
 
   const actionMap = reactions.map((action, index) => {
     const { name, description } = action;
     return (
-      <div key={index} className='mb-4'>
+      <div key={index} className="mb-4">
         <p>
           <span className="font-semibold italic">{name}. </span>
-          <span className=''>{description}</span>
+          <span className="">{description}</span>
         </p>
       </div>
     );
-  }
-  );
+  });
 
   return (
     <div>
@@ -183,7 +193,7 @@ const reactionActionSection = (creature: creatureSchemaType) => {
       {actionMap}
     </div>
   );
-}
+};
 
 const legendaryActionSelection = (creature: creatureSchemaType) => {
   const { legendary } = creature;
@@ -196,23 +206,33 @@ const legendaryActionSelection = (creature: creatureSchemaType) => {
     <div>
       <h1 className="mt-4 text-xl font-semibold">Legendary Actions</h1>
       <Separator className="mb-4" />
-      <p className='mb-4'>{`${creature.isUnique ? "" : "The " }${creature.name} can take ${legendary.actionsPerTurn} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${creature.isUnique ? "" : "The " }${creature.name} regains spend legendary actions at the start of ${creature.isUnique ? "their " : "its " } turn.`}</p>
+      <p className="mb-4">{`${creature.isUnique ? '' : 'The '}${
+        creature.name
+      } can take ${
+        legendary.actionsPerTurn
+      } legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. ${
+        creature.isUnique ? '' : 'The '
+      }${creature.name} regains spend legendary actions at the start of ${
+        creature.isUnique ? 'their ' : 'its '
+      } turn.`}</p>
     </div>
-  )
+  );
 
   const actionMap = legendary.actions.map((action, index) => {
     const { name, cost, description } = action;
 
     return (
-      <div key={index} className='mb-4'>
+      <div key={index} className="mb-4">
         <p>
-          <span className="font-semibold italic">{name}{cost && cost > 1 ? ` (Costs ${cost} Actions)` : ``}. </span>
-          <span className=''>{description}</span>
+          <span className="font-semibold italic">
+            {name}
+            {cost && cost > 1 ? ` (Costs ${cost} Actions)` : ``}.{' '}
+          </span>
+          <span className="">{description}</span>
         </p>
       </div>
     );
-  }
-  );
+  });
 
   return (
     <div>
@@ -220,23 +240,26 @@ const legendaryActionSelection = (creature: creatureSchemaType) => {
       {actionMap}
     </div>
   );
-}
+};
 
-const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) => {
+const actionSection = (
+  creature: creatureSchemaType,
+  proficiencyBonus: number
+) => {
   const { actions } = creature;
 
   const {
     targetedWeaponAttacks,
     savingThrowAttacks,
     specialActions,
-    multiAttack
+    multiAttack,
   } = actions;
 
   const actionUI = [];
 
   if (multiAttack) {
     actionUI.push(
-      <div key={0} className='mb-4'>
+      <div key={0} className="mb-4">
         <p>
           <span className="font-semibold italic">Multiattack. </span>
           <span>{actions.multiAttack}</span>
@@ -248,8 +271,15 @@ const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) =
   if (targetedWeaponAttacks) {
     const targetedWeaponAttacksUI = targetedWeaponAttacks.map(
       (action, index) => {
-        
-        const { name, attackStat, attackType, targetCount, hit, range, rechargeRange } = action;
+        const {
+          name,
+          attackStat,
+          attackType,
+          targetCount,
+          hit,
+          range,
+          rechargeRange,
+        } = action;
 
         if (!hit) {
           return null;
@@ -257,26 +287,35 @@ const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) =
 
         const { damage } = hit;
 
-        const attackBonus =  statToBonus(creature.stats[attackStat]) + proficiencyBonus;
+        const attackBonus =
+          statToBonus(creature.stats[attackStat]) + proficiencyBonus;
         const sign = attackBonus > 0 ? '+' : '';
-        const targetCountDescription = targetCount > 1 ? `up to ${targetCount} targets` : 'one target';
+        const targetCountDescription =
+          targetCount > 1 ? `up to ${targetCount} targets` : 'one target';
 
-        const meleeAttackDescription = range.melee && range.melee > 0 ?`${sign}${attackBonus} to hit, reach ${range.melee} ft., ${targetCountDescription}.` : null;
-        const rangedAttackDescription = range.ranged && range.ranged > 0 ? `${sign}${attackBonus} to hit, range ${range.ranged}/${range.ranged*4} ft., ${targetCountDescription}.` : null;
+        const meleeAttackDescription =
+          range.melee && range.melee > 0
+            ? `${sign}${attackBonus} to hit, reach ${range.melee} ft., ${targetCountDescription}.`
+            : null;
+        const rangedAttackDescription =
+          range.ranged && range.ranged > 0
+            ? `${sign}${attackBonus} to hit, range ${range.ranged}/${
+                range.ranged * 4
+              } ft., ${targetCountDescription}.`
+            : null;
 
         const attackDescriptionPrefix = () => {
-          const attackTypeDescription = attackType.charAt(0).toUpperCase() + attackType.slice(1);
+          const attackTypeDescription =
+            attackType.charAt(0).toUpperCase() + attackType.slice(1);
           if (meleeAttackDescription && rangedAttackDescription) {
             return `Melee or Ranged ${attackTypeDescription} Attack: `;
-          }
-          else if (meleeAttackDescription) {
+          } else if (meleeAttackDescription) {
             return `Melee ${attackTypeDescription} Attack: `;
-          }
-          else if (rangedAttackDescription) {
+          } else if (rangedAttackDescription) {
             return `Ranged ${attackTypeDescription} Attack: `;
           }
           return ``;
-        }
+        };
 
         const attackDescription = () => {
           if (meleeAttackDescription && rangedAttackDescription) {
@@ -289,32 +328,57 @@ const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) =
             return rangedAttackDescription;
           }
           return null;
-        }
+        };
 
         const damageDescription = () => {
           if (damage) {
             const damageBonus = statToBonus(creature.stats[attackStat]);
             const sign = damageBonus > 0 ? '+' : '';
-            const averageDamage = Math.floor((damage.primary.damageDice.count * (damage.primary.damageDice.sides + 1)) / 2) + damageBonus;
-            const averageDamageSecondary = damage.secondary ? Math.floor(damage.secondary.damageDice.count * (damage.secondary.damageDice.sides + 1) / 2) : 0;
+            const averageDamage =
+              Math.floor(
+                (damage.primary.damageDice.count *
+                  (damage.primary.damageDice.sides + 1)) /
+                  2
+              ) + damageBonus;
+            const averageDamageSecondary = damage.secondary
+              ? Math.floor(
+                  (damage.secondary.damageDice.count *
+                    (damage.secondary.damageDice.sides + 1)) /
+                    2
+                )
+              : 0;
 
-            return `${averageDamage} (${damage.primary.damageDice.count}d${damage.primary.damageDice.sides}${`${damageBonus ? ` ${sign} ${damageBonus}` : ''}`}) ${damage.primary.damageType} damage${damage.secondary ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage` : ''}`;
-          } 
+            return `${averageDamage} (${damage.primary.damageDice.count}d${
+              damage.primary.damageDice.sides
+            }${`${damageBonus ? ` ${sign} ${damageBonus}` : ''}`}) ${
+              damage.primary.damageType
+            } damage${
+              damage.secondary
+                ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage`
+                : ''
+            }`;
+          }
           return ``;
-        }
+        };
 
         const conditionsDescription = hit.affect ? ` ${hit.affect}` : '';
 
-        const rechargeDescription = rechargeRange ? ` (Recharge ${rechargeRange.min}-${rechargeRange.max})` : '';
+        const rechargeDescription = rechargeRange
+          ? ` (Recharge ${rechargeRange.min}-${rechargeRange.max})`
+          : '';
 
         return (
-          <div key={index} className='mb-4'>
+          <div key={index} className="mb-4">
             <p>
-              <span className="font-semibold italic">{name}{rechargeDescription}. </span>
-              <span className='italic'>{attackDescriptionPrefix()}</span>
+              <span className="font-semibold italic">
+                {name}
+                {rechargeDescription}.{' '}
+              </span>
+              <span className="italic">{attackDescriptionPrefix()}</span>
               {attackDescription()}
-              <span className='italic'> Hit: </span>
-              {damageDescription()}{conditionsDescription}
+              <span className="italic"> Hit: </span>
+              {damageDescription()}
+              {conditionsDescription}
             </p>
           </div>
         );
@@ -327,10 +391,16 @@ const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) =
     const saveAttacksUI = savingThrowAttacks.map((action, index) => {
       const { name, rechargeRange, description } = action;
       return (
-        <div key={index} className='mb-4'>
+        <div key={index} className="mb-4">
           <p>
-            <span className="font-semibold italic">{name}{rechargeRange ? ` (Recharge ${rechargeRange.min}-${rechargeRange.max})` : ''}. </span>
-            <span className=''>{description}</span>
+            <span className="font-semibold italic">
+              {name}
+              {rechargeRange
+                ? ` (Recharge ${rechargeRange.min}-${rechargeRange.max})`
+                : ''}
+              .{' '}
+            </span>
+            <span className="">{description}</span>
           </p>
         </div>
       );
@@ -342,10 +412,10 @@ const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) =
     const specialActionsUI = specialActions.map((action, index) => {
       const { name, description } = action;
       return (
-        <div key={index} className='mb-4'>
+        <div key={index} className="mb-4">
           <p>
             <span className="font-semibold italic">{name}. </span>
-            <span className=''>{description}</span>
+            <span className="">{description}</span>
           </p>
         </div>
       );
@@ -354,7 +424,7 @@ const actionSection = (creature: creatureSchemaType, proficiencyBonus: number) =
   }
 
   return actionUI;
-}
+};
 
 function StatsBlock({ stats }: { stats: statsType }) {
   const statBlocks = Object.entries(stats).map(([stat, value]) => {
@@ -380,7 +450,7 @@ function StyledTraitSentences({ s1, s2 }: { s1: string; s2: string }) {
   }
 
   return (
-    <div className='mb-2'>
+    <div className="mb-2">
       <span className="font-semibold italic">{s1} </span>
       <span>{s2}</span>
     </div>
@@ -400,9 +470,9 @@ function StyledStatSentences({ s1, s2 }: { s1: string; s2: string }) {
   );
 }
 
-function capitalizeFirstLetters(str: string[]) : string[] {
-  return str.map(s => s.charAt(0).toUpperCase() + s.slice(1));
-};
+function capitalizeFirstLetters(str: string[]): string[] {
+  return str.map((s) => s.charAt(0).toUpperCase() + s.slice(1));
+}
 
 const buildSpeedStringResult = (speed: speedType) => {
   let result = '';
@@ -494,7 +564,9 @@ const buildDamageTakenModifiersString = (
     }`;
   }
 
-  result += `${result.length > 0 ? `; ` : ``} ${resultPhysicalList.join(', ')} from nonmagical attacks.`;
+  result += `${result.length > 0 ? `; ` : ``} ${resultPhysicalList.join(
+    ', '
+  )} from nonmagical attacks.`;
   return result;
 };
 

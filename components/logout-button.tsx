@@ -4,43 +4,38 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 import { Button, type ButtonProps } from '@/components/ui/button'
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client'
 
 import { Loader2 } from 'lucide-react'
+import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
+import { redirect } from 'next/navigation'
+
 
 interface LoginButtonProps extends ButtonProps {
   showGithubIcon?: boolean
   text?: string
 }
 
-export function LoginButton({
-  text = 'Login with Google',
+export function LogoutButton({
+  text = 'Log out',
   showGithubIcon = true,
   className,
   ...props
 }: LoginButtonProps) {
   const [isLoading, setIsLoading] = React.useState(false)
-  
-  const supabase = createSupabaseBrowserClient();
 
-  const loginWithGoogle = async () => {
+  const logoutWithGoogle = async () => {
+    "use server"
+    const supabase = await createSupabaseAppServerClient();
     setIsLoading(true)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      }
-    })
+    await supabase.auth.signOut();
+    setIsLoading(false);
+    redirect('/')
   }
 
   return (
     <Button
       variant="outline"
-      onClick={loginWithGoogle}
+      onClick={logoutWithGoogle}
       disabled={isLoading}
       className={cn(className)}
       {...props}

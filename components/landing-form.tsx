@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-import { CornerDownLeft } from "lucide-react"
+import { CornerDownLeft, Loader2 } from "lucide-react"
 
 import { Input } from '@/components/ui/input';
 import { useRecoilState } from 'recoil';
@@ -24,12 +24,12 @@ import React from 'react';
 const formSchema = z.object({
   prompt: z
     .string()
-    .min(2, {
-      message: 'Prompt must be at least 2 characters.',
-    })
-    .max(500, {
-      message: 'Prompt must be at most 500 characters.',
-    }),
+    // .min(2, {
+    //   message: 'Prompt must be at least 2 characters.',
+    // })
+    // .max(500, {
+    //   message: 'Prompt must be at most 500 characters.',
+    // }),
 });
 
 export function LandingForm() {
@@ -68,9 +68,12 @@ export function LandingForm() {
   }
 
   const loading = isLoading ? (
-    <p className="text-center text-md font-medium animate-pulse duration-800 ease-in-out">
-      Generating your monster...
-    </p>
+    <div className='flex justify-center'>
+      <p className="text-md font-medium">
+        Generating your monster...
+      </p>
+      <Loader2 className="ml-2 animate-spin" />
+    </div>
   ) : null;
 
   return (
@@ -94,8 +97,8 @@ export function LandingForm() {
         <Button type="submit" variant='outline' className="rounded sticky right-0 border-0">
           <CornerDownLeft className="h-4 w-4" />
         </Button>
-        {loading}
       </form>
+      {loading}
     </Form>
   );
 }
