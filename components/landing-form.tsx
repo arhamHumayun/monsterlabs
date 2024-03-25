@@ -20,6 +20,8 @@ import { useRecoilState } from 'recoil';
 import { creatureState } from '@/lib/state';
 import { creatureSchemaType } from '@/types/creature';
 import React from 'react';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   prompt: z.string()
@@ -28,6 +30,10 @@ const formSchema = z.object({
 export function LandingForm() {
   const [_, setMonster] = useRecoilState(creatureState);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const router = useRouter();
+
+  const supabase = createSupabaseBrowserClient();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,6 +45,13 @@ export function LandingForm() {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push('/sign-in');
+    }
+
     setIsLoading(true);
 
     // For example, send the form data to your API.
