@@ -239,7 +239,7 @@ export const creatureSchema = z.object({
   isUnique: z.boolean().describe('If the creature is unique, meaning there is only one of its kind in the world.'),
   lore: z.string(),
   appearance: z.string(),
-  pronoun: z.enum(['he', 'she', 'they', 'it']).describe('The pronoun of the creature. If the creature is a unique creature, always fill in the pronoun.'),
+  pronoun: z.enum(['he', 'she', 'they', 'it']).describe("Always fill this in."),
   stats: statSchema,
   hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the creature. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
   armorClass: armorClassSchema,

@@ -14,7 +14,8 @@ The user provides a prompt that describes the creature they want to generate.
 Pay close attention to the schema and strongly adhere to it.
 Never include the units in the response, only the numbers.
 
-Use all of the tools at your disposal to generate a creature that fits the user's request.
+Use all of the tools starting with "generate_creature" at your disposal to generate a creature that fits the user's request.
+Always use the generate_creature_base and generate_creature_actions tools, and use the other tools as needed.
 
 Remember to keep in mind the following:
 - First thing about what the overall theme of the creature is, and then think about what kind of abilities and stats it should have. Its abilities and stats should reflect its theme.
@@ -101,20 +102,39 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
     console.log("attempt at parsing: ", attempts);
 
     const allToolCalls = completion.choices[0].message.tool_calls!;
-    const buildResponse : any = {};
+    let buildResponse : any = {};
 
     allToolCalls.forEach((toolCall) => {
       const toolName = toolCall.function.name;
       let args = JSON.parse(toolCall.function.arguments);
 
-      if (toolName === "generate_creature_base") {
-        buildResponse[toolName] = args.base;
-      } else if (toolName === "generate_creature_reactions") {
-        buildResponse[toolName] = args.reactions;
-      } else {
-        buildResponse[toolName] = JSON.parse(toolCall.function.arguments);
+      console.log("toolName: ", toolName);
+      console.log("args: ", args);
+
+      switch (toolName) {
+        case "generate_creature_base":
+          buildResponse = { ...buildResponse, ...args};
+          break;
+        case "generate_creature_spells":
+          buildResponse['spells'] = args;
+          break;
+        case "generate_creature_actions":
+          buildResponse['actions'] = args;
+          break;
+        case "generate_creature_legendary":
+          buildResponse['legendary'] = args;
+          break;
+        case "generate_creature_reactions":
+          buildResponse['reactions'] = args.reactions;
+          break;
       }
     });
+
+    console.log("built response: ", JSON.stringify(buildResponse, null, 2));
+
+    if (!buildResponse.pronoun) {
+      buildResponse.pronoun = "it";
+    }
 
     let parsedMonster = creatureSchema.parse(buildResponse);
 
@@ -123,7 +143,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
     return parsedMonster
   } catch (error) {
     console.error(error);
-    if (attempts < 3) {
+    if (attempts < 0) {
       return routeLogicGPT(prompt, attempts + 1);
     } else {
       return {
