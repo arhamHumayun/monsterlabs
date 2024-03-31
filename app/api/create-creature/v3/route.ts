@@ -1,4 +1,4 @@
-import { creatureSchema, creatureSchemaType } from "@/types/creature";
+import { chunkedMonsterSchema, creatureSchema, creatureSchemaType } from "@/types/creature";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 import zodToJsonSchema from "zod-to-json-schema";
@@ -13,6 +13,8 @@ You use the generate_creature function in order to generate creatures that the u
 The user provides a prompt that describes the creature they want to generate.
 Pay close attention to the schema and strongly adhere to it.
 Never include the units in the response, only the numbers.
+
+Use all of the tools at your disposal to generate a creature that fits the user's request.
 
 Remember to keep in mind the following:
 - First thing about what the overall theme of the creature is, and then think about what kind of abilities and stats it should have. Its abilities and stats should reflect its theme.
@@ -45,9 +47,41 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
     {
       type: "function",
       function: {
-        name: "generate_creature",
-        description: "Generate a creature with parameters that adhere to this schema. Always fill in required fields in the schema.",
-        parameters: zodToJsonSchema(creatureSchema)
+          name: "generate_creature_base",
+          description: "Generate a creature's base stats.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.base)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_spells",
+          description: "Generate a creature's spells.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.spells)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_actions",
+          description: "Generate a creature's actions.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.actions)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_legendary",
+          description: "Generate a creature's legendary actions and information if they are legendary.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.legendary)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_reactions",
+          description: "Generate a creature's reactions if they have any.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.reactions)
       }
     }
   ];
@@ -60,18 +94,29 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
     model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo-preview
     stream: false,
     tools,
-    tool_choice: {
-      type: 'function',
-      function: {
-        name: 'generate_creature'
-      }
-    },
     temperature: 0.4,
   });
 
   try {
     console.log("attempt at parsing: ", attempts);
-    let parsedMonster = creatureSchema.parse(JSON.parse(completion.choices[0].message.tool_calls![0].function.arguments));
+
+    const allToolCalls = completion.choices[0].message.tool_calls!;
+    const buildResponse : any = {};
+
+    allToolCalls.forEach((toolCall) => {
+      const toolName = toolCall.function.name;
+      let args = JSON.parse(toolCall.function.arguments);
+
+      if (toolName === "generate_creature_base") {
+        buildResponse[toolName] = args.base;
+      } else if (toolName === "generate_creature_reactions") {
+        buildResponse[toolName] = args.reactions;
+      } else {
+        buildResponse[toolName] = JSON.parse(toolCall.function.arguments);
+      }
+    });
+
+    let parsedMonster = creatureSchema.parse(buildResponse);
 
     console.log("successfully parsed creature: ", parsedMonster);
 

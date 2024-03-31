@@ -17,7 +17,7 @@ Remember to keep in mind the following:
 - The creature should have a multi-attack or a special attack that is unique to the creature if it's challenge rating is 3 or higher.
 - The more powerful a creature is, the more attacks and abilities it should have.
 - The creature should follow rules and guidelines for creature creation as described in the Dungeon Master's Guide and the Monster Manual for DnD 5e.
-- Put AoE attacks under saving throw attacks.
+- Put AoE attacks such as breath attacks under saving throw attacks.
 - Only put actions under special actions if they are not attacks.
 - Never describe the action cost in a name of an action.
 `;
@@ -39,8 +39,8 @@ export async function POST(request: Request) {
 
 async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<creatureSchemaType | { error: string }> {
   const model = new OllamaFunctions({
-    temperature: 0.2,
-    model: "mixtral",
+    temperature: 0.5,
+    model: "command-r",
   }).bind({
     functions: [{
       name: "generate_creature",

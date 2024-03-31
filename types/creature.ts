@@ -177,7 +177,7 @@ const saveAttackSchema = z.object({
 const genericActionSchema = z.object({
   name: z.string(),
   description: z.string()
-}).describe('A special or generic action the creature can take that is not a weapon or spell attack or spell save attack. Only used for creatures that have special abilities or actions that are not attacks as defined by the other attack types.');
+})
 
 const languagesSchema = z.object({
   common: z.boolean().optional(),
@@ -229,6 +229,10 @@ const spellcastingSchema = z.object({
     level: z.number().min(0).max(9)
   })).describe('The spells the creature can cast. Include cantrips as level 0 spells. Make sure to include at least one spell per each level that the creature can cast. '),
 }).describe("Make sure to include at least one spell per each level that the creature can cast. ");
+
+const reactionsSchema = z.object({
+  reactions: z.array(genericActionSchema),
+});
 
 export const creatureSchema = z.object({
   name: z.string(),
@@ -284,7 +288,7 @@ export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject |
   spells: spellcastingSchema.describe('The spells the creature can cast. Only fill in if the creature can cast spells.'),
   actions: actionSchema.describe('The actions the creature can take. Always include multi-attack if the creature can make multiple attacks in a single turn.'),
   legendary: legendarySchema,
-  reactions: z.array(genericActionSchema),
+  reactions: reactionsSchema,
 }
 
 export type creatureSchemaType = z.infer<typeof creatureSchema>;
