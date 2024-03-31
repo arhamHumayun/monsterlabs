@@ -335,6 +335,10 @@ const actionSection = (
 ) => {
   const { actions } = creature;
 
+  if (!actions) {
+    return null;
+  }
+
   const {
     targetedWeaponAttacks,
     savingThrowAttacks,

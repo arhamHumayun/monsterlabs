@@ -256,7 +256,7 @@ export const creatureSchema = z.object({
   languages: languagesSchema,
   traits: z.array(specialTraitsSchema).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait.'),
   spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
-  actions: actionSchema,
+  actions: actionSchema.optional(),
   reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
   legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
 });
@@ -286,7 +286,7 @@ export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject |
     traits: z.array(specialTraitsSchema),
   }),
   spells: spellcastingSchema.describe('The spells the creature can cast. Only fill in if the creature can cast spells.'),
-  actions: actionSchema.describe('The actions the creature can take. Always include multi-attack if the creature can make multiple attacks in a single turn.'),
+  actions: actionSchema,
   legendary: legendarySchema,
   reactions: reactionsSchema,
 }

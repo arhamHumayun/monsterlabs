@@ -14,8 +14,9 @@ The user provides a prompt that describes the creature they want to generate.
 Pay close attention to the schema and strongly adhere to it.
 Never include the units in the response, only the numbers.
 
-Use all of the tools starting with "generate_creature" at your disposal to generate a creature that fits the user's request.
+Use all of the tools at your disposal to generate a creature that fits the user's request.
 Always use the generate_creature_base and generate_creature_actions tools, and use the other tools as needed.
+If the creature can cast spells, use the generate_creature_spells tool.
 
 Remember to keep in mind the following:
 - First thing about what the overall theme of the creature is, and then think about what kind of abilities and stats it should have. Its abilities and stats should reflect its theme.
@@ -44,12 +45,12 @@ export async function POST(request: Request) {
 }
 
 async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<creatureSchemaType | { error: string }> {
-  const tools:  Array<ChatCompletionTool> = [
+  const tools: Array<ChatCompletionTool> = [
     {
       type: "function",
       function: {
           name: "generate_creature_base",
-          description: "Generate a creature's base stats.",
+          description: "Generate a creature's base stats. When generating a creature, always include the base stats.",
           parameters: zodToJsonSchema(chunkedMonsterSchema.base)
       }
     },
@@ -57,7 +58,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
       type: "function",
       function: {
           name: "generate_creature_spells",
-          description: "Generate a creature's spells.",
+          description: "Generate a creature's spells if they can cast spells.",
           parameters: zodToJsonSchema(chunkedMonsterSchema.spells)
       }
     },
@@ -65,7 +66,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
       type: "function",
       function: {
           name: "generate_creature_actions",
-          description: "Generate a creature's actions.",
+          description: "Generate a creature's actions. When generating a creature, always include some actions.",
           parameters: zodToJsonSchema(chunkedMonsterSchema.actions)
       }
     },
