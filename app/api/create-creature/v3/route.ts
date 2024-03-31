@@ -96,7 +96,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
     model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo-preview
     stream: false,
     tools,
-    temperature: 0.4,
+    temperature: 0.3,
   });
 
   try {

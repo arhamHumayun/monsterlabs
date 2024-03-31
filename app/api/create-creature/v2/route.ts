@@ -84,7 +84,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0, gen: chunkedM
     ],
     model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo-preview
     functions: [creatureGenFunctions[gen]],
-    temperature: 0.2,
+    temperature: 0.3,
     function_call: {
       name: creatureGenFunctions[gen].name,
     }
