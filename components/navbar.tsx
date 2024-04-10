@@ -28,7 +28,6 @@ export function Navbar(
 
   let navItemList = [
     { title: 'Home', href: '/', alignment: 'justify-self-start'},
-    { title: 'About', href: '/about', alignment: 'justify-self-start'}
   ];
 
   if (!user) {
@@ -51,20 +50,8 @@ export function Navbar(
     );
   });
 
-  if (user) {
-    navItems.push(
-      <div className={`p-2 px-4 items-center`} key={navItems.length}>
-        <NavigationMenuItem>
-          <button onClick={logout} className={navigationMenuTriggerStyle()}>
-            Logout
-          </button>
-        </NavigationMenuItem>
-      </div>
-    );
-  }
-
   return (
-    <NavigationMenu className='mx-auto'>
+    <NavigationMenu className='mx-auto max-w-2xl'>
       <NavigationMenuList>
         {navItems}
         <ModeToggle/>

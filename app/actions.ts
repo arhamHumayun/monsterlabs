@@ -2,7 +2,6 @@
 
 import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
-import { creatureSchemaType } from '@/types/creature';
 import { creatureDocument } from '@/types/db';
 
 export async function logInToGoogle() {
@@ -24,6 +23,13 @@ export async function logInToGoogle() {
     }
   }
 
+  return redirect('/')
+}
+
+
+export async function logOut() {
+  const supabase = await createSupabaseAppServerClient();
+  await supabase.auth.signOut();
   return redirect('/')
 }
 

@@ -4,6 +4,8 @@ import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
 import { redirect } from "next/navigation";
 import { getCreaturesByUserId } from "../actions";
 import { creatureDocument } from "@/types/db";
+import { Button } from "@/components/ui/button";
+import { LogOutButton } from "@/components/logout-button";
 
 export default async function Profile() {
 
@@ -38,6 +40,8 @@ export default async function Profile() {
           <CreatureLink key={creature.id} id={creature.id} creature={creature.json}/>
         ))}
       </div>
+      <Separator className="my-4"/>
+      <LogOutButton/>
     </div>
   )
 }
