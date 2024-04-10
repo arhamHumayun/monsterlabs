@@ -15,11 +15,10 @@ import {
   spellSlotsPerLevelMapping
 } from '@/types/creature';
 import { Separator } from './ui/separator';
-import { useRecoilValue } from 'recoil';
-import { creatureState } from '@/lib/state';
 
-export default function CreatureBlock() {
-  const creature = useRecoilValue(creatureState);
+export default function CreatureBlock(
+  { creature }: { creature: creatureSchemaType }
+) {
 
   if (!creature) {
     return null;

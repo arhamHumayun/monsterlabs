@@ -17,8 +17,7 @@ import { CornerDownLeft, Loader2 } from "lucide-react"
 
 import { Input } from '@/components/ui/input';
 import { useRecoilState } from 'recoil';
-import { creatureState } from '@/lib/state';
-import { creatureSchemaType } from '@/types/creature';
+import { creatureSchema, creatureSchemaType } from '@/types/creature';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
@@ -28,7 +27,6 @@ const formSchema = z.object({
 });
 
 export function LandingForm() {
-  const [_, setMonster] = useRecoilState(creatureState);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const router = useRouter();
@@ -50,6 +48,7 @@ export function LandingForm() {
 
     if (!user) {
       router.push('/sign-in');
+      return;
     }
 
     setIsLoading(true);
@@ -65,7 +64,26 @@ export function LandingForm() {
 
     if (response.ok) {
       const jsonResponse = await response.json();
-      setMonster(jsonResponse as creatureSchemaType);
+
+      try {
+        const creature = creatureSchema.parse(jsonResponse);
+
+        const supabaseResponse = await supabase.from('creatures').insert({
+          created_at: new Date(),
+          updated_at: new Date(),
+          user_id: user.id,
+          json: creature,
+        }).select();
+
+        console.log('Supabase response:', supabaseResponse);
+
+        const creatureId = supabaseResponse.data![0].id;
+
+        router.push(`/creature/${creatureId}`);
+      } catch (error) {
+        console.error('Something went wrong when generating the creature:', error);
+      }
+  
     } else {
       console.error('Failed to fetch monster data');
     }

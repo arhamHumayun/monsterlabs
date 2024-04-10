@@ -1,9 +1,12 @@
+import { CreatureLink } from "@/components/creature-link";
+import { Separator } from "@/components/ui/separator";
 import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
-import { creatureSchemaType } from "@/types/creature";
 import { redirect } from "next/navigation";
+import { getCreaturesByUserId } from "../actions";
+import { creatureDocument } from "@/types/db";
 
 export default async function Profile() {
-  
+
   const supabase = await createSupabaseAppServerClient();
   const session = (await supabase.auth.getSession()).data.session;
   const user = session?.user;
@@ -14,16 +17,7 @@ export default async function Profile() {
     redirect('/sign-in');
   }
 
-  console.log('User ID:', userId);
-
-  const usersCreatures = await supabase
-    .from('creatures')
-    .select('*')
-    .eq('user_id', userId);
-
-  console.log(usersCreatures.data);
-
-  const creatures = usersCreatures.data;
+  const creatures = await getCreaturesByUserId(userId)
 
   if (!creatures) {
     return (
@@ -33,17 +27,17 @@ export default async function Profile() {
     )
   }
 
-  const creaturesJson = creatures.map(creatures => creatures.json) as creatureSchemaType[];
-
-  console.log("creatures as json: ", creaturesJson);
+  console.log('Creatures:', creatures);
 
   return (
-    <div className="grid grid-cols-3 gap-4">
-      {creaturesJson.map((creature) => (
-        <div key={creature.name} className="p-4 rounded-md border border-gray-200">
-          <h2 className="text-lg font-bold">{creature.name}</h2>
-        </div>
-      ))}
+    <div>
+      <h1 className="text-lg font-bold">Your creatures</h1>
+      <Separator className="mb-4"/>
+      <div className="grid grid-cols-3 gap-4">
+        {creatures.map((creature : creatureDocument) => (
+          <CreatureLink key={creature.id} id={creature.id} creature={creature.json}/>
+        ))}
+      </div>
     </div>
   )
 }

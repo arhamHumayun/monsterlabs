@@ -23,7 +23,7 @@ export function Navbar(
 
   const logout = async () => {
     await supabase.auth.signOut();
-    router.push('/logged-out');
+    router.refresh();
   }
 
   let navItemList = [
