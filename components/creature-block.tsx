@@ -12,7 +12,8 @@ import {
   skillsType,
   challengeRatingToXP,
   pronounToSubject,
-  spellSlotsPerLevelMapping
+  spellSlotsPerLevelMapping,
+  orderedKeys
 } from '@/types/creature';
 import { Separator } from './ui/separator';
 
@@ -517,7 +518,8 @@ const actionSection = (
 };
 
 function StatsBlock({ stats }: { stats: statsType }) {
-  const statBlocks = Object.entries(stats).map(([stat, value]) => {
+  const statBlocks = orderedKeys.map((stat : keyof statsType) => {
+    const value = stats[stat];
     const bonus = statToBonus(value);
     const sign = bonus > 0 ? '+' : '';
 

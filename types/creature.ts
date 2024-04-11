@@ -30,6 +30,15 @@ const savingThrowSchema = z.object({
   charisma: z.boolean().optional()
 });
 
+export const orderedKeys: (keyof statsType)[] = [
+  'strength',
+  'dexterity',
+  'constitution',
+  'intelligence',
+  'wisdom',
+  'charisma',
+];
+
 const singleStatSchema = z.enum(['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']);
 
 const skillsSchema = z.object({
