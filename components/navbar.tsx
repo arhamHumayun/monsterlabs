@@ -54,7 +54,9 @@ export function Navbar(
     <NavigationMenu className='mx-auto max-w-2xl'>
       <NavigationMenuList>
         {navItems}
-        <ModeToggle/>
+        <NavigationMenuItem className='p-2 px-4 items-center'>
+          <ModeToggle />
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   );
