@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-import { CornerDownLeft, Loader2 } from "lucide-react"
+import { CornerDownLeft, Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { creatureSchema } from '@/types/creature';
@@ -22,7 +22,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
-  prompt: z.string()
+  prompt: z.string(),
 });
 
 export function LandingForm() {
@@ -41,8 +41,9 @@ export function LandingForm() {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       router.push('/sign-in');
@@ -51,7 +52,6 @@ export function LandingForm() {
 
     setIsLoading(true);
 
-    // For example, send the form data to your API.
     const response = await fetch('/api/create-creature/v1', {
       method: 'POST',
       headers: {
@@ -66,20 +66,25 @@ export function LandingForm() {
       try {
         const creature = creatureSchema.parse(jsonResponse);
 
-        const supabaseResponse = await supabase.from('creatures').insert({
-          created_at: new Date(),
-          updated_at: new Date(),
-          user_id: user.id,
-          json: creature,
-        }).select();
+        const supabaseResponse = await supabase
+          .from('creatures')
+          .insert({
+            created_at: new Date(),
+            updated_at: new Date(),
+            user_id: user.id,
+            json: creature,
+          })
+          .select();
 
         const creatureId = supabaseResponse.data![0].id;
 
         router.push(`/creature/${creatureId}`);
       } catch (error) {
-        console.error('Something went wrong when generating the creature:', error);
+        console.error(
+          'Something went wrong when generating the creature:',
+          error
+        );
       }
-  
     } else {
       console.error('Failed to fetch monster data');
     }
@@ -88,36 +93,42 @@ export function LandingForm() {
   }
 
   const loading = isLoading ? (
-    <div className='flex justify-center'>
-      <p className="text-md font-medium">
-        Generating your monster...
-      </p>
+    <div className="flex justify-center">
+      <p className="text-md font-medium">Generating your monster...</p>
       <Loader2 className="ml-2 animate-spin" />
     </div>
   ) : null;
 
   return (
     <Form {...form} aria-busy={isLoading}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <div className="flex w-full rounded border">
-          <FormField
-            control={form.control}
-            name="prompt"
-            render={({ field }) => (
-              <FormItem className='w-full'>
-                <FormControl>
-                  <Input className='border-0' placeholder="Describe your monster..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" variant='outline' className="rounded sticky right-0 border-0">
-            <CornerDownLeft className="h-4 w-4" />
-          </Button>
-        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <fieldset disabled={isLoading}>
+          <div className="flex w-full rounded border">
+            <FormField
+              control={form.control}
+              name="prompt"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <Input
+                      className="border-0"
+                      placeholder="Describe your monster..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              className="rounded sticky right-0 border-0"
+            >
+              <CornerDownLeft className="h-4 w-4" />
+            </Button>
+          </div>
+        </fieldset>
       </form>
       {loading}
     </Form>

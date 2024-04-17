@@ -1,10 +1,11 @@
-import { getCreatureById, getUser } from "@/app/actions";
-import { EditCreature } from "@/components/edit-creature";
+import { getCreatureById, getUser } from '@/app/actions';
+import { EditCreature } from '@/components/edit-creature';
 
-export default async function EditMonster(
-  { params }: { params: { id: string } }
-) {
-
+export default async function EditMonster({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = params;
 
   const creature = await getCreatureById(id);
@@ -14,7 +15,7 @@ export default async function EditMonster(
       <div>
         <h1>Creature not found</h1>
       </div>
-    )
+    );
   }
 
   const user = await getUser();
@@ -25,12 +26,12 @@ export default async function EditMonster(
       <div>
         <h1>You do not have access to edit this creature</h1>
       </div>
-    )
+    );
   }
 
   return (
     <div>
-      <EditCreature creature={creature.json} />
+      <EditCreature creature={creature.json} creatureId={id} />
     </div>
-  )
+  );
 }

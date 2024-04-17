@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic'; // static by default, unless reading the
 export const runtime = 'edge';
 
 const systemPrompt = `
-You use the update_monster function in order to update monsters that the user requests.
-The user provides a prompt that describes the monster they want to update.
-Rewrite the monster with the changes the user asks for. Always fill in required fields in the schema.
+You use the update_creature function in order to update creatures that the user requests.
+The user provides a prompt that describes the creature they want to update.
+Rewrite the creature with the changes the user asks for. Always fill in required fields in the schema.
 Ensure you remove duplicate actions and actions that asked to be removed.
 If there are multiple actions with the same name, remove the old one.
 Keep everything else the same.
@@ -22,13 +22,12 @@ export async function POST(request: Request) {
 
   const body = request.json();
 
-  const { prompt, monster } = await body;
+  const { prompt, creature } = await body;
 
   console.log("Received prompt: ", prompt);
+  console.log("Received creature: ", creature);
 
-  console.log("Received monster: ", monster);
-
-  const responseBody = await routeLogic(prompt, monster, 0);
+  const responseBody = await routeLogic(prompt, creature, 0);
 
   return new Response(JSON.stringify(responseBody, null, 2), {
     headers: {
@@ -37,11 +36,11 @@ export async function POST(request: Request) {
   });
 }
 
-async function routeLogic(prompt: string, monster: creatureSchemaType, attempts: number = 0) {
+async function routeLogic(prompt: string, creature: creatureSchemaType, attempts: number = 0) {
   const tools = [
     {
-      name: "update_monster",
-      description: "Generate a monster with parameters that adhere to this schema that matches the updates the user asks for. Always fill in required fields in the schema.",
+      name: "update_creature",
+      description: "Generate a creature with parameters that adhere to this schema that matches the updates the user asks for. Always fill in required fields in the schema.",
       parameters: zodToJsonSchema(creatureSchemaUpdate)
     }
   ];
@@ -49,31 +48,31 @@ async function routeLogic(prompt: string, monster: creatureSchemaType, attempts:
   const completion = await openai.chat.completions.create({
     messages: [
       { "role": "system", "content": systemPrompt},
-      { "role": "system", "content": "This is the current monster: " + JSON.stringify(monster)},
+      { "role": "system", "content": "This is the current creature: " + JSON.stringify(creature)},
       { "role": "user", "content": prompt }, 
     ],
     model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo-preview
     functions: tools,
-    temperature: 0.2,
+    temperature: 0.3,
     function_call: {
-      name: "update_monster",
+      name: "update_creature",
     }
   });
 
   try {
     console.log("attempt at parsing: ", attempts);
-    let parsedMonster = creatureSchemaUpdate.parse(JSON.parse(completion.choices[0].message.function_call?.arguments!));
+    let parsedCreature = creatureSchemaUpdate.parse(JSON.parse(completion.choices[0].message.function_call?.arguments!));
 
-    console.log("successfully parsed monster: ", parsedMonster);
+    console.log("successfully parsed creature: ", parsedCreature);
 
-    return parsedMonster
+    return parsedCreature
   } catch (error) {
     console.error(error);
     if (attempts < 3) {
-      return routeLogic(prompt, monster, attempts + 1);
+      return routeLogic(prompt, creature, attempts + 1);
     } else {
       return {
-        error: "We were unable to generate a monster. Please try again."
+        error: "We were unable to generate a creature. Please try again."
       }
     }
   }

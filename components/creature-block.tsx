@@ -18,7 +18,7 @@ import {
 import { Separator } from './ui/separator';
 
 export default function CreatureBlock(
-  { creature }: { creature: creatureSchemaType }
+  { creature, onlyBlock }: { creature: creatureSchemaType, onlyBlock?: boolean}
 ) {
 
   if (!creature) {
@@ -60,10 +60,16 @@ export default function CreatureBlock(
   const { vulnerabilities, resistances, immunities } =
     sortDamageTakenModifiers(damageTakenModifiers);
 
-  return (
-    <div className='max-w-5xl mx-auto'>
+  const creatureHeader = !onlyBlock ? (
+    <div>
       <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">{lore}</p>
       <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">{appearance}</p>
+    </div>
+  ) : null;
+
+  return (
+    <div className='max-w-5xl mx-auto'>
+      {creatureHeader}
       <div className="p-6 border-2 border-gray-200 rounded-lg duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
