@@ -17,8 +17,6 @@ export default async function MonsterPage(
     )
   }
 
-  console.log('Creature:', creature);
-
   return (
     <div>
       <CreatureBlock creature={creature.json} />

@@ -29,8 +29,6 @@ export default async function Profile() {
     )
   }
 
-  console.log('Creatures:', creatures);
-
   return (
     <div>
       <h1 className="text-lg font-bold">Your creatures</h1>

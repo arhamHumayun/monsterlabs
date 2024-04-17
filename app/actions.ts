@@ -27,13 +27,29 @@ export async function logInToGoogle() {
 }
 
 
-export async function logOut() {
+export async function logOut() : Promise<void> {
   const supabase = await createSupabaseAppServerClient();
   await supabase.auth.signOut();
   return redirect('/')
 }
 
-export async function getCreatureById(id: string) : Promise<creatureDocument | null> {
+export async function getUser() : Promise<User | {
+  error: string
+}> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    return {
+      error: error.message
+    }
+  }
+  const { user } = data;
+  return user;
+}
+
+export async function getCreatureById(id: string) : Promise<creatureDocument | {
+  error: string
+}> {
   const supabase = await createSupabaseAppServerClient();
   const creature = await supabase
   .from('creatures')
@@ -41,13 +57,17 @@ export async function getCreatureById(id: string) : Promise<creatureDocument | n
   .eq('id', id);
 
   if (!creature.data || creature.data.length === 0) {
-    return null;
+    return {
+      error: 'No creature found'
+    }
   }
 
   return creature.data[0];
 }
 
-export async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | null>  {
+export async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | {
+  error: string
+}>  {
   const supabase = await createSupabaseAppServerClient();
   const creatures = await supabase
     .from('creatures')
@@ -55,7 +75,9 @@ export async function getCreaturesByUserId(userId: string) : Promise<creatureDoc
     .eq('user_id', userId);
 
   if (!creatures.data || creatures.data.length === 0) {
-    return null;
+    return {
+      error: 'No creatures found'
+    }
   }
 
   return creatures.data;

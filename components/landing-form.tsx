@@ -75,8 +75,6 @@ export function LandingForm() {
           json: creature,
         }).select();
 
-        console.log('Supabase response:', supabaseResponse);
-
         const creatureId = supabaseResponse.data![0].id;
 
         router.push(`/creature/${creatureId}`);

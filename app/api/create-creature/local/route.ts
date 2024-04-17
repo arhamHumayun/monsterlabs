@@ -27,7 +27,6 @@ export async function POST(request: Request) {
 
   const { prompt } = await body;
 
-  console.log("Received prompt: ", prompt);
   const responseBody = await routeLogicGPT(prompt, 0);
 
   return new Response(JSON.stringify(responseBody, null, 2), {
@@ -64,8 +63,6 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
       content: prompt,
     }),
   ]);
-
-  console.log(response);
   
   try {
     console.log("attempt at parsing: ", attempts);
