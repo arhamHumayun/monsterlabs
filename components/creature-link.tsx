@@ -11,7 +11,7 @@ export function CreatureLink(
   const router = useRouter();
   return (
     <Button
-      onClick={() => router.push(`/creature/${id}`)}
+      onClick={() => router.push(`/creature/edit/${id}`)}
       className="rounded"
       variant='outline'
     >

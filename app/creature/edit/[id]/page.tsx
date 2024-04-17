@@ -1,7 +1,7 @@
 import { getCreatureById, getUser } from "@/app/actions";
-import CreatureBlock from "@/components/creature-block";
+import { EditCreature } from "@/components/edit-creature";
 
-export default async function MonsterPage(
+export default async function EditMonster(
   { params }: { params: { id: string } }
 ) {
 
@@ -20,17 +20,17 @@ export default async function MonsterPage(
   const user = await getUser();
   const userId = user?.id;
 
-  if (!creature.is_public && (!userId || creature.user_id !== userId)) {
+  if (!userId || creature.user_id !== userId) {
     return (
       <div>
-        <h1>You do not have access to view this creature</h1>
+        <h1>You do not have access to edit this creature</h1>
       </div>
     )
   }
 
   return (
     <div>
-      <CreatureBlock creature={creature.json} />
+      <EditCreature creature={creature.json} />
     </div>
   )
 }

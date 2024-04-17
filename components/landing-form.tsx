@@ -16,8 +16,7 @@ import {
 import { CornerDownLeft, Loader2 } from "lucide-react"
 
 import { Input } from '@/components/ui/input';
-import { useRecoilState } from 'recoil';
-import { creatureSchema, creatureSchemaType } from '@/types/creature';
+import { creatureSchema } from '@/types/creature';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
@@ -30,7 +29,6 @@ export function LandingForm() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const router = useRouter();
-
   const supabase = createSupabaseBrowserClient();
 
   // 1. Define your form.
