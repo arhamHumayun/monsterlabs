@@ -134,7 +134,7 @@ export function EditCreature({
         </form>
         {loading}
       </Form>
-      <CreatureBlock creature={updatedCreature ? updatedCreature : creature} />
+      <CreatureBlock creature={updatedCreature ? updatedCreature : creature} onlyBlock={true} />
     </div>
   );
 }

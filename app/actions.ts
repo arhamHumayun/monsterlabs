@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
 import { creatureDocument } from '@/types/db';
+import { cache } from 'react';
+import { User } from '@supabase/supabase-js';
 
 export async function logInToGoogle() {
   const supabase = await createSupabaseAppServerClient();
@@ -33,21 +35,17 @@ export async function logOut() : Promise<void> {
   return redirect('/')
 }
 
-export async function getUser() : Promise<User | {
-  error: string
-}> {
+export async function getUser() : Promise<User | null> {
   const supabase = await createSupabaseAppServerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
-    return {
-      error: error.message
-    }
+    return null;
   }
   const { user } = data;
   return user;
 }
 
-export async function getCreatureById(id: string) : Promise<creatureDocument | null> {
+async function getCreatureById(id: number) : Promise<creatureDocument | null> {
   const supabase = await createSupabaseAppServerClient();
   const creature = await supabase
   .from('creatures')
@@ -61,7 +59,7 @@ export async function getCreatureById(id: string) : Promise<creatureDocument | n
   return creature.data[0];
 }
 
-export async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | null>  {
+async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | null>  {
   const supabase = await createSupabaseAppServerClient();
   const creatures = await supabase
     .from('creatures')
@@ -75,7 +73,7 @@ export async function getCreaturesByUserId(userId: string) : Promise<creatureDoc
   return creatures.data;
 }
 
-export async function getAllPublicCreatures() : Promise<creatureDocument[]> {
+async function getAllPublicCreatures() : Promise<creatureDocument[]> {
   const supabase = await createSupabaseAppServerClient();
   const creatures = await supabase
     .from('creatures')
@@ -87,4 +85,14 @@ export async function getAllPublicCreatures() : Promise<creatureDocument[]> {
   }
 
   return creatures.data;
+}
+
+const getCreatureByIdCached = cache(getCreatureById);
+const getCreaturesByUserIdCached = cache(getCreaturesByUserId);
+const getAllPublicCreaturesCached = cache(getAllPublicCreatures);
+
+export {
+  getCreatureByIdCached as getCreatureById,
+  getCreaturesByUserIdCached as getCreaturesByUserId,
+  getAllPublicCreaturesCached as getAllPublicCreatures,
 }

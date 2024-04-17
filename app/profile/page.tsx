@@ -35,7 +35,7 @@ export default async function Profile() {
       <Separator className="mb-4"/>
       <div className="grid grid-cols-4 gap-4">
         {creatures.map((creature : creatureDocument) => (
-          <CreatureLink key={creature.id} id={creature.id} creature={creature.json}/>
+          <CreatureLink key={creature.id} id={creature.id} creature={creature.json} type='edit' />
         ))}
       </div>
       <Separator className="my-4"/>

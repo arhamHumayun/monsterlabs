@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation"
 import { Button } from "./ui/button";
 
 export function CreatureLink(
-  { creature, id } : { id: number, creature: creatureSchemaType }
+  { creature, id, type } : { id: number, creature: creatureSchemaType, type: 'edit' | 'view' }
 ) {
 
   const router = useRouter();
   return (
     <Button
-      onClick={() => router.push(`/creature/edit/${id}`)}
+      onClick={() => router.push(`/creature/${type}/${id}`)}
       className="rounded"
       variant='outline'
     >

@@ -70,7 +70,7 @@ export default function CreatureBlock(
   return (
     <div className='max-w-5xl mx-auto'>
       {creatureHeader}
-      <div className="p-6 border-2 border-gray-200 rounded-lg duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
+      <div className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
           {capitalizeFirstLetters([`${size} ${type}, ${alignment}`])}

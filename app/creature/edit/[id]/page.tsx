@@ -4,7 +4,7 @@ import { EditCreature } from '@/components/edit-creature';
 export default async function EditMonster({
   params,
 }: {
-  params: { id: string };
+  params: { id: number };
 }) {
   const { id } = params;
 
