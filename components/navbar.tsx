@@ -9,25 +9,15 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { ModeToggle } from './dark-mode-toggle';
-
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation'
 
 export function Navbar(
   { user }: { user: User | undefined }
 ) {
 
-  const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
-  }
-
   let navItemList = [
     { title: 'Home', href: '/', alignment: 'justify-self-start'},
+    { title: 'Public Creatures', href: '/creatures', alignment: 'justify-self-start'},
   ];
 
   if (!user) {

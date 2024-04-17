@@ -47,9 +47,7 @@ export async function getUser() : Promise<User | {
   return user;
 }
 
-export async function getCreatureById(id: string) : Promise<creatureDocument | {
-  error: string
-}> {
+export async function getCreatureById(id: string) : Promise<creatureDocument | null> {
   const supabase = await createSupabaseAppServerClient();
   const creature = await supabase
   .from('creatures')
@@ -57,17 +55,13 @@ export async function getCreatureById(id: string) : Promise<creatureDocument | {
   .eq('id', id);
 
   if (!creature.data || creature.data.length === 0) {
-    return {
-      error: 'No creature found'
-    }
+    return null;
   }
 
   return creature.data[0];
 }
 
-export async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | {
-  error: string
-}>  {
+export async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | null>  {
   const supabase = await createSupabaseAppServerClient();
   const creatures = await supabase
     .from('creatures')
@@ -75,9 +69,21 @@ export async function getCreaturesByUserId(userId: string) : Promise<creatureDoc
     .eq('user_id', userId);
 
   if (!creatures.data || creatures.data.length === 0) {
-    return {
-      error: 'No creatures found'
-    }
+    return null;
+  }
+
+  return creatures.data;
+}
+
+export async function getAllPublicCreatures() : Promise<creatureDocument[]> {
+  const supabase = await createSupabaseAppServerClient();
+  const creatures = await supabase
+    .from('creatures')
+    .select('*')
+    .eq('is_public', true);
+
+  if (!creatures.data || creatures.data.length === 0) {
+    return [];
   }
 
   return creatures.data;

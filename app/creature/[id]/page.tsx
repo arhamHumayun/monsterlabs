@@ -1,4 +1,4 @@
-import { getCreatureById } from "@/app/actions";
+import { getCreatureById, getUser } from "@/app/actions";
 import CreatureBlock from "@/components/creature-block";
 
 export default async function MonsterPage(
@@ -12,7 +12,18 @@ export default async function MonsterPage(
   if (!creature) {
     return (
       <div>
-        <h1>No creature found</h1>
+        <h1>Creature not found</h1>
+      </div>
+    )
+  }
+
+  const user = await getUser();
+  const userId = user?.id;
+
+  if (!creature.is_public && (!userId || creature.user_id !== userId)) {
+    return (
+      <div>
+        <h1>You do not have access to view this creature</h1>
       </div>
     )
   }

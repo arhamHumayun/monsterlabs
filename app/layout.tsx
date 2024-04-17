@@ -43,7 +43,7 @@ export default async function RootLayout({
         >
           <div className="container mx-auto px-4">
             <Navbar user={user} />
-              <div className="mt-12 flex justify-center items-center w-full">
+              <div className="mt-12 flex justify-center items-center">
                 {children}
               </div>
           </div>
