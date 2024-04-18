@@ -86,15 +86,18 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
 
   try {
     const allToolCalls = completion.choices[0].message.tool_calls!;
-    let buildResponse : any = {};
 
     allToolCalls.forEach((toolCall) => {
       const toolName = toolCall.function.name;
       let args = JSON.parse(toolCall.function.arguments);
 
+      console.log("Tool name: ", toolName);
+      console.log("Args: ", args);
+      console.log("Creature: ", creature);
+
       switch (toolName) {
         case "generate_creature_base":
-          creature = { ...buildResponse, ...args};
+          creature = { ...creature, ...args};
           break;
         case "generate_creature_spells":
           creature.spellcasting = args;

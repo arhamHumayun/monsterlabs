@@ -12,7 +12,6 @@ import { Input } from './ui/input';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
-import { json } from 'stream/consumers';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -62,7 +61,7 @@ export function EditCreature({
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ prompt, creature }),
+      body: JSON.stringify({ prompt, creature: updatedCreature ? updatedCreature : creature}),
     });
 
     if (response.ok) {
