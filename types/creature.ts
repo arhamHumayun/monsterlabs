@@ -270,7 +270,7 @@ export const creatureSchema = z.object({
   legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
 });
 
-export type chunkedMonsterParts = 'base' | 'spells' | 'actions' | 'legendary' | 'reactions'; 
+export type chunkedMonsterParts = 'base' | 'spellcasting' | 'actions' | 'legendary' | 'reactions'; 
 
 export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject | z.ZodArray<z.AnyZodObject>> = {
   base: z.object({
@@ -294,7 +294,7 @@ export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject |
     languages: languagesSchema,
     traits: z.array(specialTraitsSchema),
   }),
-  spells: spellcastingSchema.describe('The spells the creature can cast. Only fill in if the creature can cast spells.'),
+  spellcasting: spellcastingSchema.describe('The spells the creature can cast. Only fill in if the creature can cast spells.'),
   actions: actionSchema,
   legendary: legendarySchema,
   reactions: reactionsSchema,

@@ -78,7 +78,7 @@ export function LandingForm() {
 
         const creatureId = supabaseResponse.data![0].id;
 
-        router.push(`/creature/${creatureId}`);
+        router.push(`/creature/edit/${creatureId}`);
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',

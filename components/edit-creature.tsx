@@ -94,7 +94,7 @@ export function EditCreature({
   }
 
   const loading = isLoading ? (
-    <div className="flex justify-center">
+    <div className="flex justify-center mb-4">
       <p className="text-md font-medium">Updating your monster...</p>
       <Loader2 className="ml-2 animate-spin" />
     </div>

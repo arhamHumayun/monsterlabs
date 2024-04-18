@@ -16,8 +16,8 @@ export function Navbar(
 ) {
 
   let navItemList = [
-    { title: 'Home', href: '/', alignment: 'justify-self-start'},
-    { title: 'Public Creatures', href: '/creatures', alignment: 'justify-self-start'},
+    { title: 'Create', href: '/', alignment: 'justify-self-start'},
+    { title: 'View Public Creatures', href: '/creatures', alignment: 'justify-self-start'},
   ];
 
   if (!user) {

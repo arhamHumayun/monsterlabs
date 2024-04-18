@@ -208,7 +208,7 @@ const spellcastingSection = (creature: creatureSchemaType, proficiencyBonus: num
 
   const spellAttackBonus = proficiencyBonus + statToBonus(creature.stats[spellcastingStat]);
   const spellSaveDC = 8 + spellAttackBonus;
-  const sign = spellAttackBonus > 0 ? '+' : '';
+  const sign = spellAttackBonus > 0 ? '+' : spellAttackBonus < 0 ? '-' : '';
 
   const entryDescription = (
     <div>
@@ -218,7 +218,7 @@ const spellcastingSection = (creature: creatureSchemaType, proficiencyBonus: num
       {capitalizeFirstLetter(pronounToSubject[creature.pronoun])} spellcasting ability is{' '}
       {capitalizeFirstLetter(spellcastingStat)}{' '}
       (spell save DC {spellSaveDC},{' '}
-      {sign}{spellAttackBonus} to hit with spell attacks).{' '}
+      {sign}{Math.abs(spellAttackBonus)} to hit with spell attacks).{' '}
       {capitalizeFirstLetter(creature.pronoun)} {creature.isUnique ? 'have' : 'has'} the following {spellcastingClass} spells prepared:
     </span>
   </div>
@@ -386,17 +386,17 @@ const actionSection = (
 
         const attackBonus =
           statToBonus(creature.stats[attackStat]) + proficiencyBonus;
-        const sign = attackBonus > 0 ? '+' : '';
+        const sign = attackBonus > 0 ? '+' : attackBonus < 0 ? '-' : '';
         const targetCountDescription =
           targetCount > 1 ? `up to ${targetCount} targets` : 'one target';
 
         const meleeAttackDescription =
           range.melee && range.melee > 0
-            ? `${sign}${attackBonus} to hit, reach ${range.melee} ft., ${targetCountDescription}.`
+            ? `${sign}${Math.abs(attackBonus)} to hit, reach ${range.melee} ft., ${targetCountDescription}.`
             : null;
         const rangedAttackDescription =
           range.ranged && range.ranged > 0
-            ? `${sign}${attackBonus} to hit, range ${range.ranged}/${
+            ? `${sign}${Math.abs(attackBonus)} to hit, range ${range.ranged}/${
                 range.ranged * 4
               } ft., ${targetCountDescription}.`
             : null;
@@ -430,7 +430,7 @@ const actionSection = (
         const damageDescription = () => {
           if (damage) {
             const damageBonus = statToBonus(creature.stats[attackStat]);
-            const sign = damageBonus > 0 ? '+' : '';
+            const sign = damageBonus > 0 ? '+' : damageBonus < 0 ? '-' : '';
             const averageDamage =
               Math.floor(
                 (damage.primary.damageDice.count *
@@ -447,7 +447,7 @@ const actionSection = (
 
             return `${averageDamage} (${damage.primary.damageDice.count}d${
               damage.primary.damageDice.sides
-            }${`${damageBonus ? ` ${sign} ${damageBonus}` : ''}`}) ${
+            }${`${damageBonus ? ` ${sign} ${Math.abs(damageBonus)}` : ''}`}) ${
               damage.primary.damageType
             } damage${
               damage.secondary
@@ -527,14 +527,14 @@ function StatsBlock({ stats }: { stats: statsType }) {
   const statBlocks = orderedKeys.map((stat : keyof statsType) => {
     const value = stats[stat];
     const bonus = statToBonus(value);
-    const sign = bonus > 0 ? '+' : '';
+    const sign = bonus > 0 ? '+' : bonus < 0 ? '-' : '';
 
     const short = stat.slice(0, 3).toUpperCase();
 
     return (
       <div key={short} className="shrink">
         <div className="text-center font-semibold">{short}</div>
-        <div className="text-center">{`${value} (${sign}${bonus})`}</div>
+        <div className="text-center">{`${value} (${sign}${Math.abs(bonus)})`}</div>
       </div>
     );
   });

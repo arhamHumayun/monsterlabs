@@ -6,6 +6,7 @@ import { getCreaturesByUserId } from "../actions";
 import { creatureDocument } from "@/types/db";
 import { Button } from "@/components/ui/button";
 import { LogOutButton } from "@/components/logout-button";
+import Link from "next/link";
 
 export default async function Profile() {
 
@@ -21,22 +22,21 @@ export default async function Profile() {
 
   const creatures = await getCreaturesByUserId(userId)
 
-  if (!creatures) {
-    return (
-      <div>
-        <h1>No creatures found</h1>
-      </div>
-    )
-  }
-
   return (
     <div className="w-full max-w-4xl">
       <h1 className="text-lg font-bold">Your creatures</h1>
       <Separator className="mb-4"/>
       <div className="grid grid-cols-4 gap-4">
-        {creatures.map((creature : creatureDocument) => (
+        {creatures ? creatures.map((creature : creatureDocument) => (
           <CreatureLink key={creature.id} id={creature.id} creature={creature.json} type='edit' />
-        ))}
+        )) : (
+          <div>
+            <p className="mb-4">You have no creatures.</p>
+            <Button asChild>
+              <Link href="/">Create</Link>
+            </Button>
+          </div>
+        )}
       </div>
       <Separator className="my-4"/>
       <LogOutButton/>
