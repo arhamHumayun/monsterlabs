@@ -59,7 +59,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
       function: {
           name: "generate_creature_spells",
           description: "Generate a creature's spells if they can cast spells.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.spells)
+          parameters: zodToJsonSchema(chunkedMonsterSchema.spellcasting)
       }
     },
     {
@@ -103,7 +103,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
     console.log("attempt at parsing: ", attempts);
 
     const allToolCalls = completion.choices[0].message.tool_calls!;
-    let buildResponse : any = {};
+    let buildResponse : Partial<creatureSchemaType> = {};
 
     allToolCalls.forEach((toolCall) => {
       const toolName = toolCall.function.name;
@@ -117,7 +117,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
           buildResponse = { ...buildResponse, ...args};
           break;
         case "generate_creature_spells":
-          buildResponse['spells'] = args;
+          buildResponse.spellcasting = args;
           break;
         case "generate_creature_actions":
           buildResponse['actions'] = args;

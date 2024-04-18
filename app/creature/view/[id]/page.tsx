@@ -2,7 +2,7 @@ import { getCreatureById, getUser } from "@/app/actions";
 import CreatureBlock from "@/components/creature-block";
 
 export default async function ViewMonster(
-  { params }: { params: { id: string } }
+  { params }: { params: { id: number } }
 ) {
 
   const { id } = params;

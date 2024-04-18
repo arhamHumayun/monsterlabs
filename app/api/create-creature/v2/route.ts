@@ -11,8 +11,7 @@ const systemPrompt = `
 You use the generate_creature function in order to generate creatures that the user requests.
 The user provides a prompt that describes the creature they want to generate.
 Pay close attention to the schema and strongly adhere to it.
-Never include the units in the response, only the numbers.
-`;
+Never include the units in the response, only the numbers.`;
 
 interface ToolDefinition {
   name: string;
@@ -26,10 +25,10 @@ const creatureGenFunctions: Record<chunkedMonsterParts, ToolDefinition> = {
     description: "Generate a creature's base stats.",
     parameters: zodToJsonSchema(chunkedMonsterSchema.base)
   },
-  spells: {
+  spellcasting: {
     name: "generate_creature_spells",
     description: "Generate the creature's spells.",
-    parameters: zodToJsonSchema(chunkedMonsterSchema.spells)
+    parameters: zodToJsonSchema(chunkedMonsterSchema.spellcasting)
   },
   actions: {
     name: "generate_creature_actions",
