@@ -1,12 +1,13 @@
 import { getCreatureById, getUser } from "@/app/actions";
 import CreatureBlock from "@/components/creature-block";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function ViewMonster(
   { params }: { params: { id: number } }
 ) {
 
-  const { id } = params;
-
+  const { id } = params;  
   const creature = await getCreatureById(id);
 
   if (!creature) {
@@ -28,9 +29,18 @@ export default async function ViewMonster(
     )
   }
 
+  const editLink = userId && creature.user_id === userId ? (
+    <Button asChild className="my-4" variant='secondary'>
+      <Link href={`/creature/edit/${id}`}>
+        Edit
+      </Link>
+    </Button>
+  ) : null;
+
   return (
     <div>
       <CreatureBlock creature={creature.json} />
+      {editLink}
     </div>
   )
 }

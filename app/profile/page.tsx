@@ -26,7 +26,7 @@ export default async function Profile() {
     <div className="w-full max-w-4xl">
       <h1 className="text-lg font-bold">Your creatures</h1>
       <Separator className="mb-4"/>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {creatures ? creatures.map((creature : creatureDocument) => (
           <CreatureLink key={creature.id} id={creature.id} creature={creature.json} type='edit' />
         )) : (

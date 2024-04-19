@@ -67,8 +67,10 @@ export default function CreatureBlock(
     </div>
   ) : null;
 
+  const hitPointBonusString = totalConHpBonus !== 0 ? `${totalConHpBonus > 0 ? '+' : '-'} ${Math.abs(totalConHpBonus)}` : '';
+
   return (
-    <div className='max-w-5xl mx-auto'>
+    <div className='max-w-5xl mx-auto' id='creature-block'>
       {creatureHeader}
       <div className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
@@ -79,7 +81,7 @@ export default function CreatureBlock(
         <StyledStatSentences s1="Armor Class" s2={armorClass.base.toString()} />
         <StyledStatSentences
           s1="Hit Points"
-          s2={`${maxHp} (${hitDiceAmount}d${hitDiceSize}) + ${totalConHpBonus}`}
+          s2={`${maxHp} (${hitDiceAmount}d${hitDiceSize}) ${hitPointBonusString}`}
         />
         <StyledStatSentences s1="Speed" s2={buildSpeedStringResult(speed)} />
         <Separator className="my-4" />
@@ -182,8 +184,6 @@ export default function CreatureBlock(
           />
         ) : null}
         {spellcastingSection(creature, proficiencyBonus)}
-        <h1 className="mt-4 text-xl font-semibold">Actions</h1>
-        <Separator className="mb-4" />
         {actionSection(creature, proficiencyBonus)}
         {reactionActionSection(creature)}
         {legendaryActionSelection(creature)}
@@ -257,7 +257,7 @@ const spellcastingSection = (creature: creatureSchemaType, proficiencyBonus: num
 const reactionActionSection = (creature: creatureSchemaType) => {
   const { reactions } = creature;
 
-  if (!reactions) {
+  if (!reactions || reactions.length === 0) {
     return null;
   }
 
@@ -353,6 +353,13 @@ const actionSection = (
   } = actions;
 
   const actionUI = [];
+
+  actionUI.push((
+    <div>
+      <h1 className="mt-4 text-xl font-semibold">Actions</h1>
+      <Separator className="mb-4" />
+    </div>
+  ));
 
   if (multiAttack) {
     actionUI.push(

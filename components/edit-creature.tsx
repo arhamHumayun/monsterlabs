@@ -12,6 +12,8 @@ import { Input } from './ui/input';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
+import { creatureDocument } from '@/types/db';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -19,17 +21,18 @@ const formSchema = z.object({
 
 export function EditCreature({
   creature,
-  creatureId,
 }: {
-  creature: creatureSchemaType;
-  creatureId: number;
+  creature: creatureDocument;
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isSettingPublic, setIsSettingPublic] = React.useState(false);
+  const [isActuallyPublic, setIsActuallyPublic] = React.useState(creature.is_public);
+
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
   const [updatedCreature, setUpdatedCreature] =
-    React.useState<creatureSchemaType | null>(null);
+    React.useState<creatureSchemaType>(creature.json);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,24 +64,24 @@ export function EditCreature({
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ prompt, creature: updatedCreature ? updatedCreature : creature}),
+      body: JSON.stringify({ prompt, creature: updatedCreature ? updatedCreature : creature.json}),
     });
 
     if (response.ok) {
       const jsonResponse = await response.json();
 
       try {
-        const creature = creatureSchema.parse(jsonResponse);
+        const creatureResponse = creatureSchema.parse(jsonResponse);
 
         await supabase
           .from('creatures')
           .update({
             updated_at: new Date(),
-            json: creature,
+            json: creatureResponse,
           })
-          .eq('id', creatureId);
+          .eq('id', creature.id);
 
-        setUpdatedCreature(creature);
+        setUpdatedCreature(creatureResponse);
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',
@@ -92,9 +95,27 @@ export function EditCreature({
     setIsLoading(false);
   }
 
+  async function setCreatureIsPublic(is_public: boolean) {
+    setIsSettingPublic(true);
+    await supabase
+      .from('creatures')
+      .update({ is_public })
+      .eq('id', creature.id);
+    setIsSettingPublic(false);
+    setIsActuallyPublic(is_public);
+  }
+
+  async function deleteCreature() {
+    await supabase
+      .from('creatures')
+      .delete()
+      .eq('id', creature.id);
+    router.push('/profile');
+  }
+
   const loading = isLoading ? (
     <div className="flex justify-center mb-4">
-      <p className="text-md font-medium">Updating your monster...</p>
+      <p className="text-md font-medium">Updating your creature...</p>
       <Loader2 className="ml-2 animate-spin" />
     </div>
   ) : null;
@@ -113,7 +134,7 @@ export function EditCreature({
                     <FormControl>
                       <Input
                         className="border-0"
-                        placeholder="Update your monster..."
+                        placeholder="Make updates to your creature..."
                         {...field}
                       />
                     </FormControl>
@@ -133,7 +154,37 @@ export function EditCreature({
         </form>
         {loading}
       </Form>
-      <CreatureBlock creature={updatedCreature ? updatedCreature : creature} onlyBlock={true} />
+      <div className='flex flex-row w-full'>
+        <Button
+          variant='default'
+          className='mb-4 mr-4 p-3 rounded'
+          onClick={() => setCreatureIsPublic(!isActuallyPublic)}
+          aria-disabled={isSettingPublic}
+        >
+          {isActuallyPublic ? 'Make Private' : 'Make Public'} {isSettingPublic && <Loader2 className='ml-2 animate-spin' />}
+        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant='destructive' className='mb-4 p-3 rounded'>
+              Delete
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='rounded mt-1'>
+            <p className='text-sm'>
+              Are you sure you want to delete this creature? 
+              This action cannot be undone.
+            </p>
+            <Button
+              variant='destructive'
+              className='mt-4'
+              onClick={deleteCreature}
+            >
+              Delete Creature
+            </Button>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <CreatureBlock creature={updatedCreature || creature.json} onlyBlock={true} />
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default async function EditMonster({
 
   return (
     <div>
-      <EditCreature creature={creature.json} creatureId={id} />
+      <EditCreature creature={creature} />
     </div>
   );
 }

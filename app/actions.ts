@@ -87,9 +87,9 @@ async function getAllPublicCreatures() : Promise<creatureDocument[]> {
   return creatures.data;
 }
 
-const getCreatureByIdCached = cache(getCreatureById);
+const getCreatureByIdCached = getCreatureById;
 const getCreaturesByUserIdCached = cache(getCreaturesByUserId);
-const getAllPublicCreaturesCached = cache(getAllPublicCreatures);
+const getAllPublicCreaturesCached = getAllPublicCreatures
 
 export {
   getCreatureByIdCached as getCreatureById,

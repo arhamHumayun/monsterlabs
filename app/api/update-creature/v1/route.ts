@@ -1,6 +1,7 @@
 import { chunkedMonsterSchema, creatureSchema, creatureSchemaType } from "@/types/creature";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
+import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 
 const openai = new OpenAI();
@@ -12,8 +13,7 @@ const systemPrompt = `
 You use the update_creature function in order to update creatures that the user requests.
 The user provides a prompt that describes the creature they want to update.
 Do not remove any existing information unless the user explicitly asks for it.
-If you are overwriting a list of items, make sure to keep the old items if they are not replaced or asked to be removed.
-`; 
+If you are overwriting a list of items, make sure to keep the old items if they are not replaced or asked to be removed.`;
 
 export async function POST(request: Request) {
   const body = request.json();
@@ -92,8 +92,8 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       let args = JSON.parse(toolCall.function.arguments);
 
       console.log("Tool name: ", toolName);
-      console.log("Args: ", args);
       console.log("Creature: ", creature);
+      console.log("Args: ", args);
 
       switch (toolName) {
         case "generate_creature_base":

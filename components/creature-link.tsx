@@ -12,7 +12,7 @@ export function CreatureLink(
   return (
     <Button
       onClick={() => router.push(`/creature/${type}/${id}`)}
-      className="rounded"
+      className="rounded flex flex-col text-balance h-min p-6"
       variant='outline'
     >
       {creature.name}

@@ -263,7 +263,7 @@ export const creatureSchema = z.object({
   damageTakenModifiers: damagesBaseSchema.optional().describe('The damage multipliers the creature has for each damage type.'),
   conditionImmunities: conditionImmunitiesSchema.optional(),
   languages: languagesSchema,
-  traits: z.array(specialTraitsSchema).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait.'),
+  traits: z.array(specialTraitsSchema).min(1).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait. Always include some traits.'),
   spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
   actions: actionSchema.optional(),
   reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
