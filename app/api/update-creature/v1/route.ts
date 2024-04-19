@@ -1,7 +1,6 @@
 import { chunkedMonsterSchema, creatureSchema, creatureSchemaType } from "@/types/creature";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
-import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 
 const openai = new OpenAI();
@@ -13,7 +12,11 @@ const systemPrompt = `
 You use the update_creature function in order to update creatures that the user requests.
 The user provides a prompt that describes the creature they want to update.
 Do not remove any existing information unless the user explicitly asks for it.
-If you are overwriting a list of items, make sure to keep the old items if they are not replaced or asked to be removed.`;
+If you are overwriting a list of items, make sure to keep the old items if they are not replaced or asked to be removed.
+Pay close attention to the schema and strongly adhere to it.
+Don't stick to only keeping the same information, but also add new information if it is requested such as new attack types.
+If the user asks for a new attack, make sure to choose the proper attack type from the attack schema.
+`;
 
 export async function POST(request: Request) {
   const body = request.json();
@@ -42,6 +45,14 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
     {
       type: "function",
       function: {
+          name: "generate_creature_traits",
+          description: "Generate a creature's traits if they have any.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.traits)
+      }
+    },
+    {
+      type: "function",
+      function: {
           name: "generate_creature_spells",
           description: "Generate a creature's spells if they can cast spells.",
           parameters: zodToJsonSchema(chunkedMonsterSchema.spellcasting)
@@ -50,9 +61,37 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
     {
       type: "function",
       function: {
-          name: "generate_creature_actions",
-          description: "Generate a creature's actions. When generating a creature, always include some actions.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.actions)
+          name: "generate_creature_multiattack",
+          description: "Generate a creature's multiattack string.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.multiAttack)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_weapon_attacks",
+          description: "Generate a creature's targeted weapon attacks if they have any.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.targetedWeaponAttacks)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_saving_throw_attacks",
+          description: `
+            Generate a creature's saving throw attacks if they have any. 
+            These are attacks that require a saving throw from the target.
+            Use this function for breath weapons, gaze attacks, shout attacks, area of affect attacks and other similar attacks.
+          `,
+          parameters: zodToJsonSchema(chunkedMonsterSchema.savingThrowAttacks)
+      }
+    },
+    {
+      type: "function",
+      function: {
+          name: "generate_creature_special_actions",
+          description: "Generate a creature's special actions if they have any. These are actions that are not standard attacks.",
+          parameters: zodToJsonSchema(chunkedMonsterSchema.specialActions)
       }
     },
     {
@@ -70,7 +109,7 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
           description: "Generate a creature's reactions if they have any.",
           parameters: zodToJsonSchema(chunkedMonsterSchema.reactions)
       }
-    }
+    },
   ];
 
   const completion = await openai.chat.completions.create({
@@ -91,22 +130,34 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       const toolName = toolCall.function.name;
       let args = JSON.parse(toolCall.function.arguments);
 
-      console.log("Tool name: ", toolName);
-      console.log("Creature: ", creature);
-      console.log("Args: ", args);
+      console.log("Creature: ", JSON.stringify(creature, null, 2));
+      console.log("Tool name: ", JSON.stringify(toolName, null, 2));
+      console.log("Args: ", JSON.stringify(args, null, 2));
 
       switch (toolName) {
         case "generate_creature_base":
           creature = { ...creature, ...args};
           break;
-        case "generate_creature_spells":
-          creature.spellcasting = args;
+        case "generate_creature_traits":
+          creature.traits = args.traits;
           break;
-        case "generate_creature_actions":
-          creature.actions = args;
+        case "generate_creature_spells":
+          creature.spellcasting = args
+          break;
+        case "generate_creature_multiattack":
+          creature.actions!.multiAttack = args.multiAttack;
+          break;
+        case "generate_creature_weapon_attacks":
+          creature.actions!.targetedWeaponAttacks = args.targetedWeaponAttacks;
+          break;
+        case "generate_creature_saving_throw_attacks":
+          creature.actions!.savingThrowAttacks = args.savingThrowAttacks;
+          break;
+        case "generate_creature_special_actions":
+          creature.actions!.specialActions = args.specialActions;
           break;
         case "generate_creature_legendary":
-          creature.legendary = args;
+          creature.legendary = args.legendary;
           break;
         case "generate_creature_reactions":
           creature.reactions = args.reactions;

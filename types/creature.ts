@@ -225,9 +225,15 @@ const legendarySchema = z.object({
 const actionSchema = z.object({
   multiAttack: z.string().optional().describe('The multi-attack the creature can take. Only used for creatures that can make multiple weapon or natural attacks in a single turn. Simply describe the attacks the creature can make in a single turn.'),
   savingThrowAttacks: z.array(saveAttackSchema).optional().describe('This type of attack requires the target to make a saving throw. This could be a spell or a special ability such as a breath attack. Describe AoE attacks here.'),
-  targetedWeaponAttacks: z.array(targetedAttackSchema).min(1).describe('This attack requires an attack roll and is typically a weapon or non-AoE spell attacks.'),
+  targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('This attack requires an attack roll and is typically a weapon or non-AoE spell attacks. Do not describe spells, breath attacks, or other AoE attacks here.'),
   specialActions: z.array(genericActionSchema).optional().describe('Other special actions the creature can take. Fill this in last. Do not describe spells here.'),
-}).describe('The actions the creature can take. Never describe just plain spells here.');
+}).describe(
+  `The actions the creature can take. Never describe just plain spells here. Remeber to include multiattack if the creature has one. Keep in mind the following:
+  - Multiattack is a sentence that describes the creature's multiattack.
+  - TargetedWeaponAttacks are for attacks that target a specific creature. Do not include AoE or saving throw attacks here.
+  - SavingThrowAttacks are for attacks that require a saving throw.
+  - SpecialActions are for actions that do not fit either criteria.`
+);
 
 const spellcastingSchema = z.object({
   spellcastingStat: singleStatSchema.describe('The stat the creature uses for spellcasting.'),
@@ -241,6 +247,10 @@ const spellcastingSchema = z.object({
 
 const reactionsSchema = z.object({
   reactions: z.array(genericActionSchema),
+});
+
+const traitsSchema = z.object({
+  traits: z.array(specialTraitsSchema)
 });
 
 export const creatureSchema = z.object({
@@ -270,9 +280,7 @@ export const creatureSchema = z.object({
   legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
 });
 
-export type chunkedMonsterParts = 'base' | 'spellcasting' | 'actions' | 'legendary' | 'reactions'; 
-
-export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject | z.ZodArray<z.AnyZodObject>> = {
+export const chunkedMonsterSchema = {
   base: z.object({
     name: z.string(),
     isUnique: z.boolean().describe('If the creature is unique, meaning there is only one of its kind in the world.'),
@@ -292,13 +300,34 @@ export const chunkedMonsterSchema : Record<chunkedMonsterParts, z.AnyZodObject |
     damageTakenModifiers: damagesBaseSchema.optional().describe('The damage multipliers the creature has for each damage type.'),
     conditionImmunities: conditionImmunitiesSchema.optional(),
     languages: languagesSchema,
-    traits: z.array(specialTraitsSchema),
+  }),
+  multiAttack: z.object({
+    multiAttack: z.string().optional().describe('The multi-attack the creature can take. Only used for creatures that can make multiple weapon or natural attacks in a single turn. Simply describe the attacks the creature can make in a single turn.'),
+  }),
+  savingThrowAttacks: z.object({
+    savingThrowAttacks: z.array(saveAttackSchema).optional().describe('This type of attack requires the target to make a saving throw. This could be a spell or a special ability such as a breath attack. Describe AoE attacks here.'),
+  }),
+  targetedWeaponAttacks: z.object({
+    targetedWeaponAttacks: z.array(targetedAttackSchema).optional().describe('This attack requires an attack roll and is typically a weapon or non-AoE spell attacks. Do not describe spells, breath attacks, or other AoE attacks here.'),
+  }),
+  specialActions: z.object({
+    specialActions: z.array(genericActionSchema).optional().describe('Other special actions the creature can take. Fill this in last. Do not describe spells here.'),
+  }),
+  traits: z.object({
+    traits: z.array(specialTraitsSchema).min(1).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait. Always include some traits.'),
   }),
   spellcasting: spellcastingSchema.describe('The spells the creature can cast. Only fill in if the creature can cast spells.'),
-  actions: actionSchema,
   legendary: legendarySchema,
-  reactions: reactionsSchema,
+  reactions: z.object({ 
+    reactions: z.array(genericActionSchema).optional().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
+  })
 }
+
+export type chunkedMonsterType = z.infer<typeof chunkedMonsterSchema.base>;
+export type traitsType = z.infer<typeof chunkedMonsterSchema.traits>;
+export type spellcastingType = z.infer<typeof chunkedMonsterSchema.spellcasting>;
+export type legendaryType = z.infer<typeof chunkedMonsterSchema.legendary>;
+export type reactionsType = z.infer<typeof chunkedMonsterSchema.reactions>;
 
 export type creatureSchemaType = z.infer<typeof creatureSchema>;
 export type damageTakenModifiersType = z.infer<typeof damagesBaseSchema>;

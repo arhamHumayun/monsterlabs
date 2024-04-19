@@ -66,7 +66,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
         name: 'generate_creature'
       }
     },
-    temperature: 0.3,
+    temperature: 0.5,
   });
 
   try {
