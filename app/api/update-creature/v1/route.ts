@@ -70,7 +70,12 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       type: "function",
       function: {
           name: "generate_creature_weapon_attacks",
-          description: "Generate a creature's targeted weapon attacks if they have any.",
+          description: `
+          Generate a creature's targeted weapon attacks if they have any.
+          Use this function for melee and ranged weapon or spell attacks.
+          When calling this function make sure to account for the attacks the creature already has.
+          Include the previous attacks in the function call, unless the user explicitly asks to remove or replace them.
+          `,
           parameters: zodToJsonSchema(chunkedMonsterSchema.targetedWeaponAttacks)
       }
     },
@@ -130,16 +135,16 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       const toolName = toolCall.function.name;
       let args = JSON.parse(toolCall.function.arguments);
 
-      console.log("Creature: ", JSON.stringify(creature, null, 2));
-      console.log("Tool name: ", JSON.stringify(toolName, null, 2));
-      console.log("Args: ", JSON.stringify(args, null, 2));
+      // console.log("Creature: ", JSON.stringify(creature, null, 2));
+      // console.log("Tool name: ", JSON.stringify(toolName, null, 2));
+      // console.log("Args: ", JSON.stringify(args, null, 2));
 
       switch (toolName) {
         case "generate_creature_base":
           creature = { ...creature, ...args};
           break;
         case "generate_creature_traits":
-          creature.traits = args.traits;
+          creature.traits = [ ...(creature.traits!), ...(args.traits)]
           break;
         case "generate_creature_spells":
           creature.spellcasting = args
@@ -148,19 +153,19 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
           creature.actions!.multiAttack = args.multiAttack;
           break;
         case "generate_creature_weapon_attacks":
-          creature.actions!.targetedWeaponAttacks = args.targetedWeaponAttacks;
+          creature.actions!.targetedWeaponAttacks = [ ...(creature.actions!.targetedWeaponAttacks!) ,...(args.targetedWeaponAttacks)]
           break;
         case "generate_creature_saving_throw_attacks":
-          creature.actions!.savingThrowAttacks = args.savingThrowAttacks;
+          creature.actions!.savingThrowAttacks = [ ...(creature.actions!.savingThrowAttacks!), ...(args.savingThrowAttacks)]
           break;
         case "generate_creature_special_actions":
-          creature.actions!.specialActions = args.specialActions;
+          creature.actions!.specialActions = [ ...(creature.actions!.specialActions!), ...(args.specialActions)]
           break;
         case "generate_creature_legendary":
           creature.legendary = args.legendary;
           break;
         case "generate_creature_reactions":
-          creature.reactions = args.reactions;
+          creature.reactions = [ ...(creature.reactions!), ...(args.reactions)]
           break;
       }
     });

@@ -215,11 +215,11 @@ const spellcastingSection = (creature: creatureSchemaType, proficiencyBonus: num
     <span className="font-semibold italic">Spellcasting. </span>
     <span>
       {creature.isUnique ? '' : 'The '} {creature.name} is a {spellcastingLevel}th-level spellcaster.{' '}
-      {capitalizeFirstLetter(pronounToSubject[creature.pronoun])} spellcasting ability is{' '}
+      {capitalizeFirstLetter(creature.isUnique ? pronounToSubject[creature.pronoun] : 'Its')} spellcasting ability is{' '}
       {capitalizeFirstLetter(spellcastingStat)}{' '}
       (spell save DC {spellSaveDC},{' '}
       {sign}{Math.abs(spellAttackBonus)} to hit with spell attacks).{' '}
-      {capitalizeFirstLetter(creature.pronoun)} {creature.isUnique ? 'have' : 'has'} the following {spellcastingClass} spells prepared:
+      {capitalizeFirstLetter(creature.isUnique ? pronounToSubject[creature.pronoun] : 'It')} {creature.isUnique ? 'have' : 'has'} the following {spellcastingClass} spells prepared:
     </span>
   </div>
   )
