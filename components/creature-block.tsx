@@ -460,7 +460,7 @@ const actionSection = (
               damage.secondary
                 ? `, plus ${averageDamageSecondary} (${damage.secondary.damageDice.count}d${damage.secondary.damageDice.sides}) ${damage.secondary.damageType} damage`
                 : ''
-            }`;
+            }.`;
           }
           return ``;
         };

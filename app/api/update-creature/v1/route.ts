@@ -135,10 +135,6 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       const toolName = toolCall.function.name;
       let args = JSON.parse(toolCall.function.arguments);
 
-      // console.log("Creature: ", JSON.stringify(creature, null, 2));
-      // console.log("Tool name: ", JSON.stringify(toolName, null, 2));
-      // console.log("Args: ", JSON.stringify(args, null, 2));
-
       switch (toolName) {
         case "generate_creature_base":
           creature = { ...creature, ...args};

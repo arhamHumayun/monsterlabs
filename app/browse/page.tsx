@@ -17,7 +17,7 @@ export default async function AllMonsters() {
 
   return (
     <div>
-      <h1 className="text-lg font-bold">All creatures</h1>
+      <h1 className="text-lg font-semibold">All creatures</h1>
       <Separator className="mb-4"/>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {creatures.map((creature : creatureDocument) => (

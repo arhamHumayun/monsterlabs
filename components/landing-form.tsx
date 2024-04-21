@@ -94,25 +94,25 @@ export function LandingForm() {
 
   const loading = isLoading ? (
     <div className="flex justify-center">
-      <p className="text-md font-medium">Generating your monster...</p>
+      <p className="text-md font-medium">Generating your creature...</p>
       <Loader2 className="ml-2 animate-spin" />
     </div>
   ) : null;
 
   return (
     <Form {...form} aria-busy={isLoading}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='mx-auto resize'>
         <fieldset disabled={isLoading}>
           <div className="flex w-full rounded border">
             <FormField
               control={form.control}
               name="prompt"
               render={({ field }) => (
-                <FormItem className="w-full">
+                <FormItem className="w-full max-h-20">
                   <FormControl>
                     <Input
                       className="border-0"
-                      placeholder="Describe your monster..."
+                      placeholder="Describe your creature..."
                       {...field}
                     />
                   </FormControl>
