@@ -149,7 +149,14 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
           creature.actions!.multiAttack = args.multiAttack;
           break;
         case "generate_creature_weapon_attacks":
-          creature.actions!.targetedWeaponAttacks = [ ...(creature.actions!.targetedWeaponAttacks!) ,...(args.targetedWeaponAttacks)]
+
+          const newWeaponAttacks = args.targetedWeaponAttacks.filter((newAttack) => {
+            return !creature.actions!.targetedWeaponAttacks!.some((oldAttack) => {
+              return oldAttack.name === newAttack.name;
+            });
+          });
+
+          creature.actions!.targetedWeaponAttacks = [ ...(creature.actions!.targetedWeaponAttacks!), ...(newWeaponAttacks)]
           break;
         case "generate_creature_saving_throw_attacks":
           creature.actions!.savingThrowAttacks = [ ...(creature.actions!.savingThrowAttacks!), ...(args.savingThrowAttacks)]

@@ -33,7 +33,7 @@ export function Navbar(
   }
 
   let navItemList = [
-    { title: 'Create Creature', href: '/', alignment: 'justify-self-start'},
+    { title: 'Create', href: '/', alignment: 'justify-self-start'},
     { title: 'Browse', href: '/browse', alignment: 'justify-self-start'},
   ];
 
