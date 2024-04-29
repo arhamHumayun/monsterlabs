@@ -38,8 +38,8 @@ export async function POST(request: Request) {
 
 async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<creatureSchemaType | { error: string }> {
   const model = new OllamaFunctions({
-    temperature: 0.3,
-    model: "nexusraven",
+    temperature: 0.8,
+    model: "llama3",
   }).bind({
     functions: [{
       name: "generate_creature",

@@ -6,7 +6,6 @@ import zodToJsonSchema from "zod-to-json-schema";
 const openai = new OpenAI();
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
-export const runtime = 'edge';
 
 const systemPrompt = `
 Use your tools in order to generate creatures that the user requests.

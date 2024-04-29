@@ -6,7 +6,6 @@ import zodToJsonSchema from "zod-to-json-schema";
 const openai = new OpenAI();
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
-export const runtime = 'edge';
 
 const systemPrompt = `
 You use the update_creature function in order to update creatures that the user requests.
@@ -37,95 +36,95 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
     {
       type: "function",
       function: {
-          name: "generate_creature_base",
-          description: "Generate a creature's base stats. When generating a creature, always include the base stats.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.base)
+        name: "generate_creature_base",
+        description: "Generate a creature's base stats. When generating a creature, always include the base stats.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.base)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_traits",
-          description: "Generate a creature's traits if they have any.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.traits)
+        name: "generate_creature_traits",
+        description: "Generate a creature's traits if they have any.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.traits)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_spells",
-          description: "Generate a creature's spells if they can cast spells.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.spellcasting)
+        name: "generate_creature_spells",
+        description: "Generate a creature's spells if they can cast spells.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.spellcasting)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_multiattack",
-          description: "Generate a creature's multiattack string.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.multiAttack)
+        name: "generate_creature_multiattack",
+        description: "Generate a creature's multiattack string.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.multiAttack)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_weapon_attacks",
-          description: `
+        name: "generate_creature_weapon_attacks",
+        description: `
           Generate a creature's targeted weapon attacks if they have any.
           Use this function for melee and ranged weapon or spell attacks.
           When calling this function make sure to account for the attacks the creature already has.
           Include the previous attacks in the function call, unless the user explicitly asks to remove or replace them.
           `,
-          parameters: zodToJsonSchema(chunkedMonsterSchema.targetedWeaponAttacks)
+        parameters: zodToJsonSchema(chunkedMonsterSchema.targetedWeaponAttacks)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_saving_throw_attacks",
-          description: `
+        name: "generate_creature_saving_throw_attacks",
+        description: `
             Generate a creature's saving throw attacks if they have any. 
             These are attacks that require a saving throw from the target.
             Use this function for breath weapons, gaze attacks, shout attacks, area of affect attacks and other similar attacks.
           `,
-          parameters: zodToJsonSchema(chunkedMonsterSchema.savingThrowAttacks)
+        parameters: zodToJsonSchema(chunkedMonsterSchema.savingThrowAttacks)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_special_actions",
-          description: "Generate a creature's special actions if they have any. These are actions that are not standard attacks.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.specialActions)
+        name: "generate_creature_special_actions",
+        description: "Generate a creature's special actions if they have any. These are actions that are not standard attacks.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.specialActions)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_legendary",
-          description: "Generate a creature's legendary actions and information if they are legendary.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.legendary)
+        name: "generate_creature_legendary",
+        description: "Generate a creature's legendary actions and information if they are legendary.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.legendary)
       }
     },
     {
       type: "function",
       function: {
-          name: "generate_creature_reactions",
-          description: "Generate a creature's reactions if they have any.",
-          parameters: zodToJsonSchema(chunkedMonsterSchema.reactions)
+        name: "generate_creature_reactions",
+        description: "Generate a creature's reactions if they have any.",
+        parameters: zodToJsonSchema(chunkedMonsterSchema.reactions)
       }
     },
   ];
 
   const completion = await openai.chat.completions.create({
     messages: [
-      { "role": "system", "content": systemPrompt},
-      { "role": "system", "content": "This is the current creature: " + JSON.stringify(creature)},
-      { "role": "user", "content": prompt }, 
+      { "role": "system", "content": systemPrompt },
+      { "role": "system", "content": "This is the current creature: " + JSON.stringify(creature) },
+      { "role": "user", "content": prompt },
     ],
-    model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo-preview
+    model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4-turbo
     tools,
-    temperature: 0.3,
+    temperature: 0.5,
   });
 
   try {
@@ -137,10 +136,10 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
 
       switch (toolName) {
         case "generate_creature_base":
-          creature = { ...creature, ...args};
+          creature = { ...creature, ...args };
           break;
         case "generate_creature_traits":
-          creature.traits = [ ...(creature.traits!), ...(args.traits)]
+          creature.traits = args.traits;
           break;
         case "generate_creature_spells":
           creature.spellcasting = args
@@ -149,26 +148,19 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
           creature.actions!.multiAttack = args.multiAttack;
           break;
         case "generate_creature_weapon_attacks":
-
-        const newWeaponAttacks = args.targetedWeaponAttacks.filter((newAttack) => {
-          return !creature.actions!.targetedWeaponAttacks!.some((oldAttack) => {
-            return oldAttack.name === newAttack.name;
-          });
-        });
-
-        creature.actions!.targetedWeaponAttacks = [ ...(creature.actions!.targetedWeaponAttacks!), ...(newWeaponAttacks)]
-        break;
+          creature.actions!.targetedWeaponAttacks = args.targetedWeaponAttacks;
+          break;
         case "generate_creature_saving_throw_attacks":
-          creature.actions!.savingThrowAttacks = [ ...(creature.actions!.savingThrowAttacks!), ...(args.savingThrowAttacks)]
+          creature.actions!.savingThrowAttacks = args.savingThrowAttacks
           break;
         case "generate_creature_special_actions":
-          creature.actions!.specialActions = [ ...(creature.actions!.specialActions!), ...(args.specialActions)]
+          creature.actions!.specialActions = args.specialActions
           break;
         case "generate_creature_legendary":
           creature.legendary = args.legendary;
           break;
         case "generate_creature_reactions":
-          creature.reactions = [ ...(creature.reactions!), ...(args.reactions)]
+          creature.reactions = args.reactions
           break;
       }
     });

@@ -22,7 +22,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
-  prompt: z.string(),
+  prompt: z.string().min(1).max(1000),
 });
 
 export function LandingForm() {

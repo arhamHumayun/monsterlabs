@@ -27,6 +27,7 @@ export function EditCreature({
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSettingPublic, setIsSettingPublic] = React.useState(false);
   const [isActuallyPublic, setIsActuallyPublic] = React.useState(creature.is_public);
+  const [isEditing, setIsEditing] = React.useState(false);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -163,6 +164,13 @@ export function EditCreature({
         >
           {isActuallyPublic ? 'Make Private' : 'Make Public'} {isSettingPublic && <Loader2 className='ml-2 animate-spin' />}
         </Button>
+        <Button
+          variant='default'
+          className='mb-4 mr-4 p-3 rounded'
+          onClick={() => setIsEditing(!isEditing)}
+        >
+          { isEditing ? 'Save' : 'Edit'}
+        </Button>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant='destructive' className='mb-4 p-3 rounded'>
@@ -184,7 +192,7 @@ export function EditCreature({
           </PopoverContent>
         </Popover>
       </div>
-      <CreatureBlock creature={updatedCreature || creature.json} onlyBlock={true} />
+      <CreatureBlock creature={updatedCreature || creature.json} onlyBlock={true} editMode={isEditing}/>
     </div>
   );
 }

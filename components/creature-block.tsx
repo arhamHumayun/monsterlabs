@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import {
   creatureSchemaType,
@@ -13,14 +13,21 @@ import {
   challengeRatingToXP,
   pronounToSubject,
   spellSlotsPerLevelMapping,
-  orderedKeys
+  orderedKeys,
 } from '@/types/creature';
 import { Separator } from './ui/separator';
+import { Button } from './ui/button';
+import { Plus } from 'lucide-react';
 
-export default function CreatureBlock(
-  { creature, onlyBlock }: { creature: creatureSchemaType, onlyBlock?: boolean}
-) {
-
+export default function CreatureBlock({
+  creature,
+  onlyBlock,
+  editMode,
+}: {
+  creature: creatureSchemaType;
+  onlyBlock?: boolean;
+  editMode?: boolean;
+}) {
   if (!creature) {
     return null;
   }
@@ -62,15 +69,22 @@ export default function CreatureBlock(
 
   const creatureHeader = !onlyBlock ? (
     <div>
-      <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">{lore}</p>
-      <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">{appearance}</p>
+      <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">
+        {lore}
+      </p>
+      <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">
+        {appearance}
+      </p>
     </div>
   ) : null;
 
-  const hitPointBonusString = totalConHpBonus !== 0 ? `${totalConHpBonus > 0 ? '+' : '-'} ${Math.abs(totalConHpBonus)}` : '';
+  const hitPointBonusString =
+    totalConHpBonus !== 0
+      ? `${totalConHpBonus > 0 ? '+' : '-'} ${Math.abs(totalConHpBonus)}`
+      : '';
 
   return (
-    <div className='max-w-5xl mx-auto' id='creature-block'>
+    <div className="max-w-5xl mx-auto" id="creature-block">
       {creatureHeader}
       <div className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
@@ -87,59 +101,46 @@ export default function CreatureBlock(
         <Separator className="my-4" />
         <StatsBlock stats={stats} />
         <Separator className="my-4" />
-        {
-          savingThrows ? (
-            <StyledStatSentences
-              s1="Saving Throws"
-              s2={buildSavingThrowsStringResult(
-                savingThrows,
-                stats,
-                proficiencyBonus
-              )}
-            />
-          ) : null
-        }
+        {savingThrows ? (
+          <StyledStatSentences
+            s1="Saving Throws"
+            s2={buildSavingThrowsStringResult(
+              savingThrows,
+              stats,
+              proficiencyBonus
+            )}
+          />
+        ) : null}
         {skills ? (
           <StyledStatSentences
             s1="Skills"
             s2={buildSkillsStringResult(skills, stats, proficiencyBonus)}
           />
         ) : null}
-        {
-          vulnerabilities ? (
-            <StyledStatSentences
-              s1="Damage Vulnerabilities"
-              s2={buildDamageTakenModifiersString(vulnerabilities)}
-            />
-          ) : null
-        }
-        {
-          resistances ? (
-            <StyledStatSentences
-              s1="Damage Resistances"
-              s2={buildDamageTakenModifiersString(resistances)}
-            />
-          ) : null
-        }
-        {
-          immunities ? (
-            <StyledStatSentences
-              s1="Damage Immunities"
-              s2={buildDamageTakenModifiersString(immunities)}
-            />
-          ) : null
-        }
-        {
-          conditionImmunities ? (
-            <StyledStatSentences
-              s1="Condition Immunities"
-              s2={conditionImmunities
-                .filter((condition) => condition)
-                .join(', ')
-              }
-            />
-          ) : null
-        }
+        {vulnerabilities ? (
+          <StyledStatSentences
+            s1="Damage Vulnerabilities"
+            s2={buildDamageTakenModifiersString(vulnerabilities)}
+          />
+        ) : null}
+        {resistances ? (
+          <StyledStatSentences
+            s1="Damage Resistances"
+            s2={buildDamageTakenModifiersString(resistances)}
+          />
+        ) : null}
+        {immunities ? (
+          <StyledStatSentences
+            s1="Damage Immunities"
+            s2={buildDamageTakenModifiersString(immunities)}
+          />
+        ) : null}
+        {conditionImmunities ? (
+          <StyledStatSentences
+            s1="Condition Immunities"
+            s2={conditionImmunities.filter((condition) => condition).join(', ')}
+          />
+        ) : null}
         {senses ? (
           <StyledStatSentences
             s1="Senses"
@@ -168,13 +169,14 @@ export default function CreatureBlock(
           ].toLocaleString()} XP)`}
         />
         {traits && traits.length > 0 ? <Separator className="my-4" /> : null}
-        {traits && traits.map((trait, index) => (
-          <StyledTraitSentences
-            key={index}
-            s1={`${trait.name}.`}
-            s2={trait.description}
-          />
-        ))}
+        {traits &&
+          traits.map((trait, index) => (
+            <StyledTraitSentences
+              key={index}
+              s1={`${trait.name}.`}
+              s2={trait.description}
+            />
+          ))}
         {legendary?.resistance ? (
           <StyledTraitSentences
             s1={`Legendary Resistance (${legendary.resistance}/Day).`}
@@ -184,7 +186,7 @@ export default function CreatureBlock(
           />
         ) : null}
         {spellcastingSection(creature, proficiencyBonus)}
-        {actionSection(creature, proficiencyBonus)}
+        {actionSection(creature, proficiencyBonus, editMode)}
         {reactionActionSection(creature)}
         {legendaryActionSelection(creature)}
       </div>
@@ -192,67 +194,81 @@ export default function CreatureBlock(
   );
 }
 
-const spellcastingSection = (creature: creatureSchemaType, proficiencyBonus: number) => {
+const spellcastingSection = (
+  creature: creatureSchemaType,
+  proficiencyBonus: number
+) => {
   const { spellcasting } = creature;
 
   if (!spellcasting) {
     return null;
   }
 
-  const {
-    spellcastingClass,
-    spellcastingLevel,
-    spellcastingStat,
-    spells
-  } = spellcasting;
+  const { spellcastingClass, spellcastingLevel, spellcastingStat, spells } =
+    spellcasting;
 
-  const spellAttackBonus = proficiencyBonus + statToBonus(creature.stats[spellcastingStat]);
+  const spellAttackBonus =
+    proficiencyBonus + statToBonus(creature.stats[spellcastingStat]);
   const spellSaveDC = 8 + spellAttackBonus;
   const sign = spellAttackBonus > 0 ? '+' : spellAttackBonus < 0 ? '-' : '';
 
   const entryDescription = (
     <div>
-    <span className="font-semibold italic">Spellcasting. </span>
-    <span>
-      {creature.isUnique ? '' : 'The '} {creature.name} is a {spellcastingLevel}th-level spellcaster.{' '}
-      {capitalizeFirstLetter(creature.isUnique ? pronounToSubject[creature.pronoun] : 'Its')} spellcasting ability is{' '}
-      {capitalizeFirstLetter(spellcastingStat)}{' '}
-      (spell save DC {spellSaveDC},{' '}
-      {sign}{Math.abs(spellAttackBonus)} to hit with spell attacks).{' '}
-      {capitalizeFirstLetter(creature.isUnique ? pronounToSubject[creature.pronoun] : 'It')} {creature.isUnique ? 'have' : 'has'} the following {spellcastingClass} spells prepared:
-    </span>
-  </div>
-  )
-
-  const cantripsKnown = spells.filter(spell => spell.level === 0);
-
-  const cantripsDescription = cantripsKnown.length > 0 ? (
-    <div>
-      <span>Cantrips (at will): </span>
-      <span>{cantripsKnown.map((spell) => spell.name).join(', ')}</span>
+      <span className="font-semibold italic">Spellcasting. </span>
+      <span>
+        {creature.isUnique ? '' : 'The '} {creature.name} is a{' '}
+        {spellcastingLevel}th-level spellcaster.{' '}
+        {capitalizeFirstLetter(
+          creature.isUnique ? pronounToSubject[creature.pronoun] : 'Its'
+        )}{' '}
+        spellcasting ability is {capitalizeFirstLetter(spellcastingStat)} (spell
+        save DC {spellSaveDC}, {sign}
+        {Math.abs(spellAttackBonus)} to hit with spell attacks).{' '}
+        {capitalizeFirstLetter(
+          creature.isUnique ? pronounToSubject[creature.pronoun] : 'It'
+        )}{' '}
+        {creature.isUnique ? 'have' : 'has'} the following {spellcastingClass}{' '}
+        spells prepared:
+      </span>
     </div>
-  ) : null;
-  
-  const spellsDescription = spellSlotsPerLevelMapping[spellcastingLevel].map((spellSlots) => {
+  );
 
-    const spellsKnown = spells.filter(spell => spell.level === spellSlots.level);
+  const cantripsKnown = spells.filter((spell) => spell.level === 0);
 
-    return (
-      <div key={spellSlots.level}>
-        <span>{`${convertNumToCount(spellSlots.level)} Level`} ({spellSlots.count} slots): </span>
-        <span>{spellsKnown.map((spell) => spell.name).join(', ')}</span>
+  const cantripsDescription =
+    cantripsKnown.length > 0 ? (
+      <div>
+        <span>Cantrips (at will): </span>
+        <span>{cantripsKnown.map((spell) => spell.name).join(', ')}</span>
       </div>
-    )
-  });
+    ) : null;
+
+  const spellsDescription = spellSlotsPerLevelMapping[spellcastingLevel].map(
+    (spellSlots) => {
+      const spellsKnown = spells.filter(
+        (spell) => spell.level === spellSlots.level
+      );
+
+      return (
+        <div key={spellSlots.level}>
+          <span>
+            {`${convertNumToCount(spellSlots.level)} Level`} ({spellSlots.count}{' '}
+            slots):{' '}
+          </span>
+          <span>{spellsKnown.map((spell) => spell.name).join(', ')}</span>
+        </div>
+      );
+    }
+  );
 
   return (
     <div>
-      {entryDescription} 
+      {entryDescription}
       {cantripsDescription}
       {spellsDescription}
     </div>
-  )
-}
+  );
+};
 
 const reactionActionSection = (creature: creatureSchemaType) => {
   const { reactions } = creature;
@@ -337,7 +353,8 @@ const legendaryActionSelection = (creature: creatureSchemaType) => {
 
 const actionSection = (
   creature: creatureSchemaType,
-  proficiencyBonus: number
+  proficiencyBonus: number,
+  editMode?: boolean
 ) => {
   const { actions } = creature;
 
@@ -354,12 +371,12 @@ const actionSection = (
 
   const actionUI = [];
 
-  actionUI.push((
+  actionUI.push(
     <div>
       <h1 className="mt-4 text-xl font-semibold">Actions</h1>
       <Separator className="mb-4" />
     </div>
-  ));
+  );
 
   if (multiAttack) {
     actionUI.push(
@@ -399,7 +416,9 @@ const actionSection = (
 
         const meleeAttackDescription =
           range.melee && range.melee > 0
-            ? `${sign}${Math.abs(attackBonus)} to hit, reach ${range.melee} ft., ${targetCountDescription}.`
+            ? `${sign}${Math.abs(attackBonus)} to hit, reach ${
+                range.melee
+              } ft., ${targetCountDescription}.`
             : null;
         const rangedAttackDescription =
           range.ranged && range.ranged > 0
@@ -473,7 +492,12 @@ const actionSection = (
 
         return (
           <div key={index} className="mb-4">
-            <p>
+            <span className=''>
+            {editMode ? (
+              <Button className="p-2 mr-2 aspect-square h-min" variant="destructive">
+                <Plus className="rotate-45 h-5 w-5" />
+              </Button>
+            ) : null}
               <span className="font-semibold italic">
                 {name}
                 {rechargeDescription}.{' '}
@@ -483,7 +507,7 @@ const actionSection = (
               <span className="italic"> Hit: </span>
               {damageDescription()}
               {conditionsDescription}
-            </p>
+            </span>
           </div>
         );
       }
@@ -531,7 +555,7 @@ const actionSection = (
 };
 
 function StatsBlock({ stats }: { stats: statsType }) {
-  const statBlocks = orderedKeys.map((stat : keyof statsType) => {
+  const statBlocks = orderedKeys.map((stat: keyof statsType) => {
     const value = stats[stat];
     const bonus = statToBonus(value);
     const sign = bonus > 0 ? '+' : bonus < 0 ? '-' : '';
@@ -541,7 +565,9 @@ function StatsBlock({ stats }: { stats: statsType }) {
     return (
       <div key={short} className="shrink">
         <div className="text-center font-semibold">{short}</div>
-        <div className="text-center">{`${value} (${sign}${Math.abs(bonus)})`}</div>
+        <div className="text-center">{`${value} (${sign}${Math.abs(
+          bonus
+        )})`}</div>
       </div>
     );
   });
