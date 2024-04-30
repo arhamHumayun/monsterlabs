@@ -67,8 +67,8 @@ export default function CreatureBlock({
   const { vulnerabilities, resistances, immunities } =
     sortDamageTakenModifiers(damageTakenModifiers);
 
-  const creatureHeader = !onlyBlock ? (
-    <div>
+  const creatureHeader = (
+    <div className='my-4'>
       <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">
         {lore}
       </p>
@@ -76,7 +76,7 @@ export default function CreatureBlock({
         {appearance}
       </p>
     </div>
-  ) : null;
+  );
 
   const hitPointBonusString =
     totalConHpBonus !== 0
@@ -85,7 +85,7 @@ export default function CreatureBlock({
 
   return (
     <div className="max-w-5xl mx-auto" id="creature-block">
-      {creatureHeader}
+      {!onlyBlock ? creatureHeader : null}
       <div className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
@@ -190,6 +190,7 @@ export default function CreatureBlock({
         {reactionActionSection(creature)}
         {legendaryActionSelection(creature)}
       </div>
+      {onlyBlock ? creatureHeader : null}
     </div>
   );
 }

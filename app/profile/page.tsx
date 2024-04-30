@@ -40,6 +40,16 @@ export default async function Profile() {
       </div>
       <Separator className="my-4"/>
       <LogOutButton/>
+      <Button 
+      className="mx-2"
+      asChild
+      >
+        <Link
+        href="/pro"
+        >
+          Get Pro
+        </Link>
+      </Button>
     </div>
   )
 }

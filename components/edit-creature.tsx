@@ -164,13 +164,13 @@ export function EditCreature({
         >
           {isActuallyPublic ? 'Make Private' : 'Make Public'} {isSettingPublic && <Loader2 className='ml-2 animate-spin' />}
         </Button>
-        <Button
+        {/* <Button
           variant='default'
           className='mb-4 mr-4 p-3 rounded'
           onClick={() => setIsEditing(!isEditing)}
         >
           { isEditing ? 'Save' : 'Edit'}
-        </Button>
+        </Button> */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant='destructive' className='mb-4 p-3 rounded'>
@@ -192,7 +192,7 @@ export function EditCreature({
           </PopoverContent>
         </Popover>
       </div>
-      <CreatureBlock creature={updatedCreature || creature.json} onlyBlock={true} editMode={isEditing}/>
+      <CreatureBlock creature={updatedCreature || creature.json} onlyBlock={true} editMode={false}/>
     </div>
   );
 }
