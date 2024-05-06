@@ -39,8 +39,8 @@ export async function POST(request: Request) {
   });
 }
 
-async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<creatureSchemaType | { error: string }> {
-  const tools:  Array<ChatCompletionTool> = [
+async function routeLogicGPT(prompt: string, attempts: number = 0): Promise<creatureSchemaType | { error: string }> {
+  const tools: Array<ChatCompletionTool> = [
     {
       type: "function",
       function: {
@@ -65,7 +65,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0) : Promise<cre
         name: 'generate_creature'
       }
     },
-    temperature: 1,
+    temperature: 0.8,
   });
 
   try {

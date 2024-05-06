@@ -52,7 +52,7 @@ export function LandingForm() {
 
     setIsLoading(true);
 
-    const response = await fetch('/api/create-creature/v1', {
+    const response = await fetch('/api/create-creature/openai/v1', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

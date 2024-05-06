@@ -734,13 +734,13 @@ function capitalizeFirstLetter(str: string) {
 }
 
 function convertNumToCount(num: number) {
-  switch (num) {
+  switch (num % 100) {
     case 1:
-      return '1st';
+      return `${num}st`;
     case 2:
-      return '2nd';
+      return `${num}nd`;
     case 3:
-      return '3rd';
+      return `${num}rd`;
     default:
       return num + 'th';
   }

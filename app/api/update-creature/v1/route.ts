@@ -36,41 +36,41 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
     {
       type: "function",
       function: {
-        name: "generate_creature_base",
-        description: "Generate a creature's base stats. When generating a creature, always include the base stats.",
+        name: "regenerate_creature_base",
+        description: "Regenerate a creature's base stats. When generating a creature, always include the base stats.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.base)
       }
     },
     {
       type: "function",
       function: {
-        name: "generate_creature_traits",
-        description: "Generate a creature's traits if they have any.",
+        name: "regenerate_creature_traits",
+        description: "Regenerate a creature's traits if they have any.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.traits)
       }
     },
     {
       type: "function",
       function: {
-        name: "generate_creature_spells",
-        description: "Generate a creature's spells if they can cast spells.",
+        name: "regenerate_creature_spells",
+        description: "Regenerate a creature's spells if they can cast spells.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.spellcasting)
       }
     },
     {
       type: "function",
       function: {
-        name: "generate_creature_multiattack",
-        description: "Generate a creature's multiattack string.",
+        name: "regenerate_creature_multiattack",
+        description: "Regenerate a creature's multiattack string.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.multiAttack)
       }
     },
     {
       type: "function",
       function: {
-        name: "generate_creature_weapon_attacks",
+        name: "regenerate_creature_weapon_attacks",
         description: `
-          Generate a creature's targeted weapon attacks if they have any.
+          Regenerate a creature's targeted weapon attacks if they have any.
           Use this function for melee and ranged weapon or spell attacks.
           When calling this function make sure to account for the attacks the creature already has.
           Include the previous attacks in the function call, unless the user explicitly asks to remove or replace them.
@@ -81,9 +81,9 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
     {
       type: "function",
       function: {
-        name: "generate_creature_saving_throw_attacks",
+        name: "regenerate_creature_saving_throw_attacks",
         description: `
-            Generate a creature's saving throw attacks if they have any. 
+            Regenerate a creature's saving throw attacks if they have any. 
             These are attacks that require a saving throw from the target.
             Use this function for breath weapons, gaze attacks, shout attacks, area of affect attacks and other similar attacks.
           `,
@@ -93,24 +93,24 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
     {
       type: "function",
       function: {
-        name: "generate_creature_special_actions",
-        description: "Generate a creature's special actions if they have any. These are actions that are not standard attacks.",
+        name: "regenerate_creature_special_actions",
+        description: "Regenerate a creature's special actions if they have any. These are actions that are not standard attacks.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.specialActions)
       }
     },
     {
       type: "function",
       function: {
-        name: "generate_creature_legendary",
-        description: "Generate a creature's legendary actions and information if they are legendary.",
+        name: "regenerate_creature_legendary",
+        description: "Regenerate a creature's legendary actions and information if they are legendary.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.legendary)
       }
     },
     {
       type: "function",
       function: {
-        name: "generate_creature_reactions",
-        description: "Generate a creature's reactions if they have any.",
+        name: "regenerate_creature_reactions",
+        description: "Regenerate a creature's reactions if they have any.",
         parameters: zodToJsonSchema(chunkedMonsterSchema.reactions)
       }
     },
@@ -135,31 +135,50 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       let args = JSON.parse(toolCall.function.arguments);
 
       switch (toolName) {
-        case "generate_creature_base":
+        case "regenerate_creature_base":
           creature = { ...creature, ...args };
           break;
-        case "generate_creature_traits":
+        case "regenerate_creature_traits":
           creature.traits = args.traits;
           break;
-        case "generate_creature_spells":
+        case "regenerate_creature_spells":
           creature.spellcasting = args
           break;
-        case "generate_creature_multiattack":
+        case "regenerate_creature_multiattack":
           creature.actions!.multiAttack = args.multiAttack;
           break;
-        case "generate_creature_weapon_attacks":
-          creature.actions!.targetedWeaponAttacks = args.targetedWeaponAttacks;
+        case "regenerate_creature_weapon_attacks":
+          if (!creature.actions) {
+            creature.actions = {}
+          }
+          if (!creature.actions.targetedWeaponAttacks) {
+            creature.actions.targetedWeaponAttacks = []
+          }
+          creature.actions.targetedWeaponAttacks = args.targetedWeaponAttacks;
           break;
-        case "generate_creature_saving_throw_attacks":
-          creature.actions!.savingThrowAttacks = args.savingThrowAttacks
+        case "regenerate_creature_saving_throw_attacks":
+          if (!creature.actions) {
+            creature.actions = {}
+          }
+          if (!creature.actions.savingThrowAttacks) {
+            creature.actions.savingThrowAttacks = []
+          }
+          creature.actions.savingThrowAttacks = args.savingThrowAttacks
           break;
-        case "generate_creature_special_actions":
-          creature.actions!.specialActions = args.specialActions
+        case "regenerate_creature_special_actions":
+          if (!creature.actions) {
+            creature.actions = {}
+          }
+
+          if (!creature.actions.specialActions) {
+            creature.actions.specialActions = []
+          }
+          creature.actions.specialActions = args.specialActions
           break;
-        case "generate_creature_legendary":
+        case "regenerate_creature_legendary":
           creature.legendary = args.legendary;
           break;
-        case "generate_creature_reactions":
+        case "regenerate_creature_reactions":
           creature.reactions = args.reactions
           break;
       }
