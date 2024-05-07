@@ -16,7 +16,7 @@ export default async function AllMonsters() {
   }
 
   return (
-    <div>
+    <div className="max-w-5xl w-full">
       <h1 className="text-lg font-semibold">All creatures</h1>
       <Separator className="mb-4"/>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
