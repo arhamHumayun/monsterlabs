@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "./ui/button";
 
 export function CreatureLink(
-  { creature, id, type } : { id: number, creature: creatureSchemaType, type: 'edit' | 'view' }
+  { creature, id, type } : { id: number, creature: creatureSchemaType, type: 'edit' | 'view' | 'view-public' }
 ) {
 
   const router = useRouter();

@@ -1,6 +1,6 @@
 import { LandingForm } from "./landing-form";
 
-export default function LandingPage() {
+export default function CreateCreature() {
 
   return (
     <div className="flex flex-col items-center justify-center py-[12vh]">

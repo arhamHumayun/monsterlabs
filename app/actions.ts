@@ -2,16 +2,16 @@
 
 import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
-import { creatureDocument } from '@/types/db';
-import { cache } from 'react';
+import { creatureDocument, creatureView, creatureViewDataPartial } from '@/types/db';
 import { User } from '@supabase/supabase-js';
+import { mapCreatureDocumentToCreatureView, mapCreatureViewDocumentToCreatureView, mapGetCreatureByUserId } from '@/lib/utils';
 
 export async function logInToGoogle() {
   const supabase = await createSupabaseAppServerClient();
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { 
-      redirectTo: '/auth/callback', 
+    options: {
+      redirectTo: '/auth/callback',
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
@@ -29,13 +29,13 @@ export async function logInToGoogle() {
 }
 
 
-export async function logOut() : Promise<void> {
+export async function logOut(): Promise<void> {
   const supabase = await createSupabaseAppServerClient();
   await supabase.auth.signOut();
   return redirect('/')
 }
 
-export async function getUser() : Promise<User | null> {
+export async function getUser(): Promise<User | null> {
   const supabase = await createSupabaseAppServerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
@@ -45,54 +45,90 @@ export async function getUser() : Promise<User | null> {
   return user;
 }
 
-async function getCreatureById(id: number) : Promise<creatureDocument | null> {
+export async function getCreatureById(id: number): Promise<creatureView | null> {
   const supabase = await createSupabaseAppServerClient();
-  const creature = await supabase
-  .from('creatures')
-  .select('*')
-  .eq('id', id);
+  const { data, error } = await supabase
+    .from('creatures')
+    .select(`
+      *,
+      creatures_data(*)
+    `)
+    .eq('id', id)
+    .order('id', { ascending: false })
 
-  if (!creature.data || creature.data.length === 0) {
+  if (error || !data || data.length === 0) {
     return null;
   }
 
-  return creature.data[0];
+  console.log(`data`, JSON.stringify(data, null, 2));
+
+  const returnObject = mapCreatureDocumentToCreatureView(data[0]);
+
+  console.log(`returnObject`, JSON.stringify(returnObject, null, 2));
+
+  return returnObject;
 }
 
-async function getCreaturesByUserId(userId: string) : Promise<creatureDocument[] | null>  {
+export async function getCreatureByCreatureDataId(id: number): Promise<creatureView | null> {
   const supabase = await createSupabaseAppServerClient();
-  const creatures = await supabase
+  const { data, error } = await supabase
+    .from('creatures_data')
+    .select(`
+    *,
+    creatures (*)
+  `)
+    .eq('id', id).
+    order('id', { ascending: false }).limit(1).single();
+
+  if (!data || error) {
+    return null;
+  }
+
+  const returnObject = mapCreatureViewDocumentToCreatureView(data)
+  return returnObject;
+}
+
+export async function getCreaturesByUserId(userId: string): Promise<creatureViewDataPartial[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
     .from('creatures')
-    .select('*')
+    .select(`
+      *,
+      creatures_data (
+        id,
+        creature_id,
+        created_at,
+        is_published,
+        name,
+        lore
+      )
+    `)
     .eq('user_id', userId);
 
-  if (!creatures.data || creatures.data.length === 0) {
+  if (error || !data || data.length === 0) {
     return null;
   }
 
-  return creatures.data;
+  const returnObject = data.map(val => mapGetCreatureByUserId(val))
+
+  return returnObject;
 }
 
-async function getAllPublicCreatures() : Promise<creatureDocument[]> {
+export async function getAllPublicCreatures(): Promise<creatureView[]> {
   const supabase = await createSupabaseAppServerClient();
-  const creatures = await supabase
-    .from('creatures')
-    .select('*')
-    .eq('is_public', true);
+  const { data, error } = await supabase
+    .from('creatures_data')
+    .select(`
+    *,
+    creatures (*)
+  `)
+    .eq('is_published', true);
 
-  if (!creatures.data || creatures.data.length === 0) {
+  if (!data || data.length === 0) {
     return [];
   }
 
-  return creatures.data;
-}
+  const returnObject = data.map(val => mapCreatureViewDocumentToCreatureView(val));
 
-const getCreatureByIdCached = getCreatureById;
-const getCreaturesByUserIdCached = cache(getCreaturesByUserId);
-const getAllPublicCreaturesCached = getAllPublicCreatures
-
-export {
-  getCreatureByIdCached as getCreatureById,
-  getCreaturesByUserIdCached as getCreaturesByUserId,
-  getAllPublicCreaturesCached as getAllPublicCreatures,
+  return returnObject;
 }

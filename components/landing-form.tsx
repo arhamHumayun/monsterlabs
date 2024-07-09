@@ -10,6 +10,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 
@@ -20,9 +21,16 @@ import { creatureSchema } from '@/types/creature';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+
+const mapModelToRoute = {
+  'gpt-3.5': 'openai/v1',
+  'claude-haiku': 'claude',
+}
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
+  model: z.enum(['gpt-3.5', 'claude-haiku']),
 });
 
 export function LandingForm() {
@@ -36,11 +44,13 @@ export function LandingForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: '',
+      model: 'gpt-3.5',
     },
   });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -52,7 +62,7 @@ export function LandingForm() {
 
     setIsLoading(true);
 
-    const response = await fetch('/api/create-creature/openai/v1', {
+    const response = await fetch(`/api/create-creature/${mapModelToRoute[values.model]}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,17 +76,82 @@ export function LandingForm() {
       try {
         const creature = creatureSchema.parse(jsonResponse);
 
-        const supabaseResponse = await supabase
+        const createCreatureResponse = await supabase
           .from('creatures')
           .insert({
             created_at: new Date(),
             updated_at: new Date(),
             user_id: user.id,
-            json: creature,
           })
           .select();
 
-        const creatureId = supabaseResponse.data![0].id;
+        const creatureId = createCreatureResponse.data![0].id;
+
+        const {
+          name,
+          lore,
+          appearance,
+          pronoun,
+          type,
+          size,
+          isUnique,
+          challengeRating,
+          alignment,
+          stats,
+          hitDiceAmount,
+          armorClass,
+          speed,
+          savingThrows,
+          skills,
+          senses,
+          damageTakenModifiers,
+          conditionImmunities,
+          languages,
+          traits,
+          spellcasting,
+          actions,
+          reactions,
+          legendary,
+        } = creature;
+
+        const creatureJson = {
+          stats,
+          hitDiceAmount,
+          armorClass,
+          speed,
+          savingThrows,
+          skills,
+          senses,
+          damageTakenModifiers,
+          conditionImmunities,
+          languages,
+          traits,
+          spellcasting,
+          actions,
+          reactions,
+          legendary,
+        };
+
+        const createCreatureDataResponse = await supabase
+          .from('creatures_data')
+          .insert({
+            creature_id: creatureId,
+            created_at: new Date(),
+            is_published: false,
+            name,
+            lore,
+            appearance,
+            pronoun,
+            type,
+            size,
+            isUnique,
+            challengeRating: challengeRating * 100,
+            alignment,
+            json: creatureJson,
+          })
+          .select();
+
+        console.log('createCreatureDataResponse', createCreatureDataResponse);
 
         router.push(`/creature/edit/${creatureId}`);
       } catch (error) {
@@ -101,17 +176,17 @@ export function LandingForm() {
 
   return (
     <Form {...form} aria-busy={isLoading}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='mx-auto resize'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto resize">
         <fieldset disabled={isLoading}>
-          <div className="flex w-full rounded border">
+          <div className="rounded relative">
             <FormField
               control={form.control}
               name="prompt"
               render={({ field }) => (
-                <FormItem className="w-full max-h-20">
+                <FormItem className="w-full">
                   <FormControl>
                     <Input
-                      className="border-0"
+                      className="border-2"
                       placeholder="Describe your creature..."
                       {...field}
                     />
@@ -120,10 +195,44 @@ export function LandingForm() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="model"
+              render={({ field }) => (
+                <FormItem className="flex mt-2">
+                  <FormLabel className='pt-2 pr-3'>Set model:</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-row"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="gpt-3.5" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          GPT 3.5
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="claude-haiku" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Claude Haiku
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button
               type="submit"
-              variant="outline"
-              className="rounded sticky right-0 border-0"
+              variant="ghost"
+              className="rounded border-0 absolute top-0 right-0"
             >
               <CornerDownLeft className="h-4 w-4" />
             </Button>

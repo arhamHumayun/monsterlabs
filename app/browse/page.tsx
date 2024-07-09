@@ -1,7 +1,7 @@
-import { getAllPublicCreatures } from "@/app/actions";
 import { CreatureLink } from "@/components/creature-link";
 import { Separator } from "@/components/ui/separator";
-import { creatureDocument } from "@/types/db";
+import { creatureDocument, creatureView } from "@/types/db";
+import { getAllPublicCreatures } from '@/app/actions';
 
 export default async function AllMonsters() {
 
@@ -20,8 +20,8 @@ export default async function AllMonsters() {
       <h1 className="text-lg font-semibold">All creatures</h1>
       <Separator className="mb-4"/>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {creatures.map((creature : creatureDocument) => (
-          <CreatureLink key={creature.id} id={creature.id} creature={creature.json} type={'view'}/>
+        {creatures.map((creature : creatureView) => (
+          <CreatureLink key={creature.versionId} id={creature.versionId} creature={creature.json} type={'view-public'}/>
         ))}
       </div>
     </div>

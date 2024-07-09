@@ -12,22 +12,20 @@ import { Input } from './ui/input';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
-import { creatureDocument } from '@/types/db';
+import { creatureView } from '@/types/db';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const formSchema = z.object({
   prompt: z.string(),
 });
 
-export function EditCreature({
-  creature,
-}: {
-  creature: creatureDocument;
-}) {
+export function EditCreature({ creature }: { creature: creatureView }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSettingPublic, setIsSettingPublic] = React.useState(false);
-  const [isActuallyPublic, setIsActuallyPublic] = React.useState(creature.is_public);
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [isActuallyPublic, setIsActuallyPublic] = React.useState(
+    creature.is_published
+  );
+  const [currentVersionId, setCurrentVersionId] = React.useState(creature.versionId);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -65,7 +63,10 @@ export function EditCreature({
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ prompt, creature: updatedCreature ? updatedCreature : creature.json}),
+      body: JSON.stringify({
+        prompt,
+        creature: updatedCreature ? updatedCreature : creature.json,
+      }),
     });
 
     if (response.ok) {
@@ -74,13 +75,72 @@ export function EditCreature({
       try {
         const creatureResponse = creatureSchema.parse(jsonResponse);
 
-        await supabase
-          .from('creatures')
-          .update({
-            updated_at: new Date(),
-            json: creatureResponse,
-          })
-          .eq('id', creature.id);
+        const {
+          name,
+          lore,
+          appearance,
+          pronoun,
+          size,
+          type,
+          isUnique,
+          challengeRating,
+          // json
+          stats,
+          hitDiceAmount,
+          armorClass,
+          speed,
+          savingThrows,
+          skills,
+          senses,
+          damageTakenModifiers,
+          conditionImmunities,
+          languages,
+          traits,
+          spellcasting,
+          actions,
+          reactions,
+          legendary,
+        } = creatureResponse;
+
+        const {data, error} = await supabase
+          .from('creatures_data')
+          .insert({
+            creature_id: creature.id,
+            created_at: new Date(),
+            is_published: false,
+            name,
+            lore,
+            appearance,
+            pronoun,
+            size,
+            type,
+            isUnique,
+            challengeRating: challengeRating * 100,
+            json: {
+              stats,
+              hitDiceAmount,
+              armorClass,
+              speed,
+              savingThrows,
+              skills,
+              senses,
+              damageTakenModifiers,
+              conditionImmunities,
+              languages,
+              traits,
+              spellcasting,
+              actions,
+              reactions,
+              legendary,
+            },
+          }).select()
+
+        if (error) {
+          console.error('Failed to create new creature version:', error);
+          return;
+        }
+
+        setCurrentVersionId(data[0].id);
 
         setUpdatedCreature(creatureResponse);
       } catch (error) {
@@ -96,21 +156,18 @@ export function EditCreature({
     setIsLoading(false);
   }
 
-  async function setCreatureIsPublic(is_public: boolean) {
+  async function setCreatureIsPublic(is_published: boolean) {
     setIsSettingPublic(true);
     await supabase
-      .from('creatures')
-      .update({ is_public })
-      .eq('id', creature.id);
+      .from('creatures_data')
+      .update({ is_published })
+      .eq('id', creature.versionId);
     setIsSettingPublic(false);
-    setIsActuallyPublic(is_public);
+    setIsActuallyPublic(is_published);
   }
 
   async function deleteCreature() {
-    await supabase
-      .from('creatures')
-      .delete()
-      .eq('id', creature.id);
+    await supabase.from('creatures').delete().eq('id', creature.id);
     router.push('/profile');
   }
 
@@ -155,14 +212,15 @@ export function EditCreature({
         </form>
         {loading}
       </Form>
-      <div className='flex flex-row w-full'>
+      <div className="flex flex-row w-full">
         <Button
-          variant='default'
-          className='mb-4 mr-4 p-3 rounded'
+          variant="default"
+          className="mb-4 mr-4 p-3 rounded"
           onClick={() => setCreatureIsPublic(!isActuallyPublic)}
           aria-disabled={isSettingPublic}
         >
-          {isActuallyPublic ? 'Make Private' : 'Make Public'} {isSettingPublic && <Loader2 className='ml-2 animate-spin' />}
+          {isActuallyPublic ? 'Make Private' : 'Make Public'}{' '}
+          {isSettingPublic && <Loader2 className="ml-2 animate-spin" />}
         </Button>
         {/* <Button
           variant='default'
@@ -173,18 +231,18 @@ export function EditCreature({
         </Button> */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant='destructive' className='mb-4 p-3 rounded'>
+            <Button variant="destructive" className="mb-4 p-3 rounded">
               Delete
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='rounded mt-1'>
-            <p className='text-sm'>
-              Are you sure you want to delete this creature? 
-              This action cannot be undone.
+          <PopoverContent className="rounded mt-1">
+            <p className="text-sm">
+              Are you sure you want to delete this creature? This action cannot
+              be undone.
             </p>
             <Button
-              variant='destructive'
-              className='mt-4'
+              variant="destructive"
+              className="mt-4"
               onClick={deleteCreature}
             >
               Delete Creature
@@ -192,7 +250,11 @@ export function EditCreature({
           </PopoverContent>
         </Popover>
       </div>
-      <CreatureBlock creature={updatedCreature || creature.json} onlyBlock={true} editMode={false}/>
+      <CreatureBlock
+        creature={updatedCreature || creature.json}
+        onlyBlock={true}
+        editMode={false}
+      />
     </div>
   );
 }

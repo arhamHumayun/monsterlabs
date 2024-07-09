@@ -2,13 +2,16 @@
 
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
-import { logOut } from '@/app/actions'
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 
 export function LogOutButton() {
+
+  const supabase = createSupabaseBrowserClient();
+
   return (
     <Button
       variant="secondary"
-      onClick={() => logOut()}
+      onClick={() => supabase.auth.signOut()}
       className='justify-self-center rounded'
     >
       Log out

@@ -1,4 +1,4 @@
-import { getCreatureById, getUser } from "@/app/actions";
+import { getCreatureByCreatureDataId, getCreatureById, getUser } from "@/app/actions";
 import CreatureBlock from "@/components/creature-block";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -8,6 +8,8 @@ export default async function ViewMonster(
 ) {
 
   const { id } = params;  
+
+  console.log(`calling getCreatureByCreatureDataId with id ${id}`);
   const creature = await getCreatureById(id);
 
   if (!creature) {
@@ -21,7 +23,7 @@ export default async function ViewMonster(
   const user = await getUser();
   const userId = user?.id;
 
-  if (!creature.is_public && (!userId || creature.user_id !== userId)) {
+  if (!creature.is_published && (!userId || creature.user_id !== userId)) {
     return (
       <div>
         <h1>You do not have access to view this creature</h1>
