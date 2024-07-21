@@ -12,26 +12,18 @@ import { Input } from './ui/input';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
-import { creatureView } from '@/types/db';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { creaturesDocument } from '@/types/db';
 
 const formSchema = z.object({
   prompt: z.string(),
 });
 
-export function EditCreature({ creature }: { creature: creatureView }) {
+export function EditCreature({ creature }: { creature: creaturesDocument }) {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isSettingPublic, setIsSettingPublic] = React.useState(false);
-  const [isActuallyPublic, setIsActuallyPublic] = React.useState(
-    creature.is_published
-  );
-  const [currentVersionId, setCurrentVersionId] = React.useState(creature.versionId);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
-
-  const [updatedCreature, setUpdatedCreature] =
-    React.useState<creatureSchemaType>(creature.json);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -42,8 +34,6 @@ export function EditCreature({ creature }: { creature: creatureView }) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     const { prompt } = values;
 
     const {
@@ -84,7 +74,6 @@ export function EditCreature({ creature }: { creature: creatureView }) {
           type,
           isUnique,
           challengeRating,
-          // json
           stats,
           hitDiceAmount,
           armorClass,
@@ -103,11 +92,11 @@ export function EditCreature({ creature }: { creature: creatureView }) {
         } = creatureResponse;
 
         const {data, error} = await supabase
-          .from('creatures_data')
+          .from('creature_versions')
           .insert({
-            creature_id: creature.id,
+            creature_version_id: currentVersionId + 1,
+            creature_id: creature.creature_id,
             created_at: new Date(),
-            is_published: false,
             name,
             lore,
             appearance,
@@ -156,20 +145,36 @@ export function EditCreature({ creature }: { creature: creatureView }) {
     setIsLoading(false);
   }
 
-  async function setCreatureIsPublic(is_published: boolean) {
-    setIsSettingPublic(true);
-    await supabase
-      .from('creatures_data')
-      .update({ is_published })
-      .eq('id', creature.versionId);
-    setIsSettingPublic(false);
-    setIsActuallyPublic(is_published);
-  }
-
   async function deleteCreature() {
     await supabase.from('creatures').delete().eq('id', creature.id);
     router.push('/profile');
   }
+
+  // async function setPreviousCreature() {
+  //   const { data, error } = await supabase
+  //     .from('creature_versions')
+  //     .select('*')
+  //     .eq('creature_id', creature.creature_id)
+  //     .lt('id', currentVersionId)
+  //     .order('id', { ascending: false })
+  //     .limit(1);
+
+  //   if (error) {
+  //     console.error('Failed to load previous creature:', error);
+  //     return;
+  //   }
+
+  //   if (data.length === 0) {
+  //     console.error('No previous creature found');
+  //     return;
+  //   }
+
+  //   setCurrentVersionId(previousCreature.id);
+
+  //   const parsedCreature = mapCreatureViewDocumentToCreatureView(previousCreature);
+
+  //   setUpdatedCreature(parsedCreature.json);
+  // }
 
   const loading = isLoading ? (
     <div className="flex justify-center mb-4">
@@ -177,6 +182,8 @@ export function EditCreature({ creature }: { creature: creatureView }) {
       <Loader2 className="ml-2 animate-spin" />
     </div>
   ) : null;
+
+  // console.log('current creature ids', currentVersionId, creature.creature_version_id, creature.creature_id);
 
   return (
     <div>
@@ -213,15 +220,6 @@ export function EditCreature({ creature }: { creature: creatureView }) {
         {loading}
       </Form>
       <div className="flex flex-row w-full">
-        <Button
-          variant="default"
-          className="mb-4 mr-4 p-3 rounded"
-          onClick={() => setCreatureIsPublic(!isActuallyPublic)}
-          aria-disabled={isSettingPublic}
-        >
-          {isActuallyPublic ? 'Make Private' : 'Make Public'}{' '}
-          {isSettingPublic && <Loader2 className="ml-2 animate-spin" />}
-        </Button>
         {/* <Button
           variant='default'
           className='mb-4 mr-4 p-3 rounded'
@@ -229,9 +227,12 @@ export function EditCreature({ creature }: { creature: creatureView }) {
         >
           { isEditing ? 'Save' : 'Edit'}
         </Button> */}
+        {/* <Button variant="default" className="mb-4 mr-4 p-3 rounded" onClick={setPreviousCreature}>
+          Load Previous Version
+        </Button> */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="destructive" className="mb-4 p-3 rounded">
+            <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
               Delete
             </Button>
           </PopoverTrigger>

@@ -3,9 +3,10 @@
 import { creatureSchemaType } from "@/types/creature"
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button";
+import { creature } from "@/types/db";
 
 export function CreatureLink(
-  { creature, id, type } : { id: number, creature: creatureSchemaType, type: 'edit' | 'view' | 'view-public' }
+  { creatureName, id, type } : { id: number, creatureName: string, type: 'edit' | 'view' | 'view-public' }
 ) {
 
   const router = useRouter();
@@ -15,7 +16,7 @@ export function CreatureLink(
       className="rounded flex flex-col text-balance h-14"
       variant='outline'
     >
-      <p className="text-clip overflow-hidden ...">{creature.name}</p>
+      <p className="text-clip overflow-hidden ...">{creatureName}</p>
     </Button>
   )
 }

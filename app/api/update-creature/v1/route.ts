@@ -122,7 +122,7 @@ async function routeLogic(prompt: string, creature: creatureSchemaType, attempts
       { "role": "system", "content": "This is the current creature: " + JSON.stringify(creature) },
       { "role": "user", "content": prompt },
     ],
-    model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4o
+    model: "gpt-4o-mini", // Options are gpt-3.5-turbo and gpt-4o
     tools,
     temperature: 0.5,
   });

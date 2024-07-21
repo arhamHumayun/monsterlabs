@@ -245,14 +245,6 @@ const spellcastingSchema = z.object({
   })).describe('The spells the creature can cast. Include cantrips as level 0 spells. Make sure to include at least one spell per each level that the creature can cast. '),
 }).describe("Make sure to include at least one spell per each level that the creature can cast. ");
 
-const reactionsSchema = z.object({
-  reactions: z.array(genericActionSchema),
-});
-
-const traitsSchema = z.object({
-  traits: z.array(specialTraitsSchema)
-});
-
 export const creatureSchema = z.object({
   name: z.string(),
   isUnique: z.boolean().describe('If the creature is unique, meaning there is only one of its kind in the world.'),
@@ -323,36 +315,23 @@ export const chunkedMonsterSchema = {
   })
 }
 
-export const creatureDataDocumentSchema = z.object({
-  name: z.string(),
-  lore: z.string(),
-  pronoun: z.enum(['he', 'she', 'they', 'it']).describe("Always fill this in."),
-  appearance: z.string(),
-  size: z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']),
-  type: z.enum(['aberration', 'beast', 'celestial', 'construct', 'dragon', 'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity', 'ooze', 'plant', 'undead']),
-  isUnique: z.boolean().describe('If the creature is unique, meaning there is only one of its kind in the world.'),
-  challengeRating: z.number().min(0).max(30),
-  alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'true neutral', 'neutral', 'unaligned', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']).describe('The alignment of the creature. Always fill in the alignment. If no alignment is given, the creature is true neutral.'),
-  json: z.object({
-    stats: statSchema,
-    hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the creature. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
-    armorClass: armorClassSchema,
-    speed: speedSchema,
-    savingThrows: savingThrowSchema.optional().describe('Which saving throws the creature is proficient in.'),
-    skills: skillsSchema.optional(),
-    senses: sensesSchema.optional(),
-    damageTakenModifiers: damagesBaseSchema.optional().describe('The damage multipliers the creature has for each damage type.'),
-    conditionImmunities: conditionImmunitiesSchema.optional(),
-    languages: languagesSchema,
-    traits: z.array(specialTraitsSchema).min(1).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait. Always include some traits.'),
-    spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
-    actions: actionSchema.optional(),
-    reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
-    legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
-  }),
+export const creatureJsonBlobDocumentSchema = z.object({
+  stats: statSchema,
+  hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the creature. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
+  armorClass: armorClassSchema,
+  speed: speedSchema,
+  savingThrows: savingThrowSchema.optional().describe('Which saving throws the creature is proficient in.'),
+  skills: skillsSchema.optional(),
+  senses: sensesSchema.optional(),
+  damageTakenModifiers: damagesBaseSchema.optional().describe('The damage multipliers the creature has for each damage type.'),
+  conditionImmunities: conditionImmunitiesSchema.optional(),
+  languages: languagesSchema,
+  traits: z.array(specialTraitsSchema).min(1).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait. Always include some traits.'),
+  spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
+  actions: actionSchema.optional(),
+  reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
+  legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
 });
-
-export type creatureDataDocumentType = z.infer<typeof creatureDataDocumentSchema>;
 
 export type chunkedMonsterType = z.infer<typeof chunkedMonsterSchema.base>;
 export type traitsType = z.infer<typeof chunkedMonsterSchema.traits>;
@@ -410,7 +389,6 @@ interface spellSlotsPerLevel {
   level: number,
   count: number
 }
-
 
 export const spellSlotsPerLevelMapping: Record<number, spellSlotsPerLevel[]> = {
   1: [

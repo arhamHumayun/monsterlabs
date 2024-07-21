@@ -24,13 +24,13 @@ import { useRouter } from 'next/navigation';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 const mapModelToRoute = {
-  'gpt-3.5': 'openai/v1',
+  'gpt-4o-mini': 'openai/v1',
   'claude-haiku': 'claude',
-}
+};
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
-  model: z.enum(['gpt-3.5', 'claude-haiku']),
+  model: z.enum(['gpt-4o-mini', 'claude-haiku']),
 });
 
 export function LandingForm() {
@@ -44,13 +44,12 @@ export function LandingForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: '',
-      model: 'gpt-3.5',
+      model: 'gpt-4o-mini',
     },
   });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -62,30 +61,22 @@ export function LandingForm() {
 
     setIsLoading(true);
 
-    const response = await fetch(`/api/create-creature/${mapModelToRoute[values.model]}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(values),
-    });
+    const response = await fetch(
+      `/api/create-creature/${mapModelToRoute[values.model]}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      }
+    );
 
     if (response.ok) {
       const jsonResponse = await response.json();
 
       try {
         const creature = creatureSchema.parse(jsonResponse);
-
-        const createCreatureResponse = await supabase
-          .from('creatures')
-          .insert({
-            created_at: new Date(),
-            updated_at: new Date(),
-            user_id: user.id,
-          })
-          .select();
-
-        const creatureId = createCreatureResponse.data![0].id;
 
         const {
           name,
@@ -133,11 +124,11 @@ export function LandingForm() {
         };
 
         const createCreatureDataResponse = await supabase
-          .from('creatures_data')
+          .from('creature_versions')
           .insert({
-            creature_id: creatureId,
             created_at: new Date(),
-            is_published: false,
+            updated_at: new Date(),
+            user_id: user.id,
             name,
             lore,
             appearance,
@@ -153,7 +144,14 @@ export function LandingForm() {
 
         console.log('createCreatureDataResponse', createCreatureDataResponse);
 
-        router.push(`/creature/edit/${creatureId}`);
+        const { data, error } = createCreatureDataResponse;
+
+        if (error || !data) {
+          console.error('Failed to create creature data:', error);
+          return;
+        }
+
+        router.push(`/creature/edit/${data[0].id}`);
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',
@@ -200,7 +198,7 @@ export function LandingForm() {
               name="model"
               render={({ field }) => (
                 <FormItem className="flex mt-2">
-                  <FormLabel className='pt-2 pr-3'>Set model:</FormLabel>
+                  <FormLabel className="pt-2 pr-3">Set model:</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -209,10 +207,10 @@ export function LandingForm() {
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <RadioGroupItem value="gpt-3.5" />
+                          <RadioGroupItem value="gpt-4o-mini" />
                         </FormControl>
                         <FormLabel className="font-normal">
-                          GPT 3.5
+                          GPT 4o-mini
                         </FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">

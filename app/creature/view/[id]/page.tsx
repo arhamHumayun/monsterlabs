@@ -1,6 +1,7 @@
-import { getCreatureByCreatureDataId, getCreatureById, getUser } from "@/app/actions";
+import { getCreatureById, getUser } from "@/app/not-actions";
 import CreatureBlock from "@/components/creature-block";
 import { Button } from "@/components/ui/button";
+import { creatureSchema } from "@/types/creature";
 import Link from "next/link";
 
 export default async function ViewMonster(
@@ -23,7 +24,7 @@ export default async function ViewMonster(
   const user = await getUser();
   const userId = user?.id;
 
-  if (!creature.is_published && (!userId || creature.user_id !== userId)) {
+  if (creature && (!userId || creature.user_id !== userId)) {
     return (
       <div>
         <h1>You do not have access to view this creature</h1>
@@ -39,10 +40,27 @@ export default async function ViewMonster(
     </Button>
   ) : null;
 
+
+  console.log('creature', creature);
+
+
+  const creatureData = creatureSchema.parse({
+    name: creature.name,
+    lore: creature.lore,
+    appearance: creature.appearance,
+    pronoun: creature.pronoun,
+    type: creature.type,
+    isUnique: creature.is_unique,
+    challengeRating: creature.challenge_rating / 100,
+    alignment: creature.alignment,
+    size: creature.size,
+    ...creature.json,
+  });
+
   return (
     <div>
-      <CreatureBlock creature={creature.json} />
-      {editLink}
+      <CreatureBlock creature={creatureData} />
+      {/* {editLink} */}
     </div>
   )
 }

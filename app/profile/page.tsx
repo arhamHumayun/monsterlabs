@@ -24,17 +24,17 @@ export default async function Profile() {
 
   return (
     <div className="w-full max-w-5xl">
-      <h1 className="text-lg font-semibold">Your creations {user.email}</h1>
+      <h1 className="text-lg font-semibold">Your creations</h1>
       <Separator className="mb-4" />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {creatures && creatures.length > 0 ? (
-          creatures.map((creature: any) => {
+          creatures.map((creature) => {
             return (
               <CreatureLink
                 key={creature.id}
                 id={creature.id}
-                creature={creature.json}
-                type="edit"
+                creatureName={creature.name}
+                type="view"
               />
             );
           })
@@ -49,9 +49,9 @@ export default async function Profile() {
       </div>
       <Separator className="my-4" />
       <LogOutButton />
-      <Button className="mx-2" asChild>
+      {/* <Button className="mx-2" asChild>
         <Link href="/pro">Get Pro</Link>
-      </Button>
+      </Button> */}
     </div>
   );
 }

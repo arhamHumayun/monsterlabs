@@ -56,7 +56,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0): Promise<crea
       { "role": "system", "content": systemPrompt },
       { "role": "user", "content": prompt },
     ],
-    model: "gpt-3.5-turbo", // Options are gpt-3.5-turbo and gpt-4o
+    model: "gpt-4o-mini",
     stream: false,
     tools,
     tool_choice: {
