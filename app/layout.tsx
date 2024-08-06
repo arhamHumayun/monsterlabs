@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { cn } from '@/lib/utils';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Analytics } from "@vercel/analytics/react"
 
 import { Inter as FontSans } from 'next/font/google';
 import { Navbar } from '@/components/navbar';
@@ -35,6 +36,7 @@ export default async function RootLayout({
           fontSans.variable
         )}
       >
+        <Analytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
