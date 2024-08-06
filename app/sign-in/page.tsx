@@ -7,7 +7,6 @@ export default async function SignIn() {
   const session = (await supabase.auth.getSession()).data.session;
   // redirect to home if user is already logged in
   if (session?.user) {
-    console.log('User is already logged in', session.user);
     redirect('/')
   }
 

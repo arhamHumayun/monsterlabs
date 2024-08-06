@@ -135,9 +135,7 @@ export function LandingForm() {
             json: creatureJson,
           })
           .select();
-
-        console.log('createCreatureDataResponse', createCreatureDataResponse);
-
+          
         const { data, error } = createCreatureDataResponse;
 
         if (error || !data) {

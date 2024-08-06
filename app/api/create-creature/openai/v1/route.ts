@@ -29,7 +29,6 @@ export async function POST(request: Request) {
 
   const { prompt } = await body;
 
-  console.log("Received prompt: ", prompt);
   const responseBody = await routeLogicGPT(prompt, 0);
 
   return new Response(JSON.stringify(responseBody, null, 2), {
@@ -69,10 +68,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0): Promise<crea
   });
 
   try {
-    console.log("attempt at parsing: ", attempts);
     let parsedMonster = creatureSchema.parse(JSON.parse(completion.choices[0].message.tool_calls![0].function.arguments));
-
-    console.log("successfully parsed creature: ", parsedMonster);
 
     return parsedMonster
   } catch (error) {

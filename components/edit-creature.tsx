@@ -17,7 +17,7 @@ import {
   creatureDocumentToCreatureSchemaType,
   creaturesDocument,
 } from '@/types/db';
-import { updateCreature } from '@/app/actions/update/v1/route';
+import { updateCreature } from '@/app/actions/update/v1/updateCreature';
 import { User } from '@supabase/supabase-js';
 
 const formSchema = z.object({
@@ -70,7 +70,6 @@ export function EditCreature({
 
     if (updatedCreature.data && !updatedCreature.error) {
       try {
-        console.log('updateCreatureDataResponse', updatedCreature.data);
 
         if (updatedCreature.error) {
           console.error(

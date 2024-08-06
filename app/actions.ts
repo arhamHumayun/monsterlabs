@@ -67,8 +67,6 @@ export async function getCreaturesByUserId(userId: string): Promise<creaturesDoc
     .select('*')
     .eq('user_id', userId);
 
-  console.log(`data from getCreaturesByUserId`, JSON.stringify(data, null, 2));
-
   if (error || !data || data.length === 0) {
     return null;
   }
