@@ -75,3 +75,20 @@ export async function getCreaturesByUserId(userId: string): Promise<creaturesDoc
 
   return data;
 }
+
+export async function getAllCreatures() : Promise<{
+  id: number,
+  name: string,
+}[] | null>
+{
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('creatures')
+    .select(`id, name`);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
+}

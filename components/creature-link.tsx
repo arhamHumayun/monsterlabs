@@ -1,9 +1,7 @@
 "use client"
 
-import { creatureSchemaType } from "@/types/creature"
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button";
-import { creature } from "@/types/db";
 
 export function CreatureLink(
   { creatureName, id, type } : { id: number, creatureName: string, type: 'edit' | 'view' | 'view-public' }

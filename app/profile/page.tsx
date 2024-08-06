@@ -34,7 +34,7 @@ export default async function Profile() {
                 key={creature.id}
                 id={creature.id}
                 creatureName={creature.name}
-                type="view"
+                type="edit"
               />
             );
           })

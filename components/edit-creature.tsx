@@ -13,14 +13,24 @@ import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { creatureDocumentToCreatureSchemaType, creaturesDocument } from '@/types/db';
+import {
+  creatureDocumentToCreatureSchemaType,
+  creaturesDocument,
+} from '@/types/db';
 import { updateCreature } from '@/app/actions/update/v1/route';
+import { User } from '@supabase/supabase-js';
 
 const formSchema = z.object({
   prompt: z.string(),
 });
 
-export function EditCreature({ creature }: { creature: creaturesDocument }) {
+export function EditCreature({
+  creature,
+  user,
+}: {
+  creature: creaturesDocument;
+  user: User | null;
+}) {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const router = useRouter();
@@ -34,35 +44,41 @@ export function EditCreature({ creature }: { creature: creaturesDocument }) {
     },
   });
 
+  if (!user) {
+    router.push('/sign-in');
+    return;
+  }
+
+  if (creature.user_id !== user.id) {
+    router.push('/profile');
+    return;
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { prompt } = values;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      router.push('/sign-in');
-      return;
-    }
-
     setIsLoading(true);
 
-    const creatureSchemaTypeCreature = creatureDocumentToCreatureSchemaType(creature);
+    const creatureSchemaTypeCreature =
+      creatureDocumentToCreatureSchemaType(creature);
 
     // For example, send the form data to your API.
-    const updatedCreature = await updateCreature(prompt, creatureSchemaTypeCreature);
+    const updatedCreature = await updateCreature(
+      prompt,
+      creatureSchemaTypeCreature
+    );
 
     if (updatedCreature.data && !updatedCreature.error) {
       try {
-
         console.log('updateCreatureDataResponse', updatedCreature.data);
 
         if (updatedCreature.error) {
-          console.error('Failed to create new creature version:', updatedCreature.error);
+          console.error(
+            'Failed to create new creature version:',
+            updatedCreature.error
+          );
           return;
         }
-
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',
@@ -146,31 +162,28 @@ export function EditCreature({ creature }: { creature: creaturesDocument }) {
         {/* <Button variant="default" className="mb-4 mr-4 p-3 rounded" onClick={setPreviousCreature}>
           Load Previous Version
         </Button> */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
-              Delete
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="rounded mt-1">
-            <p className="text-sm">
-              Are you sure you want to delete this creature? This action cannot
-              be undone.
-            </p>
-            <Button
-              variant="destructive"
-              className="mt-4"
-              onClick={deleteCreature}
-            >
-              Delete Creature
-            </Button>
-          </PopoverContent>
-        </Popover>
       </div>
-      <CreatureBlock
-        creature={creatureData}
-        onlyBlock={true}
-      />
+      <CreatureBlock creature={creatureData} onlyBlock={true} />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
+            Delete
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="rounded mt-1">
+          <p className="text-sm">
+            Are you sure you want to delete this creature? This action cannot be
+            undone.
+          </p>
+          <Button
+            variant="destructive"
+            className="mt-4"
+            onClick={deleteCreature}
+          >
+            Delete Creature
+          </Button>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
