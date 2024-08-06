@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 import zodToJsonSchema from "zod-to-json-schema";
 
+export const maxDuration = 60; // This function can run for a maximum of 5 seconds
 const openai = new OpenAI();
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request

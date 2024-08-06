@@ -6,6 +6,7 @@ import zodToJsonSchema from "zod-to-json-schema";
 const openai = new OpenAI();
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
+export const maxDuration = 60; // This function can run for a maximum of 5 seconds
 
 const systemPrompt = `
 You use the generate_creature function in order to generate creatures that the user requests.
