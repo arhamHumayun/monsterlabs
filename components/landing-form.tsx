@@ -132,10 +132,11 @@ export function LandingForm() {
             is_unique: isUnique,
             challenge_rating: challengeRating * 100,
             alignment,
+            hit_dice_amount: hitDiceAmount,
             json: creatureJson,
           })
           .select();
-          
+
         const { data, error } = createCreatureDataResponse;
 
         if (error || !data) {
