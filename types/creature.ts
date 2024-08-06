@@ -272,6 +272,38 @@ export const creatureSchema = z.object({
   legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
 });
 
+export const creatureJsonBlobDocumentSchema = z.object({
+  stats: statSchema,
+  savingThrows: savingThrowSchema.optional().describe('Which saving throws the creature is proficient in.'),
+  skills: skillsSchema.optional(),
+  senses: sensesSchema.optional(),
+  speed: speedSchema,
+  armorClass: armorClassSchema,
+  damageTakenModifiers: damagesBaseSchema.optional().describe('The damage multipliers the creature has for each damage type.'),
+  conditionImmunities: conditionImmunitiesSchema.optional(),
+  languages: languagesSchema,
+  traits: z.array(specialTraitsSchema).min(1).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait. Always include some traits.'),
+  spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
+  actions: actionSchema.optional(),
+  reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
+  legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
+});
+
+export const creatureSchemaWithJson = z.object({
+  name: z.string(),
+  isUnique: z.boolean().describe('If the creature is unique, meaning there is only one of its kind in the world.'),
+  lore: z.string(),
+  appearance: z.string(),
+  pronoun: z.enum(['he', 'she', 'they', 'it']).describe("Always fill this in."),
+  stats: statSchema,
+  hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the creature. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
+  size: z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']),
+  type: z.enum(['aberration', 'beast', 'celestial', 'construct', 'dragon', 'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity', 'ooze', 'plant', 'undead']),
+  alignment: z.enum(['lawful good', 'neutral good', 'chaotic good', 'lawful neutral', 'true neutral', 'neutral', 'unaligned', 'chaotic neutral', 'lawful evil', 'neutral evil', 'chaotic evil']).describe('The alignment of the creature. Always fill in the alignment. If no alignment is given, the creature is true neutral.'),
+  challengeRating: z.number().min(0).max(30),
+  json: creatureJsonBlobDocumentSchema,
+});
+
 export const chunkedMonsterSchema = {
   base: z.object({
     name: z.string(),
@@ -315,23 +347,6 @@ export const chunkedMonsterSchema = {
   })
 }
 
-export const creatureJsonBlobDocumentSchema = z.object({
-  stats: statSchema,
-  hitDiceAmount: z.number().min(1).describe('The number of hit dice given to the creature. The actual max health is based off of this amount'), // Total health determined by size, constitution, and hitDiceAmount
-  armorClass: armorClassSchema,
-  speed: speedSchema,
-  savingThrows: savingThrowSchema.optional().describe('Which saving throws the creature is proficient in.'),
-  skills: skillsSchema.optional(),
-  senses: sensesSchema.optional(),
-  damageTakenModifiers: damagesBaseSchema.optional().describe('The damage multipliers the creature has for each damage type.'),
-  conditionImmunities: conditionImmunitiesSchema.optional(),
-  languages: languagesSchema,
-  traits: z.array(specialTraitsSchema).min(1).optional().describe('The special traits the creature has. Do not describe legendary resistance or actions. Never repeat the same trait. Always include some traits.'),
-  spellcasting: spellcastingSchema.optional().describe('The spells the creature can cast and other info. Only fill in if the creature can cast spells.'),
-  actions: actionSchema.optional(),
-  reactions: z.array(genericActionSchema).optional().nullable().describe('Used for creatures that can take a reaction. Do not describe legendary resistance. Do not describe spells like shield and counterspell.'),
-  legendary: legendarySchema.optional().nullable().describe('Used for high level or boss creatures.'),
-});
 
 export type chunkedMonsterType = z.infer<typeof chunkedMonsterSchema.base>;
 export type traitsType = z.infer<typeof chunkedMonsterSchema.traits>;

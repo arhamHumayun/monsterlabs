@@ -1,6 +1,6 @@
 'use client';
 
-import { creatureSchema, creatureSchemaType } from '@/types/creature';
+import { creatureSchema } from '@/types/creature';
 import CreatureBlock from './creature-block';
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import { z } from 'zod';
@@ -13,7 +13,8 @@ import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { creaturesDocument } from '@/types/db';
+import { creatureDocumentToCreatureSchemaType, creaturesDocument } from '@/types/db';
+import { updateCreature } from '@/app/actions/update/v1/route';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -47,91 +48,21 @@ export function EditCreature({ creature }: { creature: creaturesDocument }) {
 
     setIsLoading(true);
 
+    const creatureSchemaTypeCreature = creatureDocumentToCreatureSchemaType(creature);
+
     // For example, send the form data to your API.
-    const response = await fetch('/api/update-creature/v1', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt,
-        creature: updatedCreature ? updatedCreature : creature.json,
-      }),
-    });
+    const updatedCreature = await updateCreature(prompt, creatureSchemaTypeCreature);
 
-    if (response.ok) {
-      const jsonResponse = await response.json();
-
+    if (updatedCreature.data && !updatedCreature.error) {
       try {
-        const creatureResponse = creatureSchema.parse(jsonResponse);
 
-        const {
-          name,
-          lore,
-          appearance,
-          pronoun,
-          size,
-          type,
-          isUnique,
-          challengeRating,
-          stats,
-          hitDiceAmount,
-          armorClass,
-          speed,
-          savingThrows,
-          skills,
-          senses,
-          damageTakenModifiers,
-          conditionImmunities,
-          languages,
-          traits,
-          spellcasting,
-          actions,
-          reactions,
-          legendary,
-        } = creatureResponse;
+        console.log('updateCreatureDataResponse', updatedCreature.data);
 
-        const {data, error} = await supabase
-          .from('creature_versions')
-          .insert({
-            creature_version_id: currentVersionId + 1,
-            creature_id: creature.creature_id,
-            created_at: new Date(),
-            name,
-            lore,
-            appearance,
-            pronoun,
-            size,
-            type,
-            isUnique,
-            challengeRating: challengeRating * 100,
-            json: {
-              stats,
-              hitDiceAmount,
-              armorClass,
-              speed,
-              savingThrows,
-              skills,
-              senses,
-              damageTakenModifiers,
-              conditionImmunities,
-              languages,
-              traits,
-              spellcasting,
-              actions,
-              reactions,
-              legendary,
-            },
-          }).select()
-
-        if (error) {
-          console.error('Failed to create new creature version:', error);
+        if (updatedCreature.error) {
+          console.error('Failed to create new creature version:', updatedCreature.error);
           return;
         }
 
-        setCurrentVersionId(data[0].id);
-
-        setUpdatedCreature(creatureResponse);
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',
@@ -150,32 +81,6 @@ export function EditCreature({ creature }: { creature: creaturesDocument }) {
     router.push('/profile');
   }
 
-  // async function setPreviousCreature() {
-  //   const { data, error } = await supabase
-  //     .from('creature_versions')
-  //     .select('*')
-  //     .eq('creature_id', creature.creature_id)
-  //     .lt('id', currentVersionId)
-  //     .order('id', { ascending: false })
-  //     .limit(1);
-
-  //   if (error) {
-  //     console.error('Failed to load previous creature:', error);
-  //     return;
-  //   }
-
-  //   if (data.length === 0) {
-  //     console.error('No previous creature found');
-  //     return;
-  //   }
-
-  //   setCurrentVersionId(previousCreature.id);
-
-  //   const parsedCreature = mapCreatureViewDocumentToCreatureView(previousCreature);
-
-  //   setUpdatedCreature(parsedCreature.json);
-  // }
-
   const loading = isLoading ? (
     <div className="flex justify-center mb-4">
       <p className="text-md font-medium">Updating your creature...</p>
@@ -183,7 +88,18 @@ export function EditCreature({ creature }: { creature: creaturesDocument }) {
     </div>
   ) : null;
 
-  // console.log('current creature ids', currentVersionId, creature.creature_version_id, creature.creature_id);
+  const creatureData = creatureSchema.parse({
+    name: creature.name,
+    lore: creature.lore,
+    appearance: creature.appearance,
+    pronoun: creature.pronoun,
+    type: creature.type,
+    isUnique: creature.is_unique,
+    challengeRating: creature.challenge_rating / 100,
+    alignment: creature.alignment,
+    size: creature.size,
+    ...creature.json,
+  });
 
   return (
     <div>
@@ -252,9 +168,8 @@ export function EditCreature({ creature }: { creature: creaturesDocument }) {
         </Popover>
       </div>
       <CreatureBlock
-        creature={updatedCreature || creature.json}
+        creature={creatureData}
         onlyBlock={true}
-        editMode={false}
       />
     </div>
   );

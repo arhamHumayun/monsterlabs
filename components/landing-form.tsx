@@ -21,12 +21,6 @@ import { creatureSchema } from '@/types/creature';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-
-const mapModelToRoute = {
-  'gpt-4o-mini': 'openai/v1',
-  'claude-haiku': 'claude',
-};
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
@@ -62,7 +56,7 @@ export function LandingForm() {
     setIsLoading(true);
 
     const response = await fetch(
-      `/api/create-creature/${mapModelToRoute[values.model]}`,
+      `/api/create-creature/openai/v1`,
       {
         method: 'POST',
         headers: {
@@ -124,7 +118,7 @@ export function LandingForm() {
         };
 
         const createCreatureDataResponse = await supabase
-          .from('creature_versions')
+          .from('creatures')
           .insert({
             created_at: new Date(),
             updated_at: new Date(),
@@ -135,8 +129,8 @@ export function LandingForm() {
             pronoun,
             type,
             size,
-            isUnique,
-            challengeRating: challengeRating * 100,
+            is_unique: isUnique,
+            challenge_rating: challengeRating * 100,
             alignment,
             json: creatureJson,
           })
@@ -151,7 +145,7 @@ export function LandingForm() {
           return;
         }
 
-        router.push(`/creature/edit/${data[0].id}`);
+        router.push(`/creature/view/${data[0].id}`);
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',
@@ -193,7 +187,7 @@ export function LandingForm() {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="model"
               render={({ field }) => (
@@ -226,7 +220,7 @@ export function LandingForm() {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <Button
               type="submit"
               variant="ghost"

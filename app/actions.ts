@@ -57,8 +57,6 @@ export async function getCreatureById(id: number): Promise<creaturesDocument | n
     return null;
   }
 
-  console.log(`data from getCreatureById`, JSON.stringify(data, null, 2));
-
   return data;
 }
 

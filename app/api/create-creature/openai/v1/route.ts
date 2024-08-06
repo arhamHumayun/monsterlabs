@@ -56,7 +56,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0): Promise<crea
       { "role": "system", "content": systemPrompt },
       { "role": "user", "content": prompt },
     ],
-    model: "gpt-4o-mini",
+    model: "gpt-3.5-turbo",
     stream: false,
     tools,
     tool_choice: {
@@ -65,7 +65,7 @@ async function routeLogicGPT(prompt: string, attempts: number = 0): Promise<crea
         name: 'generate_creature'
       }
     },
-    temperature: 0.8,
+    temperature: 0.5,
   });
 
   try {

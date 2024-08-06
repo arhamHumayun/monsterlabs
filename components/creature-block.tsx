@@ -16,17 +16,13 @@ import {
   orderedKeys,
 } from '@/types/creature';
 import { Separator } from './ui/separator';
-import { Button } from './ui/button';
-import { Plus } from 'lucide-react';
 
 export default function CreatureBlock({
   creature,
   onlyBlock,
-  editMode,
 }: {
   creature: creatureSchemaType;
   onlyBlock?: boolean;
-  editMode?: boolean;
 }) {
   if (!creature) {
     return null;
@@ -186,7 +182,7 @@ export default function CreatureBlock({
           />
         ) : null}
         {spellcastingSection(creature, proficiencyBonus)}
-        {actionSection(creature, proficiencyBonus, editMode)}
+        {actionSection(creature, proficiencyBonus)}
         {reactionActionSection(creature)}
         {legendaryActionSelection(creature)}
       </div>
@@ -355,7 +351,6 @@ const legendaryActionSelection = (creature: creatureSchemaType) => {
 const actionSection = (
   creature: creatureSchemaType,
   proficiencyBonus: number,
-  editMode?: boolean
 ) => {
   const { actions } = creature;
 
@@ -494,11 +489,6 @@ const actionSection = (
         return (
           <div key={index} className="mb-4">
             <span className=''>
-            {editMode ? (
-              <Button className="p-2 mr-2 aspect-square h-min" variant="destructive">
-                <Plus className="rotate-45 h-5 w-5" />
-              </Button>
-            ) : null}
               <span className="font-semibold italic">
                 {name}
                 {rechargeDescription}.{' '}

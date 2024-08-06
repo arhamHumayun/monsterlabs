@@ -10,7 +10,6 @@ export default async function ViewMonster(
 
   const { id } = params;  
 
-  console.log(`calling getCreatureByCreatureDataId with id ${id}`);
   const creature = await getCreatureById(id);
 
   if (!creature) {
@@ -40,10 +39,6 @@ export default async function ViewMonster(
     </Button>
   ) : null;
 
-
-  console.log('creature', creature);
-
-
   const creatureData = creatureSchema.parse({
     name: creature.name,
     lore: creature.lore,
@@ -54,6 +49,7 @@ export default async function ViewMonster(
     challengeRating: creature.challenge_rating / 100,
     alignment: creature.alignment,
     size: creature.size,
+    hitDiceAmount: creature.hit_dice_amount,
     ...creature.json,
   });
 
