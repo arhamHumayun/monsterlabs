@@ -8,6 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Inter as FontSans } from 'next/font/google';
 import { Navbar } from '@/components/navbar';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: 'DnD Content Generator',
@@ -51,6 +52,7 @@ export default async function RootLayout({
                 {children}
               </div>
           </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

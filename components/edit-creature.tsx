@@ -15,10 +15,14 @@ import { useRouter } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import {
   creatureDocumentToCreatureSchemaType,
+  creatureSchemaTypeToCreatureDocument,
   creaturesDocument,
 } from '@/types/db';
 import { updateCreature } from '@/app/actions/update/v1/updateCreature';
 import { User } from '@supabase/supabase-js';
+import { usePreviousState } from '@/lib/hooks';
+import { updateCreature as updateCreatureToDB } from '@/app/actions';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -32,6 +36,7 @@ export function EditCreature({
   user: User | null;
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [creatureObject, setCreatureObject, goPreviousVersion, goNextVersion, canGoBack, canGoForward] = usePreviousState(creature);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -49,7 +54,7 @@ export function EditCreature({
     return;
   }
 
-  if (creature.user_id !== user.id) {
+  if (creatureObject.user_id !== user.id) {
     router.push('/profile');
     return;
   }
@@ -60,7 +65,7 @@ export function EditCreature({
     setIsLoading(true);
 
     const creatureSchemaTypeCreature =
-      creatureDocumentToCreatureSchemaType(creature);
+      creatureDocumentToCreatureSchemaType(creatureObject);
 
     // For example, send the form data to your API.
     const updatedCreature = await updateCreature(
@@ -70,13 +75,23 @@ export function EditCreature({
 
     if (updatedCreature.data && !updatedCreature.error) {
       try {
-
         if (updatedCreature.error) {
           console.error(
             'Failed to create new creature version:',
             updatedCreature.error
           );
           return;
+        } else {
+          console.log('Successfully created new creature version', updatedCreature.data);
+          const updatedCreatureDoc = creatureSchemaTypeToCreatureDocument(
+            updatedCreature.data,
+            creatureObject.id,
+            creatureObject.user_id,
+            creatureObject.created_at,
+            new Date(),
+          )
+          setCreatureObject(updatedCreatureDoc);
+          toast("Creature updated.");
         }
       } catch (error) {
         console.error(
@@ -92,7 +107,7 @@ export function EditCreature({
   }
 
   async function deleteCreature() {
-    await supabase.from('creatures').delete().eq('id', creature.id);
+    await supabase.from('creatures').delete().eq('id', creatureObject.id);
     router.push('/profile');
   }
 
@@ -104,16 +119,17 @@ export function EditCreature({
   ) : null;
 
   const creatureData = creatureSchema.parse({
-    name: creature.name,
-    lore: creature.lore,
-    appearance: creature.appearance,
-    pronoun: creature.pronoun,
-    type: creature.type,
-    isUnique: creature.is_unique,
-    challengeRating: creature.challenge_rating / 100,
-    alignment: creature.alignment,
-    size: creature.size,
-    ...creature.json,
+    name: creatureObject.name,
+    hitDiceAmount: creatureObject.hit_dice_amount,
+    lore: creatureObject.lore,
+    appearance: creatureObject.appearance,
+    pronoun: creatureObject.pronoun,
+    type: creatureObject.type,
+    isUnique: creatureObject.is_unique,
+    challengeRating: creatureObject.challenge_rating / 100,
+    alignment: creatureObject.alignment,
+    size: creatureObject.size,
+    ...creatureObject.json,
   });
 
   return (
@@ -150,23 +166,39 @@ export function EditCreature({
         </form>
         {loading}
       </Form>
-      <div className="flex flex-row w-full">
-        {/* <Button
-          variant='default'
+      <div className='grid grid-cols-3'>
+        <Button 
+          variant='default' 
           className='mb-4 mr-4 p-3 rounded'
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={() => goPreviousVersion()}
         >
-          { isEditing ? 'Save' : 'Edit'}
-        </Button> */}
-        {/* <Button variant="default" className="mb-4 mr-4 p-3 rounded" onClick={setPreviousCreature}>
-          Load Previous Version
-        </Button> */}
+          Undo
+        </Button>
+        <Button 
+          variant='default' 
+          className='mb-4 mr-4 p-3 rounded'
+          onClick={() => goNextVersion()}
+        >
+          Redo
+        </Button>
+        <Button
+        variant="default"
+        className="mb-4 mr-4 p-3 rounded"
+        onClick={() => {
+          updateCreatureToDB(creatureObject);
+          toast("Creature updated successfully");
+        }}
+      >
+        Save
+      </Button>
+      </div>
+      <div className="flex flex-row w-full">
       </div>
       <CreatureBlock creature={creatureData} onlyBlock={true} />
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
-            Delete
+            Delete Creature
           </Button>
         </PopoverTrigger>
         <PopoverContent className="rounded mt-1">

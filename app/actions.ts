@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
-import { User } from '@supabase/supabase-js';
+import { PostgrestError, User } from '@supabase/supabase-js';
 import { creaturesDocument } from '@/types/db';
 
 export async function logInToGoogle() {
@@ -103,4 +103,26 @@ export async function getCountOfCreatures() : Promise<number | null>
   }
 
   return count;
+}
+
+export async function updateCreature(creature: creaturesDocument): 
+Promise<{ data: creaturesDocument | null}> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('creatures')
+    .update(creature)
+    .eq('id', creature.id)
+    .select('*')
+    .single();
+
+  if (error || !data) {
+    console.error('Failed to update creature:', error);
+    return {
+      data: null
+    }
+  }
+
+  return {
+    data,
+  };
 }

@@ -148,6 +148,7 @@ export async function updateCreature(prompt: string, creature: creatureSchemaTyp
             creature.actions.targetedWeaponAttacks = []
           }
           creature.actions.targetedWeaponAttacks = creature.actions.targetedWeaponAttacks.concat(args.targetedWeaponAttacks);
+          creature.actions.targetedWeaponAttacks = removeDuplicatesKeepLast(creature.actions.targetedWeaponAttacks);
           break;
         case "regenerate_creature_saving_throw_attacks":
           if (!creature.actions) {
@@ -157,6 +158,7 @@ export async function updateCreature(prompt: string, creature: creatureSchemaTyp
             creature.actions.savingThrowAttacks = []
           }
           creature.actions.savingThrowAttacks = creature.actions.savingThrowAttacks.concat(args.savingThrowAttacks);
+          creature.actions.savingThrowAttacks = removeDuplicatesKeepLast(creature.actions.savingThrowAttacks);
           break;
         case "regenerate_creature_special_actions":
           if (!creature.actions) {
@@ -167,6 +169,7 @@ export async function updateCreature(prompt: string, creature: creatureSchemaTyp
             creature.actions.specialActions = []
           }
           creature.actions.specialActions = creature.actions.specialActions.concat(args.specialActions);
+          creature.actions.specialActions = removeDuplicatesKeepLast(creature.actions.specialActions);
           break;
         case "regenerate_creature_legendary":
           creature.legendary = args.legendary;
@@ -197,4 +200,24 @@ export async function updateCreature(prompt: string, creature: creatureSchemaTyp
       }
     }
   }
+}
+
+interface Named {
+  name: string;
+  [key: string]: any;
+}
+
+function removeDuplicatesKeepLast<T extends Named>(list: T[]): T[] {
+  const seen = new Set<string>();
+  const result: T[] = [];
+
+  for (let i = list.length - 1; i >= 0; i--) {
+    const item = list[i];
+    if (!seen.has(item.name)) {
+      seen.add(item.name);
+      result.unshift(item);
+    }
+  }
+
+  return result;
 }
