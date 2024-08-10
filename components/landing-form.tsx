@@ -13,6 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 import { CornerDownLeft, Loader2 } from 'lucide-react';
 
@@ -21,6 +23,7 @@ import { creatureSchema } from '@/types/creature';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
+import { getCountOfCreatures } from '@/app/actions';
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
@@ -29,6 +32,7 @@ const formSchema = z.object({
 
 export function LandingForm() {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [numCreatures, setNumCreatures] = React.useState(0);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -177,7 +181,7 @@ export function LandingForm() {
                 <FormItem className="w-full">
                   <FormControl>
                     <Input
-                      className="border-2"
+                      className="border-2 resize-y pr-10"
                       placeholder="Describe your creature..."
                       {...field}
                     />

@@ -90,3 +90,17 @@ export async function getAllCreatures() : Promise<{
 
   return data;
 }
+
+export async function getCountOfCreatures() : Promise<number | null>
+{
+  const supabase = await createSupabaseAppServerClient();
+  const { count, error } = await supabase
+    .from('creatures')
+    .select('*', { count: 'estimated' })
+
+  if (error || !count) {
+    return null;
+  }
+
+  return count;
+}
