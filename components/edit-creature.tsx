@@ -36,7 +36,15 @@ export function EditCreature({
   user: User | null;
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [creatureObject, setCreatureObject, goPreviousVersion, goNextVersion, canGoBack, canGoForward] = usePreviousState(creature);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [
+    creatureObject,
+    setCreatureObject,
+    goPreviousVersion,
+    goNextVersion,
+    canGoBack,
+    canGoForward,
+  ] = usePreviousState(creature);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -82,16 +90,19 @@ export function EditCreature({
           );
           return;
         } else {
-          console.log('Successfully created new creature version', updatedCreature.data);
+          console.log(
+            'Successfully created new creature version',
+            updatedCreature.data
+          );
           const updatedCreatureDoc = creatureSchemaTypeToCreatureDocument(
             updatedCreature.data,
             creatureObject.id,
             creatureObject.user_id,
             creatureObject.created_at,
-            new Date(),
-          )
+            new Date()
+          );
           setCreatureObject(updatedCreatureDoc);
-          toast("Creature updated.");
+          toast('Creature updated.');
         }
       } catch (error) {
         console.error(
@@ -166,34 +177,38 @@ export function EditCreature({
         </form>
         {loading}
       </Form>
-      <div className='grid grid-cols-3'>
-        <Button 
-          variant='default' 
-          className='mb-4 mr-4 p-3 rounded'
+      <div className="grid grid-cols-3">
+        <Button
+          variant="secondary"
+          className="mb-4 mr-4 p-3 rounded"
+          disabled={isLoading}
           onClick={() => goPreviousVersion()}
         >
           Undo
         </Button>
-        <Button 
-          variant='default' 
-          className='mb-4 mr-4 p-3 rounded'
+        <Button
+          variant="secondary"
+          className="mb-4 mr-4 p-3 rounded"
+          disabled={isLoading}
           onClick={() => goNextVersion()}
         >
           Redo
         </Button>
         <Button
-        variant="default"
-        className="mb-4 mr-4 p-3 rounded"
-        onClick={() => {
-          updateCreatureToDB(creatureObject);
-          toast("Creature updated successfully");
-        }}
-      >
-        Save
-      </Button>
+          variant="default"
+          className="mb-4 mr-4 p-3 rounded"
+          disabled={isLoading || isSaving}
+          onClick={async () => {
+            setIsSaving(true);
+            await updateCreatureToDB(creatureObject);
+            setIsSaving(false);
+            doToast('Creature saved.');
+          }}
+        >
+          {isSaving ? 'Saving...': 'Save'}
+        </Button>
       </div>
-      <div className="flex flex-row w-full">
-      </div>
+      <div className="flex flex-row w-full"></div>
       <CreatureBlock creature={creatureData} onlyBlock={true} />
       <Popover>
         <PopoverTrigger asChild>
@@ -217,4 +232,8 @@ export function EditCreature({
       </Popover>
     </div>
   );
+}
+
+const doToast = (message: string) => {
+  toast(message);
 }
