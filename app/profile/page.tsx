@@ -23,7 +23,7 @@ export default async function Profile() {
   const creatures = await getCreaturesByUserId(userId);
 
   return (
-    <div className="w-full max-w-5xl">
+    <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
       <h1 className="text-lg font-semibold">Your creations</h1>
       <Separator className="mb-4" />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
