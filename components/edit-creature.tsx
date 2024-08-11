@@ -41,9 +41,7 @@ export function EditCreature({
     creatureObject,
     setCreatureObject,
     goPreviousVersion,
-    goNextVersion,
-    canGoBack,
-    canGoForward,
+    goNextVersion
   ] = usePreviousState(creature);
 
   const router = useRouter();
