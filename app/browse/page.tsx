@@ -21,7 +21,7 @@ export default async function AllMonsters() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {creatures.map((creature) => {
           return (
-            <CreatureLink key={creature.id} id={creature.id} creatureName={creature.name} type="view-public"/>
+            <CreatureLink key={creature.id} id={creature.id} creatureName={creature.name} type="view"/>
           )
         })}
       </div>

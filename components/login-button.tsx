@@ -1,40 +1,64 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { Loader2 } from 'lucide-react'
+import * as React from 'react';
+import { Loader2 } from 'lucide-react';
 
-import { Button  } from '@/components/ui/button'
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client'
+import { Button } from '@/components/ui/button';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 
-export function LoginButton() {
-  const [isLoading, setIsLoading] = React.useState(false)
-  
+export function LoginButton({
+  message
+} : {
+  message?: string
+}) {
+  const [isLoading, setIsLoading] = React.useState(false);
+
   const supabase = createSupabaseBrowserClient();
 
   const loginWithGoogle = async () => {
-    setIsLoading(true)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    const { data, error } = await supabase.auth.getUser();
+
+    const user = data?.user;
+
+    setIsLoading(true);
+    if (user && !user.is_anonymous) {
+      console.log('user is already signed in', user.id, user.email);
+      return;
+    }
+
+    if (user && user.is_anonymous) {
+      console.log('linking identity', user.id);
+      await supabase.auth.linkIdentity({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
-      }
-    })
-  }
+      });
+    }
+
+    if (!user) {
+      console.log('signing in with google');
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+    }
+  };
 
   return (
-    <Button
-      variant="outline"
-      onClick={loginWithGoogle}
-      disabled={isLoading}
-    >
-      {isLoading ? (
-        <Loader2 className="mr-2 animate-spin" />
-      ) : null}
-      Sign in with Google
+    <Button variant="default" onClick={loginWithGoogle} disabled={isLoading}>
+      {isLoading ? <Loader2 className="mr-2 animate-spin" /> : null}
+      { message ? message : 'Sign in with Google'}
     </Button>
-  )
+  );
 }

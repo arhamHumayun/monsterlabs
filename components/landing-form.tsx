@@ -29,7 +29,7 @@ const formSchema = z.object({
 
 export function LandingForm() {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [numCreatures, setNumCreatures] = React.useState(0);
+  const [isAnon, setIsAnon] = React.useState(true);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -45,13 +45,27 @@ export function LandingForm() {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const {
+    let {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      router.push('/sign-in');
-      return;
+      const anonSigninResponse = await supabase.auth.signInAnonymously();
+
+      if (anonSigninResponse.error) {
+        console.error('Failed to sign in anonymously:', anonSigninResponse.error);
+        return;
+      }
+
+      user = anonSigninResponse.data.user;;
+
+      if (!user) {
+        console.error('no user?');
+        return;
+      }
+      setIsAnon(true)
+    } else {
+      setIsAnon(false);
     }
 
     setIsLoading(true);
@@ -145,7 +159,11 @@ export function LandingForm() {
           return;
         }
 
-        router.push(`/creature/edit/${data[0].id}`);
+        if (isAnon) {
+          router.push(`/creature/view-anon/${data[0].id}`);
+        } else {
+          router.push(`/creature/edit/${data[0].id}`);
+        }
       } catch (error) {
         console.error(
           'Something went wrong when generating the creature:',

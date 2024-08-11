@@ -14,7 +14,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { Button } from './ui/button';
 
 export function Navbar(
-  { user }: { user: User | undefined }
+  { user }: { user: User | null }
 ) {
 
   const supabase = createSupabaseBrowserClient();
@@ -37,16 +37,33 @@ export function Navbar(
 
     const redirectUrl = `${getURL()}/auth/callback`;
 
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      }
-    });
+    const { data, error } = await supabase.auth.getUser();
+    const existingUser = data?.user;
+    if (existingUser && existingUser.is_anonymous) {
+      console.log('Linking anonymous user');
+      await supabase.auth.linkIdentity({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+    } else {
+      console.log('Signing in with Google');
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+    }
   }
 
   let navItemList = [
@@ -54,7 +71,7 @@ export function Navbar(
     { title: 'Browse', href: '/browse', alignment: 'justify-self-start'},
   ];
 
-  if (!user) {
+  if (!user || user.is_anonymous) {
     navItemList.push({ title: 'Login', href: '/sign-in', alignment: 'justify-self-end'});
   } else {
     navItemList.push({ title: 'Profile', href: '/profile', alignment: 'justify-self-end'});

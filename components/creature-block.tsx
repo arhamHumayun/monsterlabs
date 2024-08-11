@@ -64,7 +64,7 @@ export default function CreatureBlock({
     sortDamageTakenModifiers(damageTakenModifiers);
 
   const creatureHeader = (
-    <div className='my-4'>
+    <div>
       <p className="text-xl pb-4 italic duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2">
         {lore}
       </p>

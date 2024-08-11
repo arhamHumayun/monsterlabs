@@ -72,6 +72,13 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      fontSize: {
+        // 'base': ['14px', '20px'],
+        // 'sm': ['12px', '16px'],
+        // 'md': ['14px', '22px'],
+        // 'lg': ['16px', '24px'],
+        // 'xl': ['18px', '28px'],
+      },
       // fontFamily: {
       //   sans: ["var(--font-sans)", ...fontFamily.sans],
       // }
