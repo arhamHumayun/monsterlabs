@@ -28,7 +28,6 @@ const formSchema = z.object({
 
 export function LandingForm() {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isAnon, setIsAnon] = React.useState(true);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -62,9 +61,6 @@ export function LandingForm() {
         console.error('no user?');
         return;
       }
-      setIsAnon(true)
-    } else {
-      setIsAnon(false);
     }
 
     setIsLoading(true);

@@ -28,11 +28,11 @@ export default async function CreateCreature() {
       <div className="mt-4 w-full max-w-xl space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <LandingForm />
       </div>
-      <div className='grid grid-cols-2 my-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-lg place-items-center'>
+      <div className='grid grid-cols-1 gap-3 my-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-lg place-items-center'>
         <p className=" text-gray-200 pl">
-          {count} creatures created so far!
+          <span className='font-semibold' >{count}</span> creatures created so far!
         </p>
-        <Button asChild variant={'ghost'}>
+        <Button asChild variant={'outline'}>
           <Link href="/browse">View existing creatures</Link>
         </Button>
       </div>
