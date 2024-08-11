@@ -56,7 +56,7 @@ export function LoginButton({
   };
 
   return (
-    <Button variant="default" onClick={loginWithGoogle} disabled={isLoading}>
+    <Button variant="default" onClick={loginWithGoogle} disabled={isLoading} className='max-w-3xl'>
       {isLoading ? <Loader2 className="mr-2 animate-spin" /> : null}
       { message ? message : 'Sign in with Google'}
     </Button>

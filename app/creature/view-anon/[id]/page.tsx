@@ -2,9 +2,6 @@
 import { getCreatureById } from "@/app/actions";
 import CreatureBlock from "@/components/creature-block";
 import { LoginButton } from "@/components/login-button";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
-import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
 import { creatureSchema } from "@/types/creature";
 
 export default async function ViewAnonMonster(
@@ -40,8 +37,11 @@ export default async function ViewAnonMonster(
   return (
     <div>
       <CreatureBlock creature={creatureData} />
-      <div className="flex grid-cols-2 gap-4 justify-center mt-4 mb-2">
-        <LoginButton message="Sign in with Google to save and edit your creatures."/>
+      <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
+        <h1 className="text-gray-200 text-center">
+        Sign in with Google to save and edit your creatures. This creature will be saved.
+        </h1>
+        <LoginButton message="Sign in with Google."/>
       </div>
     </div>
   )

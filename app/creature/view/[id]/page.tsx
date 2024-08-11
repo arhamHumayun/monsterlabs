@@ -33,7 +33,7 @@ export default async function ViewMonster(
   });
 
   return (
-    <div>
+    <div className="mb-4">
       <CreatureBlock creature={creatureData} />
     </div>
   )
