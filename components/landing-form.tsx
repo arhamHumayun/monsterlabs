@@ -159,7 +159,11 @@ export function LandingForm() {
           return;
         }
 
-        if (isAnon) {
+        const currentUser = await supabase.auth.getUser();
+
+        const currentUserData = currentUser.data.user;
+
+        if (!currentUserData || currentUserData.is_anonymous) {
           router.push(`/creature/view-anon/${data[0].id}`);
         } else {
           router.push(`/creature/edit/${data[0].id}`);
