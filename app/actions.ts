@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
-import { PostgrestError, User } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { creaturesDocument } from '@/types/db';
 
 export async function logInToGoogle() {

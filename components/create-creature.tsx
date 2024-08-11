@@ -1,6 +1,5 @@
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { LandingForm } from './landing-form';
-import { Card, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import Link from 'next/link';
 
@@ -26,6 +25,9 @@ export default async function CreateCreature() {
         Your creation could be a monster, a hero, or anything else you can
         imagine.
       </p>
+      <div className="mt-4 w-full max-w-xl space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
+        <LandingForm />
+      </div>
       <div className='grid grid-cols-2 my-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-lg place-items-center'>
         <p className=" text-gray-200 pl">
           {count} creatures created so far!
@@ -34,10 +36,6 @@ export default async function CreateCreature() {
           <Link href="/browse">View existing creatures</Link>
         </Button>
       </div>
-      <div className="w-full max-w-xl space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
-        <LandingForm />
-      </div>
-      <div className="grid gap-4 grid-cols-1 pt-4"></div>
     </div>
   );
 }
