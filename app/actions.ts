@@ -83,7 +83,7 @@ export async function getAllCreatures() : Promise<{
   const { data, error } = await supabase
     .from('creatures')
     .select(`id, name`)
-    .order('name', { ascending: true });
+    .order('created_at', { ascending: false });
 
   if (error || !data || data.length === 0) {
     return null;

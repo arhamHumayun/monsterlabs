@@ -40,7 +40,6 @@ export function Navbar(
     const { data, error } = await supabase.auth.getUser();
     const existingUser = data?.user;
     if (existingUser && existingUser.is_anonymous) {
-      console.log('Linking anonymous user');
       await supabase.auth.linkIdentity({
         provider: 'google',
         options: {
@@ -52,7 +51,6 @@ export function Navbar(
         }
       });
     } else {
-      console.log('Signing in with Google');
       await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

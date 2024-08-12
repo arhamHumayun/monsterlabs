@@ -16,7 +16,7 @@ export function LoginButton({
   const supabase = createSupabaseBrowserClient();
 
   const loginWithGoogle = async () => {
-    const { data, error } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
 
     const user = data?.user;
 
@@ -27,7 +27,6 @@ export function LoginButton({
     }
 
     if (user && user.is_anonymous) {
-      console.log('linking identity', user.id);
       await supabase.auth.linkIdentity({
         provider: 'google',
         options: {
@@ -41,7 +40,6 @@ export function LoginButton({
     }
 
     if (!user) {
-      console.log('signing in with google');
       await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
