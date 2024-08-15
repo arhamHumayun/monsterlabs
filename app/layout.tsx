@@ -11,8 +11,8 @@ import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
-  title: 'DnD Content Generator',
-  description: 'Generate DnD content with ease using AI. Not affiliated with Wizards of the Coast.',
+  title: 'Monster Labs',
+  description: 'Generate a DnD creature with ease using AI.',
 };
 
 export const fontSans = FontSans({

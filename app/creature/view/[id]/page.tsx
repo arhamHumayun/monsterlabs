@@ -1,9 +1,13 @@
 import { getCreatureById } from "@/app/not-actions";
 import CreatureBlock from "@/components/creature-block";
 import ShareCreatureButton from "@/components/share-creature-button";
-import { Button } from "@/components/ui/button";
-import { doToast } from "@/lib/utils";
 import { creatureSchema } from "@/types/creature";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'View Creature',
+  description: 'View a creature',
+};
 
 export default async function ViewMonster(
   { params }: { params: { id: number } }
