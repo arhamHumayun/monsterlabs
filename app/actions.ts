@@ -74,16 +74,21 @@ export async function getCreaturesByUserId(userId: string): Promise<creaturesDoc
   return data;
 }
 
-export async function getAllCreatures() : Promise<{
+export async function getAllCreatures(page: number, monstersPerPage: number) : Promise<{
   id: number,
   name: string,
 }[] | null>
 {
   const supabase = await createSupabaseAppServerClient();
+
+  const rangeStart = (page - 1) * monstersPerPage;
+  const rangeEnd = page * monstersPerPage;
+
   const { data, error } = await supabase
     .from('creatures')
     .select(`id, name`)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(rangeStart, rangeEnd);
 
   if (error || !data || data.length === 0) {
     return null;
