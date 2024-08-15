@@ -10,6 +10,16 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import CreatureList from '@/components/creature-list';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 export default async function AllMonsters({
   params,
@@ -54,9 +64,9 @@ export default async function AllMonsters({
     return buttons;
   };
 
-  const paginationSection = () => {
+  const paginationSection = (tailwindStyling?: string) => {
     return (
-      <Pagination className="my-4">
+      <Pagination className={`my-4 ${tailwindStyling ? tailwindStyling : ''}`}>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
