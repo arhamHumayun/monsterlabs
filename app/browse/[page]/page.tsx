@@ -17,7 +17,7 @@ export default async function AllMonsters({
   params: { page: string };
 }) {
   const creatureCount = await getCountOfCreatures();
-  const monstersPerPage = 89;
+  const monstersPerPage = 59;
 
   if (!creatureCount || creatureCount === 0) {
     return (
