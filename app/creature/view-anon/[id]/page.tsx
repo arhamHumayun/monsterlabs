@@ -42,7 +42,7 @@ export default async function ViewAnonMonster({
       <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
         <h1 className="text-gray-200 text-center">
           Sign in with Google to save and edit your creatures. This creature
-          will be saved when you sign in. Otherwise you won't be able to edit it later.
+          will be saved when you sign in. Otherwise you {`won't`} be able to edit it later.
         </h1>
         <div className="flex justify-center">
           <ShareCreatureButton id={id} textOverride="Share this creature!" />
