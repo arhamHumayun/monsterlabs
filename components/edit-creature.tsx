@@ -23,6 +23,7 @@ import { User } from '@supabase/supabase-js';
 import { usePreviousState } from '@/lib/hooks';
 import { updateCreature as updateCreatureToDB } from '@/app/actions';
 import { toast } from 'sonner';
+import { doToast } from '@/lib/utils';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -37,12 +38,8 @@ export function EditCreature({
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [
-    creatureObject,
-    setCreatureObject,
-    goPreviousVersion,
-    goNextVersion
-  ] = usePreviousState(creature);
+  const [creatureObject, setCreatureObject, goPreviousVersion, goNextVersion] =
+    usePreviousState(creature);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -175,7 +172,7 @@ export function EditCreature({
         </form>
         {loading}
       </Form>
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-4">
         <Button
           variant="secondary"
           className="mb-4 mr-4 p-3 rounded"
@@ -203,7 +200,20 @@ export function EditCreature({
             doToast('Creature saved.');
           }}
         >
-          {isSaving ? 'Saving...': 'Save'}
+          {isSaving ? 'Saving...' : 'Save'}
+        </Button>
+        <Button
+          variant="default"
+          className="mb-4 mr-4 p-3 rounded"
+          disabled={isLoading}
+          onClick={() => {
+            navigator.clipboard.writeText(
+              `${window.location.origin}/creature/view/${creatureObject.id}`
+            );
+            doToast('Link copied.');
+          }}
+        >
+          Share
         </Button>
       </div>
       <div className="flex flex-row w-full"></div>
@@ -230,8 +240,4 @@ export function EditCreature({
       </Popover>
     </div>
   );
-}
-
-const doToast = (message: string) => {
-  toast(message);
 }

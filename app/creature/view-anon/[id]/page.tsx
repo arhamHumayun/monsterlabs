@@ -2,6 +2,8 @@
 import { getCreatureById } from "@/app/actions";
 import CreatureBlock from "@/components/creature-block";
 import { LoginButton } from "@/components/login-button";
+import ShareCreatureButton from "@/components/share-creature-button";
+import { Button } from "@/components/ui/button";
 import { creatureSchema } from "@/types/creature";
 
 export default async function ViewAnonMonster(
@@ -36,6 +38,7 @@ export default async function ViewAnonMonster(
 
   return (
     <div>
+      <ShareCreatureButton id={id} textOverride="Share this creature!" />
       <CreatureBlock creature={creatureData} />
       <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
         <h1 className="text-gray-200 text-center">
