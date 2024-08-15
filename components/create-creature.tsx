@@ -33,7 +33,7 @@ export default async function CreateCreature() {
           <span className='font-semibold' >{count}</span> creatures created so far!
         </p>
         <Button asChild variant={'outline'}>
-          <Link href="/browse">View existing creatures</Link>
+          <Link href="/browse/1">View existing creatures</Link>
         </Button>
       </div>
     </div>
