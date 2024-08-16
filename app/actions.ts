@@ -74,7 +74,7 @@ export async function getCreaturesByUserId(userId: string): Promise<creaturesDoc
   return data;
 }
 
-export async function getAllCreatures(page: number, monstersPerPage: number) : Promise<{
+export async function getAllCreatures(page: number, monstersPerPage: number, sortingOrder: "latest" | "alphabetical") : Promise<{
   id: number,
   name: string,
 }[] | null>
@@ -83,11 +83,14 @@ export async function getAllCreatures(page: number, monstersPerPage: number) : P
 
   const rangeStart = (page - 1) * monstersPerPage;
   const rangeEnd = page * monstersPerPage;
+  
+  const orderingColumn = sortingOrder === 'latest' ? 'created_at' : 'name';
+  const ascending = sortingOrder === 'alphabetical';
 
   const { data, error } = await supabase
     .from('creatures')
     .select(`id, name`)
-    .order('created_at', { ascending: false })
+    .order(orderingColumn, { ascending })
     .range(rangeStart, rangeEnd);
 
   if (error || !data || data.length === 0) {

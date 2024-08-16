@@ -2,12 +2,21 @@ import { getAllCreatures } from "@/app/actions";
 import { CreatureLink } from "./creature-link";
 
 export default async function CreatureList(
-  { pageNumber, monstersPerPage } : { pageNumber: number, monstersPerPage: number },
+  { 
+    pageNumber, 
+    monstersPerPage,
+    sortingOrder,
+  } : 
+  { 
+    pageNumber: number,
+    monstersPerPage: number,
+    sortingOrder: "latest" | "alphabetical", 
+  },
 ) {
 
   pageNumber = pageNumber || 1;
 
-  const creatures = await getAllCreatures(pageNumber, monstersPerPage);
+  const creatures = await getAllCreatures(pageNumber, monstersPerPage, sortingOrder);
 
   if (!creatures || creatures.length === 0) {
     return (
@@ -18,7 +27,7 @@ export default async function CreatureList(
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     {creatures.map((creature) => {
       return (
         <CreatureLink

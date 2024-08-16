@@ -10,24 +10,24 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import CreatureList from '@/components/creature-list';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import SortByCreaturesDropdown from '@/components/sort-by-creatures-dropdown';
 
 export default async function AllMonsters({
   params,
+  searchParams
 }: {
   params: { page: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const creatureCount = await getCountOfCreatures();
   const monstersPerPage = 59;
+  const sortingOrder = searchParams?.sort as "latest" | "alphabetical" || 'latest';
+
+  console.log("searchParams", searchParams);
+
+  const searchParamsString = searchParams ? new URLSearchParams(searchParams as any).toString() : '';
+
+  console.log("searchParamsString", searchParamsString);
 
   if (!creatureCount || creatureCount === 0) {
     return (
@@ -54,7 +54,7 @@ export default async function AllMonsters({
     for (let i = minPage; i <= maxPage; i++) {
       buttons.push(
         <PaginationItem key={i}>
-          <PaginationLink href={`/browse/${i}`} isActive={currentPage === i}>
+          <PaginationLink href={`/browse/${i}?${searchParamsString}`} isActive={currentPage === i}>
             {i}
           </PaginationLink>
         </PaginationItem>
@@ -70,11 +70,11 @@ export default async function AllMonsters({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href={currentPage === 1 ? '' : `/browse/${currentPage - 1}`}
+              href={currentPage === 1 ? '' : `/browse/${currentPage - 1}?${searchParamsString}`}
             />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink href={`/browse/1`}>1</PaginationLink>
+            <PaginationLink href={`/browse/1?${searchParamsString}`}>1</PaginationLink>
           </PaginationItem>
           {currentPage > 4 && (
             <PaginationItem>
@@ -88,7 +88,7 @@ export default async function AllMonsters({
             </PaginationItem>
           )}
           <PaginationItem>
-            <PaginationLink href={`/browse/${maxCreaturePage}`}>
+            <PaginationLink href={`/browse/${maxCreaturePage}?${searchParamsString}`}>
               {maxCreaturePage}
             </PaginationLink>
           </PaginationItem>
@@ -97,7 +97,7 @@ export default async function AllMonsters({
               href={
                 currentPage === maxCreaturePage
                   ? ''
-                  : `/browse/${currentPage + 1}`
+                  : `/browse/${currentPage + 1}?${searchParamsString}`
               }
             />
           </PaginationItem>
@@ -110,9 +110,15 @@ export default async function AllMonsters({
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
       <h1 className="text-lg font-semibold">All creatures</h1>
       <Separator className="mb-4" />
-      {paginationSection()}
+      <div
+        className="flex justify-between items-center mb-4"
+      >
+        {paginationSection()}
+        <SortByCreaturesDropdown />
+      </div>
       <CreatureList
         pageNumber={currentPage}
+        sortingOrder={sortingOrder}
         monstersPerPage={monstersPerPage}
       />
       {paginationSection()}
