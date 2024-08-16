@@ -2,6 +2,7 @@ import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { LandingForm } from './landing-form';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { IconBrandReddit, IconBrandDiscord } from '@tabler/icons-react';
 
 export default async function CreateCreature() {
   // 3. Fetch the number of creatures.
@@ -28,12 +29,28 @@ export default async function CreateCreature() {
       <div className="mt-4 w-full max-w-xl space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <LandingForm />
       </div>
-      <div className='grid grid-cols-1 gap-3 my-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-lg place-items-center'>
-        <p className=" text-gray-200 pl">
-          <span className='font-semibold' >{count}</span> creatures created so far!
+      <div className="grid grid-cols-1 gap-3 my-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-lg place-items-center">
+        <p className="">
+          <span className="font-semibold">{count}</span> creatures created so
+          far!
         </p>
         <Button asChild variant={'outline'}>
           <Link href="/browse/1">View existing creatures</Link>
+        </Button>
+      </div>
+      <div className="duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 pt-8 py-4 grid grid-cols-2 gap-4 font-semibold">
+        <p className="col-span-2 text-center">Join the discussion!</p>
+        <Button asChild>
+          <Link href="https://discord.gg/WCauKARg">
+            <IconBrandDiscord size={20} className='mr-1' />
+            Discord
+          </Link>
+        </Button>
+        <Button asChild>
+          <Link href="https://www.reddit.com/r/monsterlabs/">
+            <IconBrandReddit size={20} className='mr-1' />
+             Reddit
+          </Link>
         </Button>
       </div>
     </div>

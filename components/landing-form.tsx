@@ -204,40 +204,6 @@ export function LandingForm() {
                 </FormItem>
               )}
             />
-            {/* <FormField
-              control={form.control}
-              name="model"
-              render={({ field }) => (
-                <FormItem className="flex mt-2">
-                  <FormLabel className="pt-2 pr-3">Set model:</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-row"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="gpt-4o-mini" />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          GPT 4o-mini
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="claude-haiku" />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          Claude Haiku
-                        </FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <Button
               type="submit"
               variant="ghost"
