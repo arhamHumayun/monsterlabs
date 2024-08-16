@@ -39,7 +39,7 @@ export default async function CreateCreature() {
         </Button>
       </div>
       <div className="duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 pt-8 py-4 grid grid-cols-2 gap-4 font-semibold">
-        <p className="col-span-2 text-center">Join the discussion!</p>
+        <p className="col-span-2 text-center">Join the discussion and keep up to date!</p>
         <Button asChild>
           <Link href="https://discord.gg/WCauKARg">
             <IconBrandDiscord size={20} className='mr-1' />
