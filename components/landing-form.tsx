@@ -17,9 +17,10 @@ import { CornerDownLeft, Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { creatureSchema } from '@/types/creature';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
+import { User } from '@supabase/supabase-js';
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
@@ -28,9 +29,34 @@ const formSchema = z.object({
 
 export function LandingForm() {
   const [isLoading, setIsLoading] = React.useState(false);
-
+  const [user, setUser] = useState<User | null>(null);
+  const [actionCount, setActionCount] = useState(0);
+  const [showLimitAlert, setShowLimitAlert] = useState(false);
+  
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
+
+  useEffect(() => {
+    const initializeUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        // If no user is signed in, sign in anonymously
+        await supabase.auth.signInAnonymously();
+      } else {
+        setUser(user);
+      }
+
+      console.log('user:', user);
+
+      // Initialize action count from localStorage
+      const storedCount = localStorage.getItem('action_count');
+      setActionCount(storedCount ? parseInt(storedCount, 10) : 0);
+    };
+
+    initializeUser();
+  }, []);
+
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,22 +69,20 @@ export function LandingForm() {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    let {
-      data: { user },
-    } = await supabase.auth.getUser();
-
     if (!user) {
-      const anonSigninResponse = await supabase.auth.signInAnonymously();
+      console.error('no user?');
+      return;
+    }
 
-      if (anonSigninResponse.error) {
-        console.error('Failed to sign in anonymously:', anonSigninResponse.error);
-        return;
-      }
+    if (user.is_anonymous) {
+      // Increment action count for anonymous users
+      const newActionCount = actionCount + 1;
+      setActionCount(newActionCount);
+      localStorage.setItem('action_count', newActionCount.toString());
 
-      user = anonSigninResponse.data.user;;
-
-      if (!user) {
-        console.error('no user?');
+      if (newActionCount >= 3) {
+        setShowLimitAlert(true);
+        // alert('You have reached the limit of 3 creature generations as an anonymous user. Please sign in to continue.');
         return;
       }
     }
@@ -214,6 +238,13 @@ export function LandingForm() {
           </div>
         </fieldset>
       </form>
+      {
+        showLimitAlert ? (
+          <p className="text-red-500 text-sm mt-2">
+            You have reached the limit of 3 creature generations as an anonymous user. Please sign in to continue.
+          </p>
+        ) : null
+      }
       {loading}
     </Form>
   );

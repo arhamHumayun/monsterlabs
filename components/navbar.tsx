@@ -40,7 +40,7 @@ export function Navbar(
     const { data, error } = await supabase.auth.getUser();
     const existingUser = data?.user;
     if (existingUser && existingUser.is_anonymous) {
-      await supabase.auth.linkIdentity({
+      await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
