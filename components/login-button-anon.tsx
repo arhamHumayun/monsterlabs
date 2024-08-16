@@ -13,7 +13,7 @@ export function LoginButtonAnon() {
 
   const loginWithGoogle = async () => {
     setIsLoading(true)
-    await supabase.auth.linkIdentity({
+    await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${location.origin}/auth/callback`,

@@ -27,7 +27,7 @@ export function LoginButton({
     }
 
     if (user && user.is_anonymous) {
-      await supabase.auth.linkIdentity({
+      await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${location.origin}/auth/callback`,
