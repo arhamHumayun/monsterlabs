@@ -42,7 +42,7 @@ export default function SortByCreaturesDropdown() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
+          <DropdownMenuLabel>Sort by</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
             value={sortValue}
