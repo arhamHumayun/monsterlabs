@@ -28,7 +28,7 @@ const formSchema = z.object({
   model: z.enum(['gpt-4o-mini', 'claude-haiku']),
 });
 
-export function LandingForm() {
+export function CreateCreatureForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [actionCount, setActionCount] = useState(0);
@@ -53,7 +53,7 @@ export function LandingForm() {
       console.log('user:', user);
 
       // Initialize action count from localStorage
-      const storedCount = localStorage.getItem('action_count');
+      const storedCount = localStorage.getItem('create_creature_action_count');
       setActionCount(storedCount ? parseInt(storedCount, 10) : 0);
     };
 

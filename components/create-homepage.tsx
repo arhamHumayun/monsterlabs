@@ -1,10 +1,10 @@
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
-import { LandingForm } from './landing-form';
+import { CreateCreatureForm } from './create-creature-form';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { IconBrandReddit, IconBrandDiscord } from '@tabler/icons-react';
 
-export default async function CreateCreature() {
+export default async function CreateHomepage() {
   // 3. Fetch the number of creatures.
   const supabase = await createSupabaseAppServerClient();
   const { count, error } = await supabase
@@ -27,7 +27,7 @@ export default async function CreateCreature() {
         imagine.
       </p>
       <div className="mt-4 w-full max-w-xl space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
-        <LandingForm />
+        <CreateCreatureForm />
       </div>
       <div className="grid grid-cols-1 gap-3 my-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-lg place-items-center">
         <p className="">
