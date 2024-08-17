@@ -18,7 +18,7 @@ import {
   creatureSchemaTypeToCreatureDocument,
   creaturesDocument,
 } from '@/types/db';
-import { updateCreature } from '@/app/actions/update/v1/updateCreature';
+import { updateCreature } from '@/app/actions/creature/update/v1/update-creature';
 import { User } from '@supabase/supabase-js';
 import { usePreviousState } from '@/lib/hooks';
 import { updateCreature as updateCreatureToDB } from '@/app/actions';

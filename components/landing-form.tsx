@@ -21,6 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
+import { createCreature } from '@/app/actions/creature/create/v1/create-creature';
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
@@ -32,13 +33,15 @@ export function LandingForm() {
   const [user, setUser] = useState<User | null>(null);
   const [actionCount, setActionCount] = useState(0);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
-  
+
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
     const initializeUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (!user) {
         // If no user is signed in, sign in anonymously
@@ -56,7 +59,6 @@ export function LandingForm() {
 
     initializeUser();
   }, []);
-
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -89,112 +91,98 @@ export function LandingForm() {
 
     setIsLoading(true);
 
-    const response = await fetch(
-      `/api/create-creature/openai/v1`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      }
-    );
+    const createCreatureResponse = await createCreature(values.prompt);
 
-    if (response.ok) {
-      const jsonResponse = await response.json();
+    if (createCreatureResponse.error) {
+      console.error('Failed to create creature:', createCreatureResponse.error);
+      return;
+    }
 
-      try {
-        const creature = creatureSchema.parse(jsonResponse);
+    if (!createCreatureResponse.data) {
+      console.error('No data returned from createCreature');
+      return;
+    }
 
-        const {
-          name,
-          lore,
-          appearance,
-          pronoun,
-          type,
-          size,
-          isUnique,
-          challengeRating,
-          alignment,
-          stats,
-          hitDiceAmount,
-          armorClass,
-          speed,
-          savingThrows,
-          skills,
-          senses,
-          damageTakenModifiers,
-          conditionImmunities,
-          languages,
-          traits,
-          spellcasting,
-          actions,
-          reactions,
-          legendary,
-        } = creature;
+    const {
+      name,
+      lore,
+      appearance,
+      pronoun,
+      type,
+      size,
+      isUnique,
+      challengeRating,
+      alignment,
+      stats,
+      hitDiceAmount,
+      armorClass,
+      speed,
+      savingThrows,
+      skills,
+      senses,
+      damageTakenModifiers,
+      conditionImmunities,
+      languages,
+      traits,
+      spellcasting,
+      actions,
+      reactions,
+      legendary,
+    } = createCreatureResponse.data;
 
-        const creatureJson = {
-          stats,
-          hitDiceAmount,
-          armorClass,
-          speed,
-          savingThrows,
-          skills,
-          senses,
-          damageTakenModifiers,
-          conditionImmunities,
-          languages,
-          traits,
-          spellcasting,
-          actions,
-          reactions,
-          legendary,
-        };
+    const creatureJson = {
+      stats,
+      hitDiceAmount,
+      armorClass,
+      speed,
+      savingThrows,
+      skills,
+      senses,
+      damageTakenModifiers,
+      conditionImmunities,
+      languages,
+      traits,
+      spellcasting,
+      actions,
+      reactions,
+      legendary,
+    };
 
-        const createCreatureDataResponse = await supabase
-          .from('creatures')
-          .insert({
-            created_at: new Date(),
-            updated_at: new Date(),
-            user_id: user.id,
-            name,
-            lore,
-            appearance,
-            pronoun,
-            type,
-            size,
-            is_unique: isUnique,
-            challenge_rating: challengeRating * 100,
-            alignment,
-            hit_dice_amount: hitDiceAmount,
-            json: creatureJson,
-          })
-          .select();
+    const createCreatureDataResponse = await supabase
+      .from('creatures')
+      .insert({
+        created_at: new Date(),
+        updated_at: new Date(),
+        user_id: user.id,
+        name,
+        lore,
+        appearance,
+        pronoun,
+        type,
+        size,
+        is_unique: isUnique,
+        challenge_rating: challengeRating * 100,
+        alignment,
+        hit_dice_amount: hitDiceAmount,
+        json: creatureJson,
+      })
+      .select();
 
-        const { data, error } = createCreatureDataResponse;
+    const { data, error } = createCreatureDataResponse;
 
-        if (error || !data) {
-          console.error('Failed to create creature data:', error);
-          return;
-        }
+    if (error || !data) {
+      console.error('Failed to create creature data:', error);
+      return;
+    }
 
-        const currentUser = await supabase.auth.getUser();
+    const currentUser = await supabase.auth.getUser();
 
-        const currentUserData = currentUser.data.user;
+    const currentUserData = currentUser.data.user;
 
-        if (!currentUserData || currentUserData.is_anonymous) {
-          router.push(`/creature/view-anon/${data[0].id}`);
-        } else {
-          router.push(`/creature/edit/${data[0].id}`);
-        }
-      } catch (error) {
-        console.error(
-          'Something went wrong when generating the creature:',
-          error
-        );
-      }
+    if (!currentUserData || currentUserData.is_anonymous) {
+      router.push(`/creature/view-anon/${data[0].id}`);
     } else {
-      console.error('Failed to fetch monster data');
+      router.push(`/creature/edit/${data[0].id}`);
     }
 
     setIsLoading(false);
@@ -238,13 +226,12 @@ export function LandingForm() {
           </div>
         </fieldset>
       </form>
-      {
-        showLimitAlert ? (
-          <p className="text-red-500 text-sm mt-2">
-            You have reached the limit of 3 creature generations as an anonymous user. Please sign in to continue.
-          </p>
-        ) : null
-      }
+      {showLimitAlert ? (
+        <p className="text-red-500 text-sm mt-2">
+          You have reached the limit of 3 creature generations as an anonymous
+          user. Please sign in to continue.
+        </p>
+      ) : null}
       {loading}
     </Form>
   );
