@@ -16,7 +16,6 @@ import {
 import { CornerDownLeft, Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
-import { creatureSchema } from '@/types/creature';
 import React, { useEffect, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';

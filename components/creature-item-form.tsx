@@ -23,9 +23,7 @@ import { User } from '@supabase/supabase-js';
 import { createItem } from '@/app/actions/item/create/v1/create-item';
 
 const formSchema = z.object({
-  name: z.string().min(1).max(100),
   description: z.string().min(1).max(1000),
-  category: z.enum(['weapon', 'armor', 'consumable']),
 });
 
 export function CreateItemForm() {
@@ -64,9 +62,7 @@ export function CreateItemForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      category: 'weapon',
+      description: ''
     },
   });
 
@@ -92,7 +88,7 @@ export function CreateItemForm() {
 
     setIsLoading(true);
 
-    const createItemResponse = await createItem(values.name);
+    const createItemResponse = await createItem(values.description);
 
     if (createItemResponse.error) {
       console.error('Failed to create item:', createItemResponse.error);
@@ -111,31 +107,49 @@ export function CreateItemForm() {
       return;
     }
 
-    const createItemDataResponse = await supabase
+    const {
+      name,
+      description,
+      type,
+      subType,
+      rarity,
+      isMagical,
+      requiresAttunement,
+      magicBonus,
+      cost,
+      weight,
+    } = data;
+
+    const createItemDataSupaBaseResponse = await supabase
       .from('items')
       .insert({
         created_at: new Date(),
         updated_at: new Date(),
         user_id: user.id,
-
+        name,
+        description,
+        type,
+        subType,
+        rarity,
+        is_magical: isMagical,
+        magic_bonus: magicBonus,
+        requires_attunement: requiresAttunement.requires,
+        requires_attunement_types: requiresAttunement.requiresSpecific,
+        cost_unit: cost.unit,
+        cost_amount: cost.amount,
+        weight,
       })
       .select();
 
-    const { data, error } = createItemDataResponse;
-
-    if (error || !data) {
+    if (createItemDataSupaBaseResponse.error || !createItemDataSupaBaseResponse.data) {
       console.error('Failed to create item data:', error);
       return;
     }
 
-    const currentUser = await supabase.auth.getUser();
-
-    const currentUserData = currentUser.data.user;
-
-    if (!currentUserData || currentUserData.is_anonymous) {
-      router.push(`/item/view-anon/${data[0].id}`);
+    if (!user || user.is_anonymous) {
+      router.push(`/item/view-anon/${createItemDataSupaBaseResponse.data[0].id}`);
     } else {
-      router.push(`/item/edit/${data[0].id}`);
+      router.push(`/item/edit/${createItemDataSupaBaseResponse.data[0].id}`);
     }
 
     setIsLoading(false);
@@ -155,7 +169,7 @@ export function CreateItemForm() {
           <div className="rounded relative">
             <FormField
               control={form.control}
-              name="name"
+              name="description"
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
