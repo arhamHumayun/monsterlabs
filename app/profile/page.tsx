@@ -1,4 +1,3 @@
-import { CreatureLink } from '@/components/creature/creature-link';
 import { Separator } from '@/components/ui/separator';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { redirect } from 'next/navigation';
@@ -6,13 +5,20 @@ import { Button } from '@/components/ui/button';
 import { LogOutButton } from '@/components/logout-button';
 import Link from 'next/link';
 import { getCreaturesByUserId } from '../actions';
+import { ThingLink } from '@/components/thing-link';
 
 export default async function Profile() {
   const supabase = await createSupabaseAppServerClient();
-  const session = (await supabase.auth.getSession()).data.session;
-  const user = session?.user;
+  const { data, error } = await supabase.auth.getUser()
 
-  const userId = user?.id;
+  if (error || !data) {
+    console.error('Failed to get user:', error);
+    return redirect('/sign-in');
+  }
+
+  const user = data?.user;
+
+  const userId = user.id;
 
   console.log('userId', userId);
 
@@ -30,10 +36,11 @@ export default async function Profile() {
         {creatures && creatures.length > 0 ? (
           creatures.map((creature) => {
             return (
-              <CreatureLink
+              <ThingLink
                 key={creature.id}
                 id={creature.id}
-                creatureName={creature.name}
+                name={creature.name}
+                thingType='creature'
                 type="edit"
               />
             );

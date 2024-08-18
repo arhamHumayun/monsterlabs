@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
 import { User } from '@supabase/supabase-js';
-import { creaturesDocument } from '@/types/db';
+import { creaturesDocument } from '@/types/db/creature';
 import { itemsDocument } from '@/types/db/item';
 
 export async function logInToGoogle() {
@@ -100,10 +100,48 @@ export async function getAllCreatures(page: number, monstersPerPage: number, sor
   return data;
 }
 
+export async function getAllItems(page: number, itemsPerPage: number, sortingOrder: "latest" | "alphabetical"): Promise<{
+  id: number,
+  name: string,
+}[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+
+  const rangeStart = (page - 1) * itemsPerPage;
+  const rangeEnd = page * itemsPerPage;
+
+  const orderingColumn = sortingOrder === 'latest' ? 'created_at' : 'name';
+  const ascending = sortingOrder === 'alphabetical';
+
+  const { data, error } = await supabase
+    .from('items')
+    .select(`id, name`)
+    .order(orderingColumn, { ascending })
+    .range(rangeStart, rangeEnd);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
+}
+
 export async function getCountOfCreatures(): Promise<number | null> {
   const supabase = await createSupabaseAppServerClient();
   const { count, error } = await supabase
     .from('creatures')
+    .select('*', { count: 'estimated' })
+
+  if (error || !count) {
+    return null;
+  }
+
+  return count;
+}
+
+export async function getCountOfItems(): Promise<number | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { count, error } = await supabase
+    .from('items')
     .select('*', { count: 'estimated' })
 
   if (error || !count) {

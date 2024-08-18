@@ -66,7 +66,9 @@ export function Navbar(
 
   let navItemList = [
     { title: 'Create', href: '/', alignment: 'justify-self-start'},
-    { title: 'Browse', href: '/browse/1', alignment: 'justify-self-start'},
+    { title: 'Browse Creatures', href: '/browse/creatures/1', alignment: 'justify-self-start'},
+    
+    { title: 'Browse Items', href: '/browse/items/1', alignment: 'justify-self-start'},
   ];
 
   if (!user || user.is_anonymous) {

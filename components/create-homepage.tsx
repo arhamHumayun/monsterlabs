@@ -47,7 +47,7 @@ export default async function CreateHomepage() {
             far!
           </p>
           <Button asChild variant={'outline'}>
-            <Link href="/browse/1">View existing creatures</Link>
+            <Link href="/browse/creatures/1">View existing creatures</Link>
           </Button>
         </div>
         <div>
@@ -56,7 +56,7 @@ export default async function CreateHomepage() {
             far!
           </p> */}
           <Button asChild variant={'outline'}>
-            <Link href="/browse-items/1">View existing items</Link>
+            <Link href="/browse/items/1">View existing items</Link>
           </Button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser-client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { CreateCreatureForm } from "./creature/create-creature-form";
-import { CreateItemForm } from "./item/creature-item-form";
+import { CreateItemForm } from "./item/create-item-form";
 
 export default function CreateThingBox() {
 

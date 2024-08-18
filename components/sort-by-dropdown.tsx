@@ -13,7 +13,7 @@ import { Button } from './ui/button';
 import { usePathname, useRouter, useSearchParams} from 'next/navigation';
 import { useCallback, useState } from 'react';
 
-export default function SortByCreaturesDropdown() {
+export default function SortByDropdown() {
 
   const [sortValue, setSortValue] = useState('latest');
 

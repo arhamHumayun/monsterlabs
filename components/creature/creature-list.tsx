@@ -1,5 +1,5 @@
 import { getAllCreatures } from "@/app/actions";
-import { CreatureLink } from "./creature-link";
+import { ThingLink } from "../thing-link";
 
 export default async function CreatureList(
   { 
@@ -30,10 +30,11 @@ export default async function CreatureList(
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     {creatures.map((creature) => {
       return (
-        <CreatureLink
+        <ThingLink
           key={creature.id}
           id={creature.id}
-          creatureName={creature.name}
+          name={creature.name}
+          thingType='creature'
           type="view"
         />
       );
