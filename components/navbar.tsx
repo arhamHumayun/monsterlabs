@@ -164,7 +164,7 @@ export function Navbar({ user }: { user: User | null }) {
             </NavigationMenuItem>
             {!user || user.is_anonymous ? (
               <NavigationMenuItem className="p-2 px-4 items-center">
-                <Button variant={'outline'} onClick={loginWithGoogle}>
+                <Button variant={'ghost'} onClick={loginWithGoogle}>
                   Login
                 </Button>
               </NavigationMenuItem>
