@@ -153,7 +153,7 @@ export function CreateItemForm({
 
   return (
     <Form {...form} aria-busy={isLoading}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto resize">
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full resize'>
         <fieldset disabled={isLoading}>
           <div className="rounded relative">
             <FormField

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -21,6 +22,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { createCreature } from '@/app/actions/creature/create/v1/create-creature';
+import { Label } from '../ui/label';
 
 const formSchema = z.object({
   prompt: z.string().min(1).max(1000),
@@ -178,7 +180,7 @@ export function CreateCreatureForm({
 
   return (
     <Form {...form} aria-busy={isLoading}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto resize">
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full'>
         <fieldset disabled={isLoading}>
           <div className="rounded relative">
             <FormField
