@@ -31,7 +31,7 @@ export default async function CreateHomepage() {
   return (
     <div className="flex flex-col items-center justify-center py-[12vh]">
       <h1 className="mb-3 text-4xl font-medium duration-1000 ease-in-out animate-in fade-in slide-in-from-bottom-3">
-        Monster Lab
+        Monster Labs
       </h1>
       <p className="text-base text-center italic text-gray-400 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 max-w-md">
         Let your imagination run wild! Create your own creatures and items fully compatible with DnD 5e.
@@ -39,7 +39,7 @@ export default async function CreateHomepage() {
       <div className="mt-4 space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <CreateThingBox creatureCount={count} itemCount={itemCount} />
       </div>
-      <div className="duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 pt-8 py-4 grid grid-cols-2 gap-4 font-semibold">
+      <div className="duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 mt-8 py-4 grid grid-cols-2 gap-4 font-semibold">
         <p className="col-span-2 text-center">
           Join the discussion and keep up to date!
         </p>

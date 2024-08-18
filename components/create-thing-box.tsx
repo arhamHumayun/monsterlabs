@@ -57,7 +57,7 @@ export default function CreateThingBox({
           showLimitAlert={showLimitAlert}
           setShowLimitAlert={setShowLimitAlert}
         />
-        <p className="mt-1">
+        <p className="py-2">
           <span className="font-semibold">{creatureCount}</span> creatures
           created!
         </p>
@@ -76,7 +76,7 @@ export default function CreateThingBox({
           showLimitAlert={showLimitAlert}
           setShowLimitAlert={setShowLimitAlert}
         />
-        <p className="mt-1">
+        <p className="py-2">
           <span className="font-semibold">{itemCount}</span> items created!
         </p>
         <Button variant="outline" asChild>
