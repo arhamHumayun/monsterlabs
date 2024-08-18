@@ -44,9 +44,9 @@ export default function CreateThingBox({
   }, []);
 
   return (
-    <div className="grid grid-cols-1 gap-8 max-w-[720px] sm:grid-cols-2 p-4 sm:w-screen">
+    <div className="grid grid-cols-1 gap-8 p-4 w-screen max-w-[540px] md:grid-cols-2 md:max-w-[760px]">
       <div
-        className='rounded-lg  items-center justify-center flex flex-col'
+        className='rounded-lg items-center justify-center flex flex-col'
       >
         <CreateCreatureForm
           user={user}
