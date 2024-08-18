@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { creatureJsonBlobDocumentSchema, creatureSchemaType } from "./creature";
+import { creatureJsonBlobDocumentSchema, creatureSchemaType } from "../creature";
 
 export interface creaturesDocument extends Creature {
   id: number,  // Document Id

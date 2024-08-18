@@ -1,6 +1,6 @@
 import { getCreatureById } from "@/app/not-actions";
 import CreatureBlock from "@/components/creature/creature-block";
-import ShareCreatureButton from "@/components/share-creature-button";
+import ShareButton from "@/components/share-button";
 import { creatureSchema } from "@/types/creature";
 import type { Metadata } from "next";
 
@@ -41,7 +41,7 @@ export default async function ViewMonster(
 
   return (
     <div className="mb-4">
-      <ShareCreatureButton id={id} textOverride="Share this creature!" />
+      <ShareButton id={id} type={'creature'} textOverride="Share this creature!" />
       <CreatureBlock creature={creatureData} />
     </div>
   )

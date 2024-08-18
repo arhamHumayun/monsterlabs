@@ -1,7 +1,7 @@
 'use client';
 
-import { creatureSchema } from '@/types/creature';
-import CreatureBlock from './creature-block';
+import { itemSchema } from '@/types/item'; // Import the item schema
+import ItemBlock from './item-block'; // Import the item block component
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,29 +13,29 @@ import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { updateCreature } from '@/app/actions/creature/update/v1/update-creature';
+import { updateItem } from '@/app/actions/item/update/v1/update-item'; // Import the updateItem function for items
 import { User } from '@supabase/supabase-js';
 import { usePreviousState } from '@/lib/hooks';
-import { updateCreature as updateCreatureToDB } from '@/app/actions';
+import { updateItem as updateItemToDB } from '@/app/actions'; // Import the updateItem function for items
 import { toast } from 'sonner';
 import { doToast } from '@/lib/utils';
-import { creaturesDocument, creatureDocumentToCreatureSchemaType, creatureSchemaTypeToCreatureDocument } from '@/types/db/creature';
+import { itemsDocument, itemDocumentToItemSchemaType, itemSchemaTypeToItemDocument } from '@/types/db/item'; // Import the types for items
 
 const formSchema = z.object({
   prompt: z.string(),
 });
 
-export function EditCreature({
-  creature,
+export function EditItem({
+  item,
   user,
 }: {
-  creature: creaturesDocument;
+  item: itemsDocument;
   user: User | null;
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [creatureObject, setCreatureObject, goPreviousVersion, goNextVersion] =
-    usePreviousState(creature);
+  const [itemObject, setItemObject, goPreviousVersion, goNextVersion] =
+    usePreviousState(item);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -50,12 +50,12 @@ export function EditCreature({
 
   if (!user) {
     router.push('/sign-in');
-    return;
+    return null;
   }
 
-  if (creatureObject.user_id !== user.id) {
+  if (itemObject.user_id !== user.id) {
     router.push('/profile');
-    return;
+    return null;
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -63,75 +63,81 @@ export function EditCreature({
 
     setIsLoading(true);
 
-    const creatureSchemaTypeCreature =
-      creatureDocumentToCreatureSchemaType(creatureObject);
+    const itemSchemaTypeItem =
+      itemDocumentToItemSchemaType(itemObject);
 
     // For example, send the form data to your API.
-    const updatedCreature = await updateCreature(
+    const updatedItem = await updateItem(
       prompt,
-      creatureSchemaTypeCreature
+      itemSchemaTypeItem
     );
 
-    if (updatedCreature.data && !updatedCreature.error) {
+    if (updatedItem.data && !updatedItem.error) {
       try {
-        if (updatedCreature.error) {
+        if (updatedItem.error) {
           console.error(
-            'Failed to create new creature version:',
-            updatedCreature.error
+            'Failed to create new item version:',
+            updatedItem.error
           );
           return;
         } else {
           console.log(
-            'Successfully created new creature version',
-            updatedCreature.data
+            'Successfully created new item version',
+            updatedItem.data
           );
-          const updatedCreatureDoc = creatureSchemaTypeToCreatureDocument(
-            updatedCreature.data,
-            creatureObject.id,
-            creatureObject.user_id,
-            creatureObject.created_at,
+          const updatedItemDoc = itemSchemaTypeToItemDocument(
+            updatedItem.data,
+            itemObject.id,
+            itemObject.user_id,
+            itemObject.created_at,
             new Date()
           );
-          setCreatureObject(updatedCreatureDoc);
-          toast('Creature updated.');
+          setItemObject(updatedItemDoc);
+          toast('Item updated.');
         }
       } catch (error) {
         console.error(
-          'Something went wrong when generating the creature:',
+          'Something went wrong when generating the item:',
           error
         );
       }
     } else {
-      console.error('Failed to fetch monster data');
+      console.error('Failed to fetch item data');
     }
 
     setIsLoading(false);
   }
 
-  async function deleteCreature() {
-    await supabase.from('creatures').delete().eq('id', creatureObject.id);
+  async function deleteItem() {
+    await supabase.from('items').delete().eq('id', itemObject.id);
     router.push('/profile');
   }
 
   const loading = isLoading ? (
     <div className="flex justify-center mb-4">
-      <p className="text-md font-medium">Updating your creature...</p>
+      <p className="text-md font-medium">Updating your item...</p>
       <Loader2 className="ml-2 animate-spin" />
     </div>
   ) : null;
 
-  const creatureData = creatureSchema.parse({
-    name: creatureObject.name,
-    hitDiceAmount: creatureObject.hit_dice_amount,
-    lore: creatureObject.lore,
-    appearance: creatureObject.appearance,
-    pronoun: creatureObject.pronoun,
-    type: creatureObject.type,
-    isUnique: creatureObject.is_unique,
-    challengeRating: creatureObject.challenge_rating / 100,
-    alignment: creatureObject.alignment,
-    size: creatureObject.size,
-    ...creatureObject.json,
+  const itemData = itemSchema.parse({
+    name: itemObject.name,
+    description: itemObject.description,
+    type: itemObject.type,
+    subtype: itemObject.subtype,
+    rarity: itemObject.rarity,
+    requiresAttunement: {
+      requires: itemObject.requires_attunement,
+      requiresSpecific: itemObject.requires_attunement_types,
+    },
+    paragraphs: itemObject.paragraphs,
+    weight: itemObject.weight,
+    isMagical: itemObject.is_magical,
+    magicBonus: itemObject.magic_bonus,
+    cost: {
+      unit: itemObject.cost_unit,
+      amount: itemObject.cost_amount
+    }
   });
 
   return (
@@ -148,7 +154,7 @@ export function EditCreature({
                     <FormControl>
                       <Input
                         className="border-0"
-                        placeholder="Make updates to your creature..."
+                        placeholder="Make updates to your item..."
                         {...field}
                       />
                     </FormControl>
@@ -169,6 +175,7 @@ export function EditCreature({
         {loading}
       </Form>
       <div className="grid grid-cols-4">
+        {/* Update the button labels and onClick handlers */}
         <Button
           variant="secondary"
           className="mb-4 mr-4 p-3 rounded"
@@ -191,9 +198,9 @@ export function EditCreature({
           disabled={isLoading || isSaving}
           onClick={async () => {
             setIsSaving(true);
-            await updateCreatureToDB(creatureObject);
+            await updateItemToDB(itemObject);
             setIsSaving(false);
-            doToast('Creature saved.');
+            doToast('Item saved.');
           }}
         >
           {isSaving ? 'Saving...' : 'Save'}
@@ -204,7 +211,7 @@ export function EditCreature({
           disabled={isLoading}
           onClick={() => {
             navigator.clipboard.writeText(
-              `${window.location.origin}/creature/view/${creatureObject.id}`
+              `${window.location.origin}/item/view/${itemObject.id}`
             );
             doToast('Link copied.');
           }}
@@ -213,24 +220,25 @@ export function EditCreature({
         </Button>
       </div>
       <div className="flex flex-row w-full"></div>
-      <CreatureBlock creature={creatureData} onlyBlock={true} />
+      {/* Update the component name and props */}
+      <ItemBlock item={itemData} />
       <Popover>
-        <PopoverTrigger asChild>
+        <PopoverTrigger className='mt-4' asChild>
           <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
-            Delete Creature
+            Delete Item
           </Button>
         </PopoverTrigger>
         <PopoverContent className="rounded mt-1">
           <p className="text-sm">
-            Are you sure you want to delete this creature? This action cannot be
+            Are you sure you want to delete this item? This action cannot be
             undone.
           </p>
           <Button
             variant="destructive"
             className="mt-4"
-            onClick={deleteCreature}
+            onClick={deleteItem}
           >
-            Delete Creature
+            Delete Item
           </Button>
         </PopoverContent>
       </Popover>

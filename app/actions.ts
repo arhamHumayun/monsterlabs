@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client'
 import { User } from '@supabase/supabase-js';
 import { creaturesDocument } from '@/types/db';
+import { itemsDocument } from '@/types/db/item';
 
 export async function logInToGoogle() {
   const supabase = await createSupabaseAppServerClient();
@@ -74,16 +75,15 @@ export async function getCreaturesByUserId(userId: string): Promise<creaturesDoc
   return data;
 }
 
-export async function getAllCreatures(page: number, monstersPerPage: number, sortingOrder: "latest" | "alphabetical") : Promise<{
+export async function getAllCreatures(page: number, monstersPerPage: number, sortingOrder: "latest" | "alphabetical"): Promise<{
   id: number,
   name: string,
-}[] | null>
-{
+}[] | null> {
   const supabase = await createSupabaseAppServerClient();
 
   const rangeStart = (page - 1) * monstersPerPage;
   const rangeEnd = page * monstersPerPage;
-  
+
   const orderingColumn = sortingOrder === 'latest' ? 'created_at' : 'name';
   const ascending = sortingOrder === 'alphabetical';
 
@@ -100,8 +100,7 @@ export async function getAllCreatures(page: number, monstersPerPage: number, sor
   return data;
 }
 
-export async function getCountOfCreatures() : Promise<number | null>
-{
+export async function getCountOfCreatures(): Promise<number | null> {
   const supabase = await createSupabaseAppServerClient();
   const { count, error } = await supabase
     .from('creatures')
@@ -114,8 +113,7 @@ export async function getCountOfCreatures() : Promise<number | null>
   return count;
 }
 
-export async function updateCreature(creature: creaturesDocument): 
-Promise<{ data: creaturesDocument | null}> {
+export async function updateCreature(creature: creaturesDocument): Promise<{ data: creaturesDocument | null }> {
   const supabase = await createSupabaseAppServerClient();
   const { data, error } = await supabase
     .from('creatures')
@@ -126,6 +124,27 @@ Promise<{ data: creaturesDocument | null}> {
 
   if (error || !data) {
     console.error('Failed to update creature:', error);
+    return {
+      data: null
+    }
+  }
+
+  return {
+    data,
+  };
+}
+
+export async function updateItem(item: itemsDocument): Promise<{ data: itemsDocument | null }> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('items')
+    .update(item)
+    .eq('id', item.id)
+    .select('*')
+    .single();
+
+  if (error || !data) {
+    console.error('Failed to update item:', error);
     return {
       data: null
     }

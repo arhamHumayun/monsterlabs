@@ -3,11 +3,13 @@
 import { doToast } from "@/lib/utils";
 import { Button } from "./ui/button";
 
-export default function ShareCreatureButton({
+export default function ShareButton({
   id,
-  textOverride
+  type,
+  textOverride,
 }: {
   id: number;
+  type: 'creature' | 'item';
   textOverride?: string;
 }) {
  return (
@@ -16,7 +18,7 @@ export default function ShareCreatureButton({
   className="mb-4 mr-4 p-3 rounded"
   onClick={() => {
     navigator.clipboard.writeText(
-      `${window.location.origin}/creature/view/${id}`
+      `${window.location.origin}/${type}/view/${id}`
     );
     doToast('Link copied.');
   }}

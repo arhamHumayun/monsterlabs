@@ -7,33 +7,35 @@ import { zodResponseFormat } from "openai/helpers/zod";
 const openai = new OpenAI();
 
 const systemPrompt = `
-The user will enter an idea for an item in DnD 5e and you have to be creative and create the item.
+The user will ask you to edit an item in DnD 5e and you have to be creative and edit the item.
 Never include markdown in your response.
 When describing the properties, fill out each paragraph field separately.
 The header should be a brief description of the item. Other adding than extra lore, do not repeat information.
-`;
 
-export async function createItem(prompt: string): Promise<{ data?: itemSchemaType, error?: string }> {
+Make sure you only change the item based on the user's request. If they ask to remove, edit, or add something, make sure to do so.
+`;
+export async function updateItem(prompt: string, item: itemSchemaType): Promise<{ data?: itemSchemaType, error?: string }> {
 
   const completion = await openai.beta.chat.completions.parse({
     messages: [
       { "role": "system", "content": systemPrompt },
+      { "role": "user", "content": JSON.stringify(item) },
       { "role": "user", "content": prompt },
     ],
     model: "gpt-4o-mini-2024-07-18",
-    response_format: zodResponseFormat(itemSchema, "create_item"),
+    response_format: zodResponseFormat(itemSchema, "update_item"),
   });
 
-  const item = completion.choices[0].message.parsed;
+  const newItem = completion.choices[0].message.parsed;
 
-  if (!item) {
+  if (!newItem) {
     return {
       error: "We were unable to generate an item. Please try again."
     }
   }
 
   return {
-    data: item
+    data: newItem
   }
 }
 

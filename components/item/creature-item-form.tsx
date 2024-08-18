@@ -67,7 +67,6 @@ export function CreateItemForm({
 
       if (newActionCount >= 3) {
         setShowLimitAlert(true);
-        // alert('You have reached the limit of 3 item generations as an anonymous user. Please sign in to continue.');
         return;
       }
     }
@@ -97,6 +96,7 @@ export function CreateItemForm({
 
     const {
       name,
+      paragraphs,
       description,
       type,
       subtype,
@@ -115,6 +115,7 @@ export function CreateItemForm({
         updated_at: new Date(),
         user_id: user.id,
         name,
+        paragraphs,
         description,
         type,
         subtype,

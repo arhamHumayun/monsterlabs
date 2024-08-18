@@ -1,4 +1,5 @@
-import { getItemById } from "@/app/not-actions";
+import { getItemById, getUser } from "@/app/not-actions";
+import { EditItem } from "@/components/item/edit-item";
 import ItemBlock from "@/components/item/item-block";
 import ShareButton from "@/components/share-button";
 import { itemDocumentToItemSchemaType } from "@/types/db/item";
@@ -25,12 +26,20 @@ export default async function ViewItem(
     )
   }
 
-  const itemAsSchema = itemDocumentToItemSchemaType(item);
+  const user = await getUser();
+  const userId = user?.id;
+
+  if (!userId || item.user_id !== userId) {
+    return (
+      <div>
+        <h1>You do not have access to edit this item</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-4">
-      <ShareButton id={id} type={'item'} textOverride="Share this item!" />
-      <ItemBlock item={itemAsSchema} />
+      <EditItem item={item} user={user} />
     </div>
   )
 }

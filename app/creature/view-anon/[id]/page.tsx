@@ -1,8 +1,7 @@
 import { getCreatureById } from '@/app/actions';
 import CreatureBlock from '@/components/creature/creature-block';
 import { LoginButton } from '@/components/login-button';
-import ShareCreatureButton from '@/components/share-creature-button';
-import { Button } from '@/components/ui/button';
+import ShareButton from '@/components/share-button';
 import { creatureSchema } from '@/types/creature';
 
 export default async function ViewAnonMonster({
@@ -45,7 +44,7 @@ export default async function ViewAnonMonster({
           will be saved when you sign in. Otherwise you {`won't`} be able to edit it later.
         </h1>
         <div className="flex justify-center">
-          <ShareCreatureButton id={id} textOverride="Share this creature!" />
+          <ShareButton id={id} type={'creature'} textOverride="Share this creature!" />
           <LoginButton message="Sign in with Google." />
         </div>
       </div>

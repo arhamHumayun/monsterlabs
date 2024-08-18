@@ -1,5 +1,5 @@
 import { getCreatureById, getUser } from '@/app/actions';
-import { EditCreature } from '@/components/edit-creature';
+import { EditCreature } from '@/components/creature/edit-creature';
 
 export default async function EditMonster({
   params,

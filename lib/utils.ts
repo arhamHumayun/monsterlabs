@@ -9,3 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export const doToast = (message: string) => {
   toast(message);
 };
+
+export function capitalizeFirstLetters(str: string[]): string[] {
+  return str.map((s) => s.charAt(0).toUpperCase() + s.slice(1));
+}

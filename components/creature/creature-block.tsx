@@ -16,6 +16,7 @@ import {
   orderedKeys,
 } from '@/types/creature';
 import { Separator } from '../ui/separator';
+import { capitalizeFirstLetters } from '@/lib/utils';
 
 export default function CreatureBlock({
   creature,
@@ -49,7 +50,7 @@ export default function CreatureBlock({
     damageTakenModifiers,
     traits,
     legendary,
-  } = creature as creatureSchemaType;
+  } = creature;
 
   const conBonus = statToBonus(stats.constitution);
 
@@ -590,10 +591,6 @@ function StyledStatSentences({ s1, s2 }: { s1: string; s2: string }) {
       <span>{s2}</span>
     </div>
   );
-}
-
-function capitalizeFirstLetters(str: string[]): string[] {
-  return str.map((s) => s.charAt(0).toUpperCase() + s.slice(1));
 }
 
 const buildSpeedStringResult = (speed: speedType) => {

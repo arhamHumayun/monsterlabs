@@ -16,7 +16,7 @@ import {
 import { CornerDownLeft, Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
@@ -40,7 +40,7 @@ export function CreateCreatureForm({
   showLimitAlert: boolean;
   setShowLimitAlert: (show: boolean) => void;
 }) {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
