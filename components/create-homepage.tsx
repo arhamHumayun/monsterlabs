@@ -39,7 +39,7 @@ export default async function CreateHomepage() {
       <div className="mt-4 space-y-4 duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <CreateThingBox creatureCount={count} itemCount={itemCount} />
       </div>
-      <div className="duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 mt-8 py-4 grid grid-cols-2 gap-4 font-semibold">
+      <div className="duration-1200 ease-in-out animate-in fade-in slide-in-from-bottom-4 mt-8 p-4 grid grid-cols-2 gap-4 font-semibold">
         <p className="col-span-2 text-center">
           Join the discussion and keep up to date with the latest news!
         </p>
