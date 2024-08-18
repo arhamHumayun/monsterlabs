@@ -14,17 +14,19 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { Button } from './ui/button';
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Menu } from 'lucide-react';
 
 export function Navbar({ user }: { user: User | null }) {
   const supabase = createSupabaseBrowserClient();
 
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [mobileMode, setMobileMode] = useState(false);
 
   const loginWithGoogle = async () => {
     const getURL = () => {
@@ -68,100 +70,122 @@ export function Navbar({ user }: { user: User | null }) {
     }
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setMobileMode(true);
+      } else {
+        setMobileMode(false);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <div>
-      <NavigationMenu className="mx-auto max-w-2xl collapse sm:visible">
-        <NavigationMenuList>
-          <NavigationMenuItem className="p-2 px-4 items-center">
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/"
+      {mobileMode ? (
+        <Sheet>
+          <SheetTrigger className="top-0 left-0 p-2 px-4">
+            <Button variant={'outline'} 
+              className="p-2 rounded"
             >
-              Create
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem className="p-2 px-4 items-center">
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/browse/creatures/1"
-            >
-              Browse Creatures
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem className="p-2 px-4 items-center">
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/browse/items/1"
-            >
-              Browse Items
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem className="p-2 px-4 items-center">
-            <ModeToggle />
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-      <Sheet open={sheetOpen}>
-        <SheetTrigger className="fixed top-0 left-0 p-2 visible sm:collapse">
-          <Button
-            variant={'outline'}
-            onClick={() => {
-              setSheetOpen(true);
-            }}
-          >
-            Open
-          </Button>
-        </SheetTrigger>
-        <SheetContent side={'left'}>
-          <SheetHeader>
-            <SheetTitle>Navigate To</SheetTitle>
-          </SheetHeader>
-          <div className="grid gap-4 py-4">
-            <Button
-              variant={'ghost'}
-              onClick={() => {
-                setSheetOpen(false);
-              }}
-              asChild
-            >
-              <Link href="/">Create</Link>
+              <Menu className="h-6 w-6" />
             </Button>
-            <Button
-              variant={'ghost'}
-              onClick={() => {
-                setSheetOpen(false);
-              }}
-              asChild
-            >
-              <Link href="/browse/creatures/1">Browse Creatures</Link>
-            </Button>
-            <Button
-              variant={'ghost'}
-              onClick={() => {
-                setSheetOpen(false);
-              }}
-              asChild
-            >
-              <Link href="/browse/items/1">Browse Items</Link>
-            </Button>
-            {!user || user.is_anonymous ? (
-              <Button variant={'ghost'} onClick={loginWithGoogle}>
-                Login
-              </Button>
-            ) : (
-              <Button
-                variant={'ghost'}
-                onClick={() => {
-                  setSheetOpen(false);
-                }}
-                asChild
+          </SheetTrigger>
+          <SheetContent side={'left'}>
+            <SheetHeader>
+              <SheetTitle>Navigate To</SheetTitle>
+            </SheetHeader>
+            <div className="grid gap-4 py-4">
+              <SheetClose asChild>
+                <Button variant={'ghost'} asChild>
+                  <Link href="/">Create</Link>
+                </Button>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button variant={'ghost'} asChild>
+                  <Link href="/browse/creatures/1">Browse Creatures</Link>
+                </Button>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button variant={'ghost'} asChild>
+                  <Link href="/browse/items/1">Browse Items</Link>
+                </Button>
+              </SheetClose>
+              {!user || user.is_anonymous ? (
+                <SheetClose asChild>
+                  <Button variant={'ghost'} onClick={loginWithGoogle}>
+                    Login
+                  </Button>
+                </SheetClose>
+              ) : (
+                <SheetClose asChild>
+                  <Button variant={'ghost'} asChild>
+                    <Link href="/profile">Profile</Link>
+                  </Button>
+                </SheetClose>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <NavigationMenu className="mx-auto max-w-2xl">
+          <NavigationMenuList>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/"
               >
-                <Link href="/profile">Profile</Link>
-              </Button>
+                Create
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/browse/creatures/1"
+              >
+                Browse Creatures
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/browse/items/1"
+              >
+                Browse Items
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            {!user || user.is_anonymous ? (
+              <NavigationMenuItem className="p-2 px-4 items-center">
+                <Button variant={'outline'} onClick={loginWithGoogle}>
+                  Login
+                </Button>
+              </NavigationMenuItem>
+            ) : (
+              <NavigationMenuItem className="p-2 px-4 items-center">
+                <NavigationMenuLink
+                  className={navigationMenuTriggerStyle()}
+                  href="/profile"
+                >
+                  Profile
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             )}
-          </div>
-        </SheetContent>
-      </Sheet>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <ModeToggle />
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      )}
+
+      {/* Sheet */}
     </div>
   );
 }

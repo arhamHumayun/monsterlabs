@@ -35,7 +35,7 @@ export default async function AllItems({
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
       <h1 className="text-lg font-semibold">All items</h1>
       <Separator className="mb-4" />
-      <div className="flex justify-between items-center mb-4">
+      <div className="md:flex justify-between items-center mb-4">
         {paginationSection(searchParamsString, currentPage, maxItemPage, 'items')}
         <SortByDropdown />
       </div>
