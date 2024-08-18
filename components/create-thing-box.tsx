@@ -8,6 +8,7 @@ import { CreateItemForm } from './item/create-item-form';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { Separator } from './ui/separator';
+import { Label } from './ui/label';
 
 export default function CreateThingBox({
   creatureCount,
@@ -66,8 +67,11 @@ export default function CreateThingBox({
   return (
     <div className="grid grid-cols-1 gap-12 pl-8 w-screen max-w-[768px] md:grid-cols-2 md:pr-12">
       <div
-        className='rounded-lg items-center justify-center flex flex-col'
+        className='rounded-lg flex flex-col'
       >
+        <Label
+          className="mb-2 justify-self-start"
+        >Create a creature</Label>
         <CreateCreatureForm
           user={user}
           actionCount={actionCount}
@@ -91,8 +95,11 @@ export default function CreateThingBox({
         ) : null
       }
       <div
-        className='rounded-lg items-center justify-center flex flex-col'
+        className='rounded-lg flex flex-col'
       >
+        <Label
+          className="mb-2 justify-self-start"
+        >Create an item (New!)</Label>
         <CreateItemForm
           user={user}
           actionCount={actionCount}
