@@ -1,5 +1,5 @@
 import { getCreatureById } from '@/app/actions';
-import CreatureBlock from '@/components/creature-block';
+import CreatureBlock from '@/components/creature/creature-block';
 import { LoginButton } from '@/components/login-button';
 import ShareCreatureButton from '@/components/share-creature-button';
 import { Button } from '@/components/ui/button';

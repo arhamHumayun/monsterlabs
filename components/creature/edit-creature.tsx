@@ -1,7 +1,7 @@
 'use client';
 
 import { creatureSchema } from '@/types/creature';
-import CreatureBlock from './creature-block';
+import CreatureBlock from './creature/creature-block';
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';

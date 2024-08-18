@@ -1,5 +1,5 @@
 import { getCreatureById } from "@/app/not-actions";
-import CreatureBlock from "@/components/creature-block";
+import CreatureBlock from "@/components/creature/creature-block";
 import ShareCreatureButton from "@/components/share-creature-button";
 import { creatureSchema } from "@/types/creature";
 import type { Metadata } from "next";

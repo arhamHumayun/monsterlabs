@@ -1,5 +1,5 @@
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
-import { CreateCreatureForm } from './create-creature-form';
+import { CreateCreatureForm } from './creature/create-creature-form';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { IconBrandReddit, IconBrandDiscord } from '@tabler/icons-react';

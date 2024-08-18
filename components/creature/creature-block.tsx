@@ -15,7 +15,7 @@ import {
   spellSlotsPerLevelMapping,
   orderedKeys,
 } from '@/types/creature';
-import { Separator } from './ui/separator';
+import { Separator } from '../ui/separator';
 
 export default function CreatureBlock({
   creature,

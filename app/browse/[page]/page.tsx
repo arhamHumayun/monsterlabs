@@ -9,7 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import CreatureList from '@/components/creature-list';
+import CreatureList from '@/components/creature/creature-list';
 import SortByCreaturesDropdown from '@/components/sort-by-creatures-dropdown';
 import { Input } from '@/components/ui/input';
 

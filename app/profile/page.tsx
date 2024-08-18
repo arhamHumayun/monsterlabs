@@ -1,4 +1,4 @@
-import { CreatureLink } from '@/components/creature-link';
+import { CreatureLink } from '@/components/creature/creature-link';
 import { Separator } from '@/components/ui/separator';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { redirect } from 'next/navigation';
