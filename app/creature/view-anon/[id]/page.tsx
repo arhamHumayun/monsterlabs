@@ -37,6 +37,7 @@ export default async function ViewAnonMonster({
 
   return (
     <div>
+      <ShareButton id={id} type={'creature'} textOverride="Share this creature!" />
       <CreatureBlock creature={creatureData} />
       <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
         <h1 className="text-gray-200 text-center">
