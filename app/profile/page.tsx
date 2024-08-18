@@ -20,8 +20,6 @@ export default async function Profile() {
 
   const userId = user.id;
 
-  console.log('userId', userId);
-
   if (!userId) {
     redirect('/sign-in');
   }
@@ -42,11 +40,6 @@ export default async function Profile() {
   if (!items) {
     console.error('Failed to fetch items');
   }
-
-  // Continue with the successful data
-  console.log('Creatures:', creatures);
-  console.log('Items:', items);
-
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">

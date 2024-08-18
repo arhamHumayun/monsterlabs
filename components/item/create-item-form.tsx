@@ -87,8 +87,6 @@ export function CreateItemForm({
 
     const { data, error } = createItemResponse;
 
-    console.log('item generated:', data);
-
     if (error || !data) {
       console.error('Failed to create item data:', error);
       return;

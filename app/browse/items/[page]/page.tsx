@@ -20,8 +20,6 @@ export default async function AllItems({
     ? new URLSearchParams(searchParams as any).toString()
     : '';
 
-  console.log('searchParamsString', searchParamsString);
-
   if (!itemCount || itemCount === 0) { // Update the variable name to itemCount
     return (
       <div>

@@ -16,13 +16,9 @@ export default async function AllMonsters({
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
-  console.log('searchParams', searchParams);
-
   const searchParamsString = searchParams
     ? new URLSearchParams(searchParams as any).toString()
     : '';
-
-  console.log('searchParamsString', searchParamsString);
 
   if (!creatureCount || creatureCount === 0) {
     return (
@@ -34,11 +30,6 @@ export default async function AllMonsters({
 
   const maxCreaturePage = Math.ceil(creatureCount / monstersPerPage);
   const currentPage = parseInt(params.page, 10) || 1;
-
-  console.log({
-    maxCreaturePage,
-    currentPage,
-  });
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">

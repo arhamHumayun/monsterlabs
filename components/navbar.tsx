@@ -33,8 +33,6 @@ export function Navbar(
       return url
     }
 
-    console.log(`${getURL()}/auth/callback`)
-
     const redirectUrl = `${getURL()}/auth/callback`;
 
     const { data, error } = await supabase.auth.getUser();

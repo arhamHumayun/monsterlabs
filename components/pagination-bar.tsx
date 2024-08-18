@@ -8,8 +8,6 @@ const pageButtons = (searchParamsString: string, currentPage: number, maxPage: n
   const pageLower = Math.max(2, currentPage - 2);
   const pageUpper = Math.min(maxPage - 1, currentPage + 2);
 
-  console.log({ pageLower, pageUpper });
-
   for (let i = pageLower; i <= pageUpper; i++) {
     buttons.push(
       <PaginationItem key={i}>

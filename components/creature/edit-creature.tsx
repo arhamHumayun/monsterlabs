@@ -81,10 +81,6 @@ export function EditCreature({
           );
           return;
         } else {
-          console.log(
-            'Successfully created new creature version',
-            updatedCreature.data
-          );
           const updatedCreatureDoc = creatureSchemaTypeToCreatureDocument(
             updatedCreature.data,
             creatureObject.id,

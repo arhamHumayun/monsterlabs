@@ -34,8 +34,6 @@ export default function CreateThingBox({
         setUser(user);
       }
 
-      console.log('user:', user);
-
       // Initialize action count from localStorage
       const storedCount = localStorage.getItem('action_count');
       setActionCount(storedCount ? parseInt(storedCount, 10) : 0);

@@ -81,10 +81,6 @@ export function EditItem({
           );
           return;
         } else {
-          console.log(
-            'Successfully created new item version',
-            updatedItem.data
-          );
           const updatedItemDoc = itemSchemaTypeToItemDocument(
             updatedItem.data,
             itemObject.id,
