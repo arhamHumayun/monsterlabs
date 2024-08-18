@@ -20,6 +20,8 @@ import { updateCreature as updateCreatureToDB } from '@/app/actions';
 import { toast } from 'sonner';
 import { doToast } from '@/lib/utils';
 import { creaturesDocument, creatureDocumentToCreatureSchemaType, creatureSchemaTypeToCreatureDocument } from '@/types/db/creature';
+import Link from 'next/link';
+import ShareButton from '../share-button';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -210,9 +212,13 @@ export function EditCreature({
       </div>
       <div className="flex flex-row w-full"></div>
       <CreatureBlock creature={creatureData} onlyBlock={true} />
+      <ShareButton id={creatureObject.id} type={'creature'} textOverride="Share this creature!" />
+      <Button asChild>
+        <Link href="/">Create another</Link>
+      </Button> 
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
+        <PopoverTrigger className='mx-4 mb-4' asChild>
+          <Button variant="destructive" className=" rounded">
             Delete Creature
           </Button>
         </PopoverTrigger>

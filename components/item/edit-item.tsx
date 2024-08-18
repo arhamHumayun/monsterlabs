@@ -20,6 +20,8 @@ import { updateItem as updateItemToDB } from '@/app/actions'; // Import the upda
 import { toast } from 'sonner';
 import { doToast } from '@/lib/utils';
 import { itemsDocument, itemDocumentToItemSchemaType, itemSchemaTypeToItemDocument } from '@/types/db/item'; // Import the types for items
+import ShareButton from '../share-button';
+import Link from 'next/link';
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -218,8 +220,12 @@ export function EditItem({
       <div className="flex flex-row w-full"></div>
       {/* Update the component name and props */}
       <ItemBlock item={itemData} />
+      <ShareButton id={item.id} type={'creature'} textOverride="Share this item!" />
+      <Button asChild>
+        <Link href="/">Create another</Link>
+      </Button>
       <Popover>
-        <PopoverTrigger className='mt-4' asChild>
+        <PopoverTrigger className='mx-4 my-4' asChild>
           <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
             Delete Item
           </Button>
