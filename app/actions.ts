@@ -75,6 +75,20 @@ export async function getCreaturesByUserId(userId: string): Promise<creaturesDoc
   return data;
 }
 
+export async function getItemsByUserId(userId: string): Promise<itemsDocument[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('items')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
+}
+
 export async function getAllCreatures(page: number, monstersPerPage: number, sortingOrder: "latest" | "alphabetical"): Promise<{
   id: number,
   name: string,

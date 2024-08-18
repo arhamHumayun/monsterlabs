@@ -16,8 +16,6 @@ export default async function AllItems({
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
-  console.log('searchParams', searchParams);
-
   const searchParamsString = searchParams
     ? new URLSearchParams(searchParams as any).toString()
     : '';
@@ -34,11 +32,6 @@ export default async function AllItems({
 
   const maxItemPage = Math.ceil(itemCount / itemsPerPage); // Update the variable name to maxItemPage
   const currentPage = parseInt(params.page, 10) || 1;
-
-  console.log({
-    maxItemPage,
-    currentPage,
-  });
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
