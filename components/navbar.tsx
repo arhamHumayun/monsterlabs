@@ -92,7 +92,7 @@ export function Navbar({ user }: { user: User | null }) {
     <div>
       {mobileMode ? (
         <Sheet>
-          <SheetTrigger className="top-0 left-0 p-2 px-4">
+          <SheetTrigger className="top-0 left-0 p-4">
             <Button variant={'outline'} 
               className="p-2 rounded"
             >
@@ -101,7 +101,9 @@ export function Navbar({ user }: { user: User | null }) {
           </SheetTrigger>
           <SheetContent side={'left'}>
             <SheetHeader>
-              <SheetTitle>Navigate To</SheetTitle>
+              <SheetTitle
+                className="text-center"
+              >Navigate To</SheetTitle>
             </SheetHeader>
             <div className="grid gap-4 py-4">
               <SheetClose asChild>
