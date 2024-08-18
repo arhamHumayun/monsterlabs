@@ -42,12 +42,13 @@ export default function CreateThingBox({
     };
 
     initializeUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-[720px]">
+    <div className="grid grid-cols-1 gap-8 max-w-[720px] sm:grid-cols-2 p-4 sm:w-screen">
       <div
-        className='rounded-lg border-gray-500 items-center justify-center flex flex-col w-full'
+        className='rounded-lg  items-center justify-center flex flex-col'
       >
         <CreateCreatureForm
           user={user}
@@ -66,7 +67,7 @@ export default function CreateThingBox({
       </div>
 
       <div
-                className='rounded-lg border-gray-500 items-center justify-center flex flex-col'
+        className='rounded-lg items-center justify-center flex flex-col'
       >
         <CreateItemForm
           user={user}

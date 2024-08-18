@@ -1,7 +1,6 @@
 "use server"
 
 import { chunkedMonsterSchema, creatureSchema, creatureSchemaType } from "@/types/creature";
-import { Creature } from "@/types/db";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 import { z } from "zod";
