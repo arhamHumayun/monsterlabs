@@ -16,47 +16,33 @@ import {
 import { CornerDownLeft, Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
-import React, { useEffect, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { createItem } from '@/app/actions/item/create/v1/create-item';
+import { useState } from 'react';
 
 const formSchema = z.object({
   description: z.string().min(1).max(1000),
 });
 
-export function CreateItemForm() {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [actionCount, setActionCount] = useState(0);
-  const [showLimitAlert, setShowLimitAlert] = useState(false);
+export function CreateItemForm({
+  user,
+  actionCount,
+  setActionCount,
+  showLimitAlert,
+  setShowLimitAlert,
+}: {
+  user: User | null;
+  actionCount: number;
+  setActionCount: (count: number) => void;
+  showLimitAlert: boolean;
+  setShowLimitAlert: (show: boolean) => void;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
-
-  useEffect(() => {
-    const initializeUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        // If no user is signed in, sign in anonymously
-        await supabase.auth.signInAnonymously();
-      } else {
-        setUser(user);
-      }
-
-      console.log('user:', user);
-
-      // Initialize action count from localStorage
-      const storedCount = localStorage.getItem('create_item_action_count');
-      setActionCount(storedCount ? parseInt(storedCount, 10) : 0);
-    };
-
-    initializeUser();
-  }, []);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -102,6 +88,8 @@ export function CreateItemForm() {
 
     const { data, error } = createItemResponse;
 
+    console.log('item generated:', data);
+
     if (error || !data) {
       console.error('Failed to create item data:', error);
       return;
@@ -111,7 +99,7 @@ export function CreateItemForm() {
       name,
       description,
       type,
-      subType,
+      subtype,
       rarity,
       isMagical,
       requiresAttunement,
@@ -129,7 +117,7 @@ export function CreateItemForm() {
         name,
         description,
         type,
-        subType,
+        subtype,
         rarity,
         is_magical: isMagical,
         magic_bonus: magicBonus,
@@ -142,7 +130,7 @@ export function CreateItemForm() {
       .select();
 
     if (createItemDataSupaBaseResponse.error || !createItemDataSupaBaseResponse.data) {
-      console.error('Failed to create item data:', error);
+      console.error('Failed to add item data to DB:', createItemDataSupaBaseResponse.error);
       return;
     }
 

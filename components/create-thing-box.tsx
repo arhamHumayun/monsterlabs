@@ -1,11 +1,17 @@
 "use client";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser-client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
+import { CreateItemForm } from "./creature-item-form";
+import { CreateCreatureForm } from "./create-creature-form";
 
 export default function CreateThingBox() {
-  const router = useRouter();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [actionCount, setActionCount] = useState(0);
+  const [showLimitAlert, setShowLimitAlert] = useState(false);
+
   const supabase = createSupabaseBrowserClient();
 
   
@@ -25,12 +31,32 @@ export default function CreateThingBox() {
       console.log('user:', user);
 
       // Initialize action count from localStorage
-      const storedCount = localStorage.getItem('create_item_action_count');
+      const storedCount = localStorage.getItem('action_count');
       setActionCount(storedCount ? parseInt(storedCount, 10) : 0);
     };
 
     initializeUser();
   }, []);
 
+  return (
+    <div
+      className="grid grid-cols-2 gap-8"
+    >
+      <CreateCreatureForm 
+        user={user}
+        actionCount={actionCount}
+        setActionCount={setActionCount}
+        showLimitAlert={showLimitAlert}
+        setShowLimitAlert={setShowLimitAlert}
+      />
+      <CreateItemForm
+        user={user}
+        actionCount={actionCount}
+        setActionCount={setActionCount}
+        showLimitAlert={showLimitAlert}
+        setShowLimitAlert={setShowLimitAlert}
+      />
+    </div>
+  );
   
 }

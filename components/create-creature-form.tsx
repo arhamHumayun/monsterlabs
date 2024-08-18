@@ -27,37 +27,23 @@ const formSchema = z.object({
   model: z.enum(['gpt-4o-mini', 'claude-haiku']),
 });
 
-export function CreateCreatureForm() {
+export function CreateCreatureForm({
+  user,
+  actionCount,
+  setActionCount,
+  showLimitAlert,
+  setShowLimitAlert,
+}: {
+  user: User | null;
+  actionCount: number;
+  setActionCount: (count: number) => void;
+  showLimitAlert: boolean;
+  setShowLimitAlert: (show: boolean) => void;
+}) {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [actionCount, setActionCount] = useState(0);
-  const [showLimitAlert, setShowLimitAlert] = useState(false);
 
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
-
-  useEffect(() => {
-    const initializeUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        // If no user is signed in, sign in anonymously
-        await supabase.auth.signInAnonymously();
-      } else {
-        setUser(user);
-      }
-
-      console.log('user:', user);
-
-      // Initialize action count from localStorage
-      const storedCount = localStorage.getItem('create_creature_action_count');
-      setActionCount(storedCount ? parseInt(storedCount, 10) : 0);
-    };
-
-    initializeUser();
-  }, []);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -174,11 +160,7 @@ export function CreateCreatureForm() {
       return;
     }
 
-    const currentUser = await supabase.auth.getUser();
-
-    const currentUserData = currentUser.data.user;
-
-    if (!currentUserData || currentUserData.is_anonymous) {
+    if (!user || user.is_anonymous) {
       router.push(`/creature/view-anon/${data[0].id}`);
     } else {
       router.push(`/creature/edit/${data[0].id}`);
