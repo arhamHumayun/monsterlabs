@@ -11,8 +11,8 @@ export default async function AllItems({
   params: { page: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const itemCount = await getCountOfItems(); // Update the function call to getCountOfItems
-  const itemsPerPage = 59; // Update the variable name to itemsPerPage
+  const itemCount = await getCountOfItems();
+  const itemsPerPage = 29;
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 

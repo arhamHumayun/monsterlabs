@@ -12,7 +12,7 @@ export default async function AllMonsters({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const creatureCount = await getCountOfCreatures();
-  const monstersPerPage = 59;
+  const monstersPerPage = 29;
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
