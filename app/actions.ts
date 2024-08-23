@@ -139,32 +139,6 @@ export async function getAllItems(page: number, itemsPerPage: number, sortingOrd
   return data;
 }
 
-export async function getCountOfCreatures(): Promise<number | null> {
-  const supabase = await createSupabaseAppServerClient();
-  const { count, error } = await supabase
-    .from('creatures')
-    .select('*', { count: 'estimated' })
-
-  if (error || !count) {
-    return null;
-  }
-
-  return count;
-}
-
-export async function getCountOfItems(): Promise<number | null> {
-  const supabase = await createSupabaseAppServerClient();
-  const { count, error } = await supabase
-    .from('items')
-    .select('*', { count: 'estimated' })
-
-  if (error || !count) {
-    return null;
-  }
-
-  return count;
-}
-
 export async function updateCreature(creature: creaturesDocument): Promise<{ data: creaturesDocument | null }> {
   const supabase = await createSupabaseAppServerClient();
   const { data, error } = await supabase

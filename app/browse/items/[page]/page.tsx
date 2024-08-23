@@ -1,8 +1,8 @@
 import { Separator } from '@/components/ui/separator';
-import { getCountOfItems } from '@/app/actions';
 import SortByDropdown from '@/components/sort-by-dropdown';
 import ItemList from '@/components/item/item-list';
 import { paginationSection } from '@/components/pagination-bar';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 
 export default async function AllItems({
   params,
@@ -11,8 +11,20 @@ export default async function AllItems({
   params: { page: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const itemCount = await getCountOfItems();
+
   const itemsPerPage = 29;
+
+  const supabase = createSupabaseBrowserClient();
+
+  const { count, error } = await supabase
+    .from('items')
+    .select('id', { count: 'estimated' });
+
+  if (error) {
+    console.error('Error fetching item count:', error);
+    return;
+  } 
+  
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
@@ -20,7 +32,7 @@ export default async function AllItems({
     ? new URLSearchParams(searchParams as any).toString()
     : '';
 
-  if (!itemCount || itemCount === 0) { // Update the variable name to itemCount
+  if (!count || count === 0) {
     return (
       <div>
         <h1>No items found</h1>
@@ -28,7 +40,7 @@ export default async function AllItems({
     );
   }
 
-  const maxItemPage = Math.ceil(itemCount / itemsPerPage); // Update the variable name to maxItemPage
+  const maxItemPage = Math.ceil(count / itemsPerPage);
   const currentPage = parseInt(params.page, 10) || 1;
 
   return (

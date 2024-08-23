@@ -1,8 +1,8 @@
 import { Separator } from '@/components/ui/separator';
-import { getCountOfCreatures } from '../../../actions';
 import CreatureList from '@/components/creature/creature-list';
 import SortByDropdown from '@/components/sort-by-dropdown';
 import { paginationSection } from '@/components/pagination-bar';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 
 export default async function AllMonsters({
   params,
@@ -11,8 +11,20 @@ export default async function AllMonsters({
   params: { page: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const creatureCount = await getCountOfCreatures();
+
   const monstersPerPage = 29;
+
+  const supabase = createSupabaseBrowserClient();
+
+  const { count, error } = await supabase
+    .from('creatures')
+    .select('id', { count: 'estimated' });
+
+  if (error) {
+    console.error('Error fetching creature count:', error);
+    return;
+  }
+
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
@@ -20,7 +32,7 @@ export default async function AllMonsters({
     ? new URLSearchParams(searchParams as any).toString()
     : '';
 
-  if (!creatureCount || creatureCount === 0) {
+  if (!count || count === 0) {
     return (
       <div>
         <h1>No creatures found</h1>
@@ -28,7 +40,7 @@ export default async function AllMonsters({
     );
   }
 
-  const maxCreaturePage = Math.ceil(creatureCount / monstersPerPage);
+  const maxCreaturePage = Math.ceil(count / monstersPerPage);
   const currentPage = parseInt(params.page, 10) || 1;
 
   return (
