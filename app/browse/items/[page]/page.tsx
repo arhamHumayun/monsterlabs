@@ -3,6 +3,7 @@ import SortByDropdown from '@/components/sort-by-dropdown';
 import { paginationSection } from '@/components/pagination-bar';
 import { ThingLink } from '@/components/thing-link';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
+import { cache } from 'react';
 
 export default async function AllItems({
   params,
@@ -14,15 +15,19 @@ export default async function AllItems({
 
   const itemsPerPage = 29;
 
-  const supabase = await createSupabaseAppServerClient();
+  const { count, items: data, error: itemsError } = await getCachedData(
+    parseInt(params.page, 10) || 1,
+    itemsPerPage,
+    searchParams?.sort as 'latest' | 'alphabetical'
+  );
 
-  const { count, error } = await supabase
-    .from('items')
-    .select('id', { count: 'estimated' });
-
-  if (error) {
-    console.error('Error fetching item count:', error);
-    return;
+  if (itemsError || !data || data.length === 0) {
+    console.error('Error fetching item count:', itemsError);
+    return(
+      <div>
+      <h1>No items found</h1>
+    </div>
+    );
   } 
   
   const sortingOrder =
@@ -32,33 +37,8 @@ export default async function AllItems({
     ? new URLSearchParams(searchParams as any).toString()
     : '';
 
-  if (!count || count === 0) {
-    return (
-      <div>
-        <h1>No items found</h1>
-      </div>
-    );
-  }
-
   const maxItemPage = Math.ceil(count / itemsPerPage);
   const currentPage = parseInt(params.page, 10) || 1;
-
-  const {
-    data,
-    error: itemsError,
-  } = await getItemsByPage(
-    currentPage,
-    itemsPerPage,
-    sortingOrder
-  );
-
-  if (itemsError || !data || data.length === 0) {
-    return (
-      <div>
-        <h1>No items found</h1>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
@@ -84,6 +64,70 @@ export default async function AllItems({
       {paginationSection(searchParamsString, currentPage, maxItemPage, 'items')}
     </div>
   );
+}
+
+const cacheKey = 'items';
+const getCachedData = cache(getAllData);
+
+async function getAllData(
+  pageNumber: number,
+  itemsPerPage: number,
+  sortingOrder: 'latest' | 'alphabetical'
+): Promise<{
+  count: number;
+  items?: {
+    id: number;
+    name: string;
+  }[];
+  error?: any;
+}> {
+  const countPromise = getCountOfItems();
+
+  const itemsPromise = getItemsByPage(
+    pageNumber,
+    itemsPerPage,
+    sortingOrder
+  );
+
+  const [count, itemsResponse] = await Promise.all([
+    countPromise,
+    itemsPromise,
+  ]);
+
+  const { data, error } = itemsResponse;
+
+  if (error || !data || data.length === 0) {
+    return {
+      count,
+      error,
+    };
+  }
+
+  const items = data as {
+    id: number;
+    name: string;
+  }[];
+
+  return {
+    count,
+    items,
+  };
+}
+
+async function getCountOfItems() {
+
+  const supabase = await createSupabaseAppServerClient();
+
+  const { count, error } = await supabase
+  .from('items')
+  .select('id', { count: 'estimated' });
+
+  if (error || !count) {
+    console.error('Error fetching item count:', error);
+    return 1;
+  }
+
+  return count;
 }
 
 async function getItemsByPage(

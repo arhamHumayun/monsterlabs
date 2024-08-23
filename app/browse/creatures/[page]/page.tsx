@@ -1,9 +1,10 @@
 import { Separator } from '@/components/ui/separator';
 import SortByDropdown from '@/components/sort-by-dropdown';
 import { paginationSection } from '@/components/pagination-bar';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { ThingLink } from '@/components/thing-link';
+
+import { cache } from 'react';
 
 export default async function AllMonsters({
   params,
@@ -15,23 +16,18 @@ export default async function AllMonsters({
 
   const monstersPerPage = 29;
 
-  const supabase = createSupabaseBrowserClient();
-
-  const { count, error } = await supabase
-    .from('creatures')
-    .select('id', { count: 'estimated' });
-
-  if (error) {
-    console.error('Error fetching creature count:', error);
-    return;
-  }
-
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
   const searchParamsString = searchParams
     ? new URLSearchParams(searchParams as any).toString()
     : '';
+
+  const { count, creatures, error } = await cachedGetAllData(
+    parseInt(params.page, 10) || 1,
+    monstersPerPage,
+    sortingOrder
+  );
 
   if (!count || count === 0) {
     return (
@@ -43,25 +39,6 @@ export default async function AllMonsters({
 
   const maxCreaturePage = Math.ceil(count / monstersPerPage);
   const currentPage = parseInt(params.page, 10) || 1;
-
-  const { data, error: creaturesError } = await getCreaturesByPage(
-    currentPage,
-    monstersPerPage,
-    sortingOrder
-  );
-
-  if (creaturesError || !data || data.length === 0) {
-    return (
-      <div>
-        <h1>No creatures found</h1>
-      </div>
-    );
-  }
-
-  const creatures = data as {
-    id: number;
-    name: string;
-  }[];
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
@@ -97,6 +74,74 @@ export default async function AllMonsters({
       )}
     </div>
   );
+}
+
+const cacheKey = 'creatures';
+
+const cachedGetAllData = cache(getAllData);
+
+async function getAllData(
+  pageNumber: number,
+  monstersPerPage: number,
+  sortingOrder: 'latest' | 'alphabetical'
+) : Promise<{
+  count?: number;
+  creatures?: { id: number; name: string }[];
+  error?: any;
+}>
+{
+
+  const countPromise = getCountOfCreatures();
+
+  const creaturesListPromise = getCreaturesByPage(
+    pageNumber,
+    monstersPerPage,
+    sortingOrder
+  );
+
+  const [countResults, creaturesListResults] = await Promise.allSettled([countPromise, creaturesListPromise]);
+
+  if (countResults.status === 'rejected') {
+    return {
+      error: countResults.reason,
+    };
+  }
+
+  const count = countResults.value;
+
+  if (creaturesListResults.status === 'rejected') {
+    return {
+      error: creaturesListResults.reason,
+    };
+  }
+
+  const { data, error: creaturesError } = creaturesListResults.value;
+
+  if (creaturesError || !data || data.length === 0) {
+    return {
+      error: creaturesError,
+    };
+  }
+
+  return {
+    count,
+    creatures: data,
+  };
+}
+
+async function getCountOfCreatures(): Promise<number> {
+  const supabase = await createSupabaseAppServerClient();
+
+  const { count, error } = await supabase
+    .from('creatures')
+    .select('id', { count: 'estimated' });
+
+  if (error) {
+    console.error('Error fetching creature count:', error);
+    return 0;
+  }
+  
+  return count as number;
 }
 
 async function getCreaturesByPage(
