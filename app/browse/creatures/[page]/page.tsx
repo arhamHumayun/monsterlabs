@@ -1,10 +1,8 @@
 import { Separator } from '@/components/ui/separator';
-import CreatureList from '@/components/creature/creature-list';
 import SortByDropdown from '@/components/sort-by-dropdown';
 import { paginationSection } from '@/components/pagination-bar';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
-import { creaturesDocument } from '@/types/db/creature';
 import { ThingLink } from '@/components/thing-link';
 
 export default async function AllMonsters({
