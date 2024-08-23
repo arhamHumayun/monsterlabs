@@ -44,7 +44,7 @@ export default async function EditMonster({
 
   return (
     <div>
-      <EditCreature creature={creature} user={user} />
+      <EditCreature creature={creature} user={getUserData.user} />
     </div>
   );
 }

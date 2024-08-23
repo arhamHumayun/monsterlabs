@@ -47,7 +47,7 @@ export default async function ViewItem({ params }: { params: { id: number } }) {
 
   return (
     <div className="mb-4">
-      <EditItem item={item} user={user} />
+      <EditItem item={item} user={getUserData.user} />
     </div>
   );
 }
