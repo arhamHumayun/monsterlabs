@@ -84,7 +84,7 @@ export default function CreateThingBox({
           created!
         </p>
         <Button variant="outline" asChild>
-          <Link href="/browse/creatures/1">View existing creatures</Link>
+          <Link href="/browse/creatures">View existing creatures</Link>
         </Button>
       </div>
       {
@@ -111,7 +111,7 @@ export default function CreateThingBox({
           <span className="font-semibold">{itemCount}</span> items created!
         </p>
         <Button variant="outline" asChild>
-          <Link href="/browse/items/1">View existing items</Link>
+          <Link href="/browse/items">View existing items</Link>
         </Button>
       </div>
     </div>

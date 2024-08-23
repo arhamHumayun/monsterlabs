@@ -113,12 +113,12 @@ export function Navbar({ user }: { user: User | null }) {
               </SheetClose>
               <SheetClose asChild>
                 <Button variant={'ghost'} asChild>
-                  <Link href="/browse/creatures/1">Browse Creatures</Link>
+                  <Link href="/browse/creatures">Browse Creatures</Link>
                 </Button>
               </SheetClose>
               <SheetClose asChild>
                 <Button variant={'ghost'} asChild>
-                  <Link href="/browse/items/1">Browse Items</Link>
+                  <Link href="/browse/items">Browse Items</Link>
                 </Button>
               </SheetClose>
               {!user || user.is_anonymous ? (
@@ -151,7 +151,7 @@ export function Navbar({ user }: { user: User | null }) {
             <NavigationMenuItem className="p-2 px-4 items-center">
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
-                href="/browse/creatures/1"
+                href="/browse/creatures"
               >
                 Browse Creatures
               </NavigationMenuLink>
@@ -159,7 +159,7 @@ export function Navbar({ user }: { user: User | null }) {
             <NavigationMenuItem className="p-2 px-4 items-center">
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
-                href="/browse/items/1"
+                href="/browse/items"
               >
                 Browse Items
               </NavigationMenuLink>

@@ -1,76 +1,72 @@
+'use client';
+
 import { Separator } from '@/components/ui/separator';
 import SortByDropdown from '@/components/sort-by-dropdown';
-import { paginationSection } from '@/components/pagination-bar';
-import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { ThingLink } from '@/components/thing-link';
-import { cache } from 'react';
+import { cache, Suspense, useEffect, useState } from 'react';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
+import PaginationSection from '@/components/pagination-section';
 
-export default async function AllMonsters({
-  params,
+export default function AllMonsters({
   searchParams,
 }: {
-  params: { page: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
+  const [creatures, setCreatures] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [maxCreaturePage, setMaxCreaturePage] = useState<number>(1);
 
   const monstersPerPage = 29;
 
   const sortingOrder =
     (searchParams?.sort as 'latest' | 'alphabetical') || 'latest';
 
-  const searchParamsString = searchParams
-    ? new URLSearchParams(searchParams as any).toString()
-    : '';
+  const currentPage = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
 
-  const { count, creatures, error } = await cachedGetAllData(
-    parseInt(params.page, 10) || 1,
-    monstersPerPage,
-    sortingOrder
-  );
-
-  if (!count || count === 0 || error || !creatures || creatures.length === 0) {
-    return (
-      <div>
-        <h1>No creatures found</h1>
-      </div>
+  useEffect(() => {
+    cachedGetAllData(currentPage, monstersPerPage, sortingOrder).then(
+      ({ count, creatures, error }) => {
+        setCreatures(creatures || []);
+        setMaxCreaturePage(Math.ceil(count / monstersPerPage));
+      }
     );
-  }
-
-  const maxCreaturePage = Math.ceil(count / monstersPerPage);
-  const currentPage = parseInt(params.page, 10) || 1;
+  }, [currentPage, sortingOrder]);
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
       <h1 className="text-lg font-semibold">All creatures</h1>
       <Separator className="mb-4" />
       <div className="md:flex justify-between items-center mb-4">
-        {paginationSection(
-          searchParamsString,
-          currentPage,
-          maxCreaturePage,
-          'creatures'
-        )}
+        <Suspense fallback={null}>
+          {PaginationSection(
+            currentPage ? currentPage : 1,
+            maxCreaturePage,
+            'creatures'
+          )}
+        </Suspense>
         <SortByDropdown />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {creatures.map((creature) => {
-        return (
-          <ThingLink
-            key={creature.id}
-            id={creature.id}
-            name={creature.name}
-            thingType="creature"
-            type="view"
-          />
-        );
-      })}
-    </div>
-      {paginationSection(
-        searchParamsString,
-        currentPage,
-        maxCreaturePage,
-        'creatures'
-      )}
+        {creatures.map((creature) => {
+          return (
+            <ThingLink
+              key={creature.id}
+              id={creature.id}
+              name={creature.name}
+              thingType="creature"
+              type="view"
+            />
+          );
+        })}
+      </div>
+      <Suspense fallback={null}>
+        {PaginationSection(
+          currentPage ? currentPage : 1,
+          maxCreaturePage,
+          'creatures'
+        )}
+      </Suspense>
     </div>
   );
 }
@@ -81,13 +77,11 @@ async function getAllData(
   pageNumber: number,
   monstersPerPage: number,
   sortingOrder: 'latest' | 'alphabetical'
-) : Promise<{
+): Promise<{
   count: number;
   creatures?: { id: number; name: string }[];
   error?: any;
-}>
-{
-
+}> {
   const countPromise = getCountOfCreatures();
 
   const creaturesListPromise = getCreaturesByPage(
@@ -96,7 +90,10 @@ async function getAllData(
     sortingOrder
   );
 
-  const [countResults, creaturesListResults] = await Promise.allSettled([countPromise, creaturesListPromise]);
+  const [countResults, creaturesListResults] = await Promise.allSettled([
+    countPromise,
+    creaturesListPromise,
+  ]);
 
   const count = countResults.status === 'fulfilled' ? countResults.value : 1;
 
@@ -123,7 +120,7 @@ async function getAllData(
 }
 
 async function getCountOfCreatures(): Promise<number> {
-  const supabase = await createSupabaseAppServerClient();
+  const supabase = createSupabaseBrowserClient();
 
   const { count, error } = await supabase
     .from('creatures')
@@ -133,7 +130,7 @@ async function getCountOfCreatures(): Promise<number> {
     console.error('Error fetching creature count:', error);
     return 0;
   }
-  
+
   return count;
 }
 
@@ -148,7 +145,7 @@ async function getCreaturesByPage(
   }[];
   error?: any;
 }> {
-  const supabase = await createSupabaseAppServerClient();
+  const supabase = createSupabaseBrowserClient();
 
   const orderingColumn = sortingOrder === 'latest' ? 'created_at' : 'name';
   const ascending = sortingOrder === 'alphabetical';
