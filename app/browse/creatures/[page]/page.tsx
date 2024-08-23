@@ -3,7 +3,6 @@ import SortByDropdown from '@/components/sort-by-dropdown';
 import { paginationSection } from '@/components/pagination-bar';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { ThingLink } from '@/components/thing-link';
-
 import { cache } from 'react';
 
 export default async function AllMonsters({
@@ -29,7 +28,7 @@ export default async function AllMonsters({
     sortingOrder
   );
 
-  if (!count || count === 0) {
+  if (!count || count === 0 || error || !creatures || creatures.length === 0) {
     return (
       <div>
         <h1>No creatures found</h1>
@@ -76,8 +75,6 @@ export default async function AllMonsters({
   );
 }
 
-const cacheKey = 'creatures';
-
 const cachedGetAllData = cache(getAllData);
 
 async function getAllData(
@@ -85,7 +82,7 @@ async function getAllData(
   monstersPerPage: number,
   sortingOrder: 'latest' | 'alphabetical'
 ) : Promise<{
-  count?: number;
+  count: number;
   creatures?: { id: number; name: string }[];
   error?: any;
 }>
@@ -101,16 +98,11 @@ async function getAllData(
 
   const [countResults, creaturesListResults] = await Promise.allSettled([countPromise, creaturesListPromise]);
 
-  if (countResults.status === 'rejected') {
-    return {
-      error: countResults.reason,
-    };
-  }
-
-  const count = countResults.value;
+  const count = countResults.status === 'fulfilled' ? countResults.value : 1;
 
   if (creaturesListResults.status === 'rejected') {
     return {
+      count,
       error: creaturesListResults.reason,
     };
   }
@@ -119,6 +111,7 @@ async function getAllData(
 
   if (creaturesError || !data || data.length === 0) {
     return {
+      count,
       error: creaturesError,
     };
   }
@@ -136,12 +129,12 @@ async function getCountOfCreatures(): Promise<number> {
     .from('creatures')
     .select('id', { count: 'estimated' });
 
-  if (error) {
+  if (error || !count) {
     console.error('Error fetching creature count:', error);
     return 0;
   }
   
-  return count as number;
+  return count;
 }
 
 async function getCreaturesByPage(

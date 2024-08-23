@@ -66,7 +66,6 @@ export default async function AllItems({
   );
 }
 
-const cacheKey = 'items';
 const getCachedData = cache(getAllData);
 
 async function getAllData(
