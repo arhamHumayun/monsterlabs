@@ -1,4 +1,3 @@
-import { getUser } from '@/app/actions';
 import { EditCreature } from '@/components/creature/edit-creature';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { creaturesDocument } from '@/types/db/creature';

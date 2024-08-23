@@ -1,4 +1,3 @@
-import { getItemById } from "@/app/not-actions";
 import ItemBlock from "@/components/item/item-block";
 import ShareButton from "@/components/share-button";
 import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";

@@ -1,9 +1,6 @@
-import { getItemById, getUser } from '@/app/not-actions';
 import { EditItem } from '@/components/item/edit-item';
-import ItemBlock from '@/components/item/item-block';
-import ShareButton from '@/components/share-button';
 import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
-import { itemDocumentToItemSchemaType, itemsDocument } from '@/types/db/item';
+import { itemsDocument } from '@/types/db/item';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
