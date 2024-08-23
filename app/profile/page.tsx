@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { LogOutButton } from '@/components/logout-button';
 import Link from 'next/link';
-import { getCreaturesByUserId, getItemsByUserId } from '../actions';
 import { ThingLink } from '@/components/thing-link';
+import { creaturesDocument } from '@/types/db/creature';
 
 export default async function Profile() {
   const supabase = await createSupabaseAppServerClient();
@@ -95,4 +95,33 @@ export default async function Profile() {
       <LogOutButton />
     </div>
   );
+}
+
+
+async function getCreaturesByUserId(userId: string): Promise<creaturesDocument[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('creatures')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
+}
+
+async function getItemsByUserId(userId: string): Promise<creaturesDocument[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('items')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
 }

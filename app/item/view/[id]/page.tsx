@@ -1,7 +1,8 @@
 import { getItemById } from "@/app/not-actions";
 import ItemBlock from "@/components/item/item-block";
 import ShareButton from "@/components/share-button";
-import { itemDocumentToItemSchemaType } from "@/types/db/item";
+import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
+import { itemDocumentToItemSchemaType, itemsDocument } from "@/types/db/item";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,15 +16,23 @@ export default async function ViewItem(
 
   const { id } = params;  
 
-  const item = await getItemById(id);
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('items')
+    .select(`*`)
+    .eq('id', id)
+    .single();
 
-  if (!item) {
+  if (error || !data || data.length === 0) {
+    console.error('Failed to get item by id:', error);
     return (
       <div>
         <h1>Item not found</h1>
       </div>
-    )
+    );
   }
+
+  const item = data as itemsDocument;
 
   const itemAsSchema = itemDocumentToItemSchemaType(item);
 

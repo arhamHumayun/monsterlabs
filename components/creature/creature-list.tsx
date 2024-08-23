@@ -1,5 +1,6 @@
-import { getAllCreatures } from "@/app/actions";
 import { ThingLink } from "../thing-link";
+import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
+import { creaturesDocument } from "@/types/db/creature";
 
 export default async function CreatureList(
   { 
@@ -16,15 +17,32 @@ export default async function CreatureList(
 
   pageNumber = pageNumber || 1;
 
-  const creatures = await getAllCreatures(pageNumber, monstersPerPage, sortingOrder);
+  const supabase = await createSupabaseAppServerClient();
 
-  if (!creatures || creatures.length === 0) {
+  const rangeStart = (pageNumber - 1) * monstersPerPage;
+  const rangeEnd = pageNumber * monstersPerPage;
+
+  const orderingColumn = sortingOrder === 'latest' ? 'created_at' : 'name';
+  const ascending = sortingOrder === 'alphabetical';
+
+  const { data, error } = await supabase
+    .from('creatures')
+    .select(`id, name`)
+    .order(orderingColumn, { ascending })
+    .range(rangeStart, rangeEnd);
+
+  if (error || !data || data.length === 0) {
     return (
       <div>
         <h1>No creatures found</h1>
       </div>
     );
   }
+
+  const creatures = data as {
+    id: number,
+    name: string,
+  }[];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
