@@ -49,7 +49,7 @@ export default function ItemBlock({ item }: { item: itemSchemaType }) {
         <span className="font-semibold">Cost: </span>
         {cost} gp,
         <span className="font-semibold"> Weight: </span>
-        {weight} lbs
+        {weight} lb{weight > 1 ? 's' : ''}
 
       </p>
     </div>
