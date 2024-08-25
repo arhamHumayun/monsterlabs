@@ -303,7 +303,7 @@ export function EditItem({
                       <SelectContent>
                         {
                           itemTypesList.map((type) => (
-                            <SelectItem key={type} value={type}>
+                            <SelectItem key={type} value={type} id={type}>
                               {type}
                             </SelectItem>
                           ))
@@ -333,7 +333,7 @@ export function EditItem({
                       <SelectContent>
                         {
                           itemRarityList.map((rarity) => (
-                            <SelectItem key={rarity} value={rarity}>
+                            <SelectItem key={rarity} value={rarity} id={rarity}>
                               {rarity}
                             </SelectItem>
                           ))
@@ -364,15 +364,10 @@ export function EditItem({
                     />
                   </div>
                 </div>
-                <DialogFooter>
-                  <DialogClose>
-                    <Button variant="secondary">Cancel</Button>
-                  </DialogClose>
-                  <DialogClose>
-                    <Button type="submit">Save changes</Button>
-                  </DialogClose>
-                </DialogFooter>
               </fieldset>
+              <DialogFooter>
+                  <Button type="submit">Save changes</Button>
+                </DialogFooter>
             </form>
           </Form>
         </DialogContent>

@@ -122,8 +122,7 @@ export function CreateItemForm({
         magic_bonus: magicBonus,
         requires_attunement: requiresAttunement.requires,
         requires_attunement_types: requiresAttunement.requiresSpecific,
-        cost_unit: cost.unit,
-        cost_amount: cost.amount,
+        cost_amount: cost,
         weight,
       })
       .select();
