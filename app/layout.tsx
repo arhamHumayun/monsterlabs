@@ -9,6 +9,7 @@ import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { Toaster } from '@/components/ui/sonner';
 import { CSPostHogProvider } from './providers';
 
+
 export const metadata: Metadata = {
   title: 'Monster Labs',
   description: 'Generate a DnD creature with ease using AI.',

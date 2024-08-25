@@ -99,9 +99,7 @@ export function CreateItemForm({
       type,
       subtype,
       rarity,
-      isMagical,
       requiresAttunement,
-      magicBonus,
       cost,
       weight,
     } = data;
@@ -118,8 +116,6 @@ export function CreateItemForm({
         type,
         subtype,
         rarity,
-        is_magical: isMagical,
-        magic_bonus: magicBonus,
         requires_attunement: requiresAttunement.requires,
         requires_attunement_types: requiresAttunement.requiresSpecific,
         cost_amount: cost,

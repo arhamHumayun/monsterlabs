@@ -3,7 +3,6 @@ import { itemSchemaType } from "../item"
 
 export const itemTypesList = ["Weapon", "Armor", "Ammunition", "Potion", "Scroll", "Ring", "Wand", "Rod", "Staff", "Wondrous item", "Consumable", "Tool", "Trinket"] as const
 export const itemRarityList = ["common", "uncommon", "rare", "very rare", "legendary"] as const
-export const itemCostUnitList = ["pp", "ep", "gp", "sp", "cp"] as const
 
 export const itemsDocumentSchema = z.object({
   id: z.number(),
@@ -14,8 +13,6 @@ export const itemsDocumentSchema = z.object({
   type: z.enum(itemTypesList),
   subtype: z.string(),
   rarity: z.enum(itemRarityList),
-  is_magical: z.boolean(),
-  magic_bonus: z.number(),
   requires_attunement: z.boolean(),
   requires_attunement_types: z.array(z.string()),
   cost_amount: z.number(),
@@ -34,8 +31,6 @@ export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaTyp
   return {
     name: item.name,
     subtype: item.subtype,
-    isMagical: item.is_magical,
-    magicBonus: item.magic_bonus,
     weight: item.weight,
     description: item.description,
     paragraphs: item.paragraphs,
@@ -63,10 +58,8 @@ export function itemSchemaTypeToItemDocument(item: itemSchemaType, id: number, u
     weight: item.weight,
     description: item.description,
     paragraphs: item.paragraphs,
-    is_magical: item.isMagical,
     requires_attunement: item.requiresAttunement.requires,
     requires_attunement_types: item.requiresAttunement.requiresSpecific,
-    magic_bonus: item.magicBonus,
     cost_amount: item.cost,
   }
 }
