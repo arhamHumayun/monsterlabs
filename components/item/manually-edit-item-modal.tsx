@@ -376,9 +376,6 @@ export default function ManuallyEditItemModal({
                   Add Section
                 </Button>
               </fieldset>
-              <p>{errors ? 
-                JSON.stringify(errors , null, 2)
-               : null}</p>
               <DialogFooter>
                 <Button type="submit">Save changes</Button>
               </DialogFooter>
