@@ -111,7 +111,7 @@ export function EditItem({
       {ManuallyEditItemModal({ itemObject, setItemObject, isLoading, setIsLoading })}
     <div className="flex flex-row w-full"></div><ItemBlock item={itemData} /><ShareButton
         id={item.id}
-        type={'creature'}
+        type={'item'}
         textOverride="Share this item!" /><Button asChild>
         <Link href="/">Create another</Link>
       </Button><Popover>
