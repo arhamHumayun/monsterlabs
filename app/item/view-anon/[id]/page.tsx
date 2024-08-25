@@ -41,11 +41,11 @@ export default async function ViewItem(
       <ItemBlock item={itemAsSchema} />
       <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
         <h1 className="text-gray-200 text-center">
-          Sign in with Google to save and edit your creatures. This creature
+          Sign in with Google to save and edit your items. This item
           will be saved when you sign in. Otherwise you {`won't`} be able to edit it later.
         </h1>
         <div className="flex justify-center">
-          <ShareButton id={id} type={'creature'} textOverride="Share this creature!" />
+          <ShareButton id={id} type={'item'} textOverride="Share this item!" />
           <LoginButton message="Sign in with Google." />
         </div>
       </div>
