@@ -27,6 +27,7 @@
     "@supabase/supabase-js": "^2.45.1",
     "@tabler/icons-react": "^3.12.0",
     "ai": "^3.0.2",
+    "caniuse-lite": "^1.0.30001651",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "jspdf": "^2.5.1",
