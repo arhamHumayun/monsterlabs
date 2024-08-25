@@ -56,7 +56,7 @@ export function itemSchemaTypeToItemDocument(item: itemSchemaType, id: number, u
     description: item.description,
     paragraphs: item.paragraphs,
     requires_attunement: item.requiresAttunement,
-    requires_attunement_specific: item.requiresAttunementSpecific,
+    requires_attunement_specific: item.requiresAttunementSpecific ? item.requiresAttunementSpecific : '',
     cost_amount: item.cost,
   }
 }

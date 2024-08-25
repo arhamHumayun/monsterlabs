@@ -273,7 +273,7 @@ export default function ManuallyEditItemModal({
                     <Input
                       id="requiresAttunementSpecific"
                       defaultValue={itemObject.requires_attunement_specific}
-                      placeholder="fighter, ranger, or a barbarian"
+                      placeholder="requires attunement by a ..."
                       className="col-span-4"
                       {...field}
                     />

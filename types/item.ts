@@ -7,9 +7,9 @@ export const itemSchema = z.object({
   rarity: z.union([z.literal('common'), z.literal('uncommon'), z.literal('rare'), z.literal('very rare'), z.literal('legendary')]),
   requiresAttunement: z.boolean().describe("Whether the item requires attunement, and if so, whether it requires attunement by a specific class. Only applies to magical items that are very special and powerful. It should make sense for lore reasons. Generally avoid requiring attunement unless it makes a lot of sense."),
   requiresAttunementSpecific: z.string()
-  .startsWith("requires attunement by ")
+  // .startsWith("requires attunement by ")
   .describe("If the item requires attunement, specify what conditions someone must have in to attune to it. Do not include if the item does not require attunement. Always structure your sentence as 'requires attunement by ...'. For example, 'requires attunement by a wizard' or 'requires attunement by a creature of good alignment' or 'requires attunement by an elf, half-elf, or a ranger'.")
-  .default('')
+  // .default('')
   .nullable(),
   cost: z.number().int(),
   weight: z.number().describe("Weight in pounds"),

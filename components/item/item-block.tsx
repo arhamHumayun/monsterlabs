@@ -15,7 +15,7 @@ export default function ItemBlock({ item }: { item: itemSchemaType }) {
   const attunementSentence = () => {
     if (requiresAttunement) {
       if (requiresAttunementSpecific) {
-        return `(requires attunement by ${requiresAttunementSpecific})`;
+        return `(${requiresAttunementSpecific})`;
       }
       return `(requires attunement)`;
     }

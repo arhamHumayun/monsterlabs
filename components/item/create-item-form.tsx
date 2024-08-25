@@ -116,7 +116,7 @@ export function CreateItemForm({
         subtype,
         rarity,
         requires_attunement: requiresAttunement,
-        requires_attunement_types: requiresAttunementSpecific,
+        requires_attunement_specific: requiresAttunementSpecific,
         cost_amount: cost,
         weight,
       })
