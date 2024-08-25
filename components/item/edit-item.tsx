@@ -108,7 +108,7 @@ export function EditItem({
           Share
         </Button>
       </div>
-      {/* {ManuallyEditItemModal({ itemObject, setItemObject, isLoading, setIsLoading })} */}
+      {ManuallyEditItemModal({ itemObject, setItemObject, isLoading, setIsLoading })}
     <div className="flex flex-row w-full"></div><ItemBlock item={itemData} /><ShareButton
         id={item.id}
         type={'creature'}
