@@ -42,9 +42,11 @@ import { ScrollArea } from '../ui/scroll-area';
 import { itemSchema } from '@/types/item';
 
 const itemFormSchema = itemSchema.extend({
-  requiresAttunement: z.boolean({
-    required_error: 'Requires Attunement is required',
-  }).default(false),
+  requiresAttunement: z
+    .boolean({
+      required_error: 'Requires Attunement is required',
+    })
+    .default(false),
 });
 
 export default function ManuallyEditItemModal({
@@ -75,6 +77,7 @@ export default function ManuallyEditItemModal({
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'paragraphs',
+    shouldUnregister: true,
   });
 
   async function onSubmitManualEdit(values: z.infer<typeof itemFormSchema>) {
@@ -197,7 +200,7 @@ export default function ManuallyEditItemModal({
                       </FormLabel>
                       <Input
                         id="weight"
-                        type='number'
+                        type="number"
                         defaultValue={itemObject.weight}
                         placeholder="Weight"
                         className="col-span-4"
@@ -218,7 +221,7 @@ export default function ManuallyEditItemModal({
                       </FormLabel>
                       <Input
                         id="cost"
-                        type='number'
+                        type="number"
                         defaultValue={itemObject.cost_amount}
                         placeholder="Cost in GP"
                         className="col-span-4"
@@ -318,6 +321,7 @@ export default function ManuallyEditItemModal({
                     </FormItem>
                   )}
                 />
+
                 {fields.map((paragraph, index) => (
                   <FormField
                     control={itemForm.control}
@@ -368,13 +372,12 @@ export default function ManuallyEditItemModal({
                     )}
                   />
                 ))}
-                <Button
-                  variant="outline"
-                  className="w-full mb-2"
+                <div
+                  className="w-full mb-2 rounded-lg border p-2 cursor-pointer font-semibold text-sm text-center"
                   onClick={() => append({ title: '', content: '' })}
                 >
-                  Add Section
-                </Button>
+                  Add Section +
+                </div>
               </fieldset>
               <DialogFooter>
                 <Button type="submit">Save changes</Button>
