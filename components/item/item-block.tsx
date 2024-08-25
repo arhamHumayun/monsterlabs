@@ -10,6 +10,8 @@ export default function ItemBlock({ item }: { item: itemSchemaType }) {
     requiresAttunementSpecific,
     paragraphs,
     description,
+    cost,
+    weight,
   } = item;
 
   const attunementSentence = () => {
@@ -43,6 +45,13 @@ export default function ItemBlock({ item }: { item: itemSchemaType }) {
         <p className="pb-2">{description}</p>
         {paragraphsList}
       </div>
+      <p className="mt-2">
+        <span className="font-semibold">Cost: </span>
+        {cost} gp,
+        <span className="font-semibold"> Weight: </span>
+        {weight} lbs
+
+      </p>
     </div>
   );
 }
