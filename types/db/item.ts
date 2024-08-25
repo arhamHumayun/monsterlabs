@@ -1,27 +1,33 @@
+import { z } from "zod"
 import { itemSchemaType } from "../item"
 
-export interface itemsDocument {
-  id: number,
-  user_id: string,
-  created_at: Date,
-  updated_at: Date,
-  name: string,
-  type: "Weapon" | "Armor" | "Ammunition" | "Potion" | "Scroll" | "Ring" | "Wand" | "Rod" | "Staff" | "Wondrous item" | "Consumable" | "Tool" | "Trinket",
-  subtype: string,
-  rarity: "common" | "uncommon" | "rare" | "very rare" | "legendary",
-  is_magical: boolean,
-  magic_bonus: number,
-  requires_attunement: boolean,
-  requires_attunement_types: string[],
-  cost_unit: "pp" | "ep" | "gp" | "sp" | "cp",
-  cost_amount: number,
-  weight: number,
-  description: string,
-  paragraphs: {
-    title: string,
-    content: string,
-  }[],
-}
+export const itemTypesList = ["Weapon", "Armor", "Ammunition", "Potion", "Scroll", "Ring", "Wand", "Rod", "Staff", "Wondrous item", "Consumable", "Tool", "Trinket"] as const
+export const itemRarityList = ["common", "uncommon", "rare", "very rare", "legendary"] as const
+export const itemCostUnitList = ["pp", "ep", "gp", "sp", "cp"] as const
+
+export const itemsDocumentSchema = z.object({
+  id: z.number(),
+  user_id: z.string(),
+  created_at: z.date(),
+  updated_at: z.date(),
+  name: z.string(),
+  type: z.enum(itemTypesList),
+  subtype: z.string(),
+  rarity: z.enum(itemRarityList),
+  is_magical: z.boolean(),
+  magic_bonus: z.number(),
+  requires_attunement: z.boolean(),
+  requires_attunement_types: z.array(z.string()),
+  cost_amount: z.number(),
+  weight: z.number(),
+  description: z.string(),
+  paragraphs: z.array(z.object({
+    title: z.string(),
+    content: z.string(),
+  })),
+})
+
+export interface itemsDocument extends z.infer<typeof itemsDocumentSchema> {}
 
 
 export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaType {
@@ -39,10 +45,7 @@ export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaTyp
       requires: item.requires_attunement,
       requiresSpecific: item.requires_attunement_types,
     },
-    cost: {
-      unit: item.cost_unit,
-      amount: item.cost_amount,
-    },
+    cost: item.cost_amount
 
   }
 }
@@ -64,7 +67,6 @@ export function itemSchemaTypeToItemDocument(item: itemSchemaType, id: number, u
     requires_attunement: item.requiresAttunement.requires,
     requires_attunement_types: item.requiresAttunement.requiresSpecific,
     magic_bonus: item.magicBonus,
-    cost_unit: item.cost.unit,
-    cost_amount: item.cost.amount,
+    cost_amount: item.cost,
   }
 }

@@ -11,10 +11,7 @@ export const itemSchema = z.object({
     requiresSpecific: z.array(z.string()).describe("If the item restricts attunement by class, this is the name of the class or race or alignment or anything else."),
   }).describe("Whether the item requires attunement, and if so, whether it requires attunement by a specific class. Only applies to magical items that are very special and powerful. It should make sense for lore reasons. Generally avoid requiring attunement unless it makes a lot of sense."),
   magicBonus: z.number().describe("The bonus granted by the item, if applicable. For example, a +1 sword would have a magic bonus of 1."),
-  cost: z.object({
-    unit: z.union([z.literal('pp'), z.literal('ep'), z.literal('gp'), z.literal('sp'), z.literal('cp')]),
-    amount: z.number(),
-  }),
+  cost: z.number().int(),
   weight: z.number().describe("Weight in pounds"),
   description: z.string().describe("A detailed and inspired description of the item. This should include its visual description, lore, history, and any other relevant information."),
   paragraphs: z.array(z.object({

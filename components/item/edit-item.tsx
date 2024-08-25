@@ -2,7 +2,13 @@
 
 import { itemSchema } from '@/types/item'; // Import the item schema
 import ItemBlock from './item-block'; // Import the item block component
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '../ui/form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -19,11 +25,36 @@ import { usePreviousState } from '@/lib/hooks';
 import { updateItem as updateItemToDB } from '@/app/actions'; // Import the updateItem function for items
 import { toast } from 'sonner';
 import { doToast } from '@/lib/utils';
-import { itemsDocument, itemDocumentToItemSchemaType, itemSchemaTypeToItemDocument } from '@/types/db/item'; // Import the types for items
+import {
+  itemsDocument,
+  itemDocumentToItemSchemaType,
+  itemsDocumentSchema,
+  itemSchemaTypeToItemDocument,
+  itemTypesList,
+  itemRarityList,
+} from '@/types/db/item'; // Import the types for items
 import ShareButton from '../share-button';
 import Link from 'next/link';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogHeader,
+  DialogFooter,
+  DialogClose,
+} from '../ui/dialog';
+import { Label } from '../ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
-const formSchema = z.object({
+const promptSchema = z.object({
   prompt: z.string(),
 });
 
@@ -42,12 +73,16 @@ export function EditItem({
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const promptForm = useForm<z.infer<typeof promptSchema>>({
+    resolver: zodResolver(promptSchema),
     defaultValues: {
       prompt: '',
     },
+  });
+
+  const itemForm = useForm<z.infer<typeof itemsDocumentSchema>>({
+    resolver: zodResolver(itemsDocumentSchema),
+    defaultValues: itemObject,
   });
 
   if (!user) {
@@ -60,19 +95,15 @@ export function EditItem({
     return null;
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmitPrompt(values: z.infer<typeof promptSchema>) {
     const { prompt } = values;
 
     setIsLoading(true);
 
-    const itemSchemaTypeItem =
-      itemDocumentToItemSchemaType(itemObject);
+    const itemSchemaTypeItem = itemDocumentToItemSchemaType(itemObject);
 
     // For example, send the form data to your API.
-    const updatedItem = await updateItem(
-      prompt,
-      itemSchemaTypeItem
-    );
+    const updatedItem = await updateItem(prompt, itemSchemaTypeItem);
 
     if (updatedItem.data && !updatedItem.error) {
       try {
@@ -94,11 +125,25 @@ export function EditItem({
           toast('Item updated.');
         }
       } catch (error) {
-        console.error(
-          'Something went wrong when generating the item:',
-          error
-        );
+        console.error('Something went wrong when generating the item:', error);
       }
+    } else {
+      console.error('Failed to fetch item data');
+    }
+
+    setIsLoading(false);
+  }
+
+  async function onSubmitManualEdit(
+    values: z.infer<typeof itemsDocumentSchema>
+  ) {
+    setIsLoading(true);
+
+    const { data } = await updateItemToDB(values);
+
+    if (data) {
+      setItemObject(data);
+      toast('Item updated.');
     } else {
       console.error('Failed to fetch item data');
     }
@@ -132,20 +177,20 @@ export function EditItem({
     weight: itemObject.weight,
     isMagical: itemObject.is_magical,
     magicBonus: itemObject.magic_bonus,
-    cost: {
-      unit: itemObject.cost_unit,
-      amount: itemObject.cost_amount
-    }
+    cost: itemObject.cost_amount
   });
 
   return (
     <div>
-      <Form {...form} aria-busy={isLoading}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="pb-5 basic-1/4">
+      <Form {...promptForm} aria-busy={isLoading}>
+        <form
+          onSubmit={promptForm.handleSubmit(onSubmitPrompt)}
+          className="pb-5 basic-1/4"
+        >
           <fieldset disabled={isLoading}>
             <div className="flex w-full rounded border">
               <FormField
-                control={form.control}
+                control={promptForm.control}
                 name="prompt"
                 render={({ field }) => (
                   <FormItem className="w-full">
@@ -217,15 +262,133 @@ export function EditItem({
           Share
         </Button>
       </div>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="mb-4 w-full">
+            Edit Item Manually
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Item</DialogTitle>
+            <DialogDescription>
+              Make changes to your item here. Click save when {`you're`} done.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* begin form to edit item here */}
+          <Form {...itemForm} aria-busy={isLoading}>
+            <form onSubmit={itemForm.handleSubmit(onSubmitManualEdit)}>
+              <fieldset disabled={isLoading}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      defaultValue={itemData.name}
+                      placeholder="Item Name"
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="type" className="text-right">
+                      Type
+                    </Label>
+                    <Select>
+                      <SelectTrigger className='col-span-3'>
+                        <SelectValue placeholder={item.type}/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {
+                          itemTypesList.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="subtype" className="text-right">
+                      Subtype
+                    </Label>
+                    <Input
+                      id="subtype"
+                      defaultValue={itemData.subtype}
+                      placeholder="Subtype"
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="rarity" className="text-right">
+                      Rarity
+                    </Label>
+                    <Select>
+                      <SelectTrigger className='col-span-3'>
+                        <SelectValue placeholder={item.rarity}/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {
+                          itemRarityList.map((rarity) => (
+                            <SelectItem key={rarity} value={rarity}>
+                              {rarity}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="weight" className="text-right">
+                      Weight
+                    </Label>
+                    <Input
+                      id="weight"
+                      defaultValue={itemData.weight}
+                      placeholder="Weight"
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Cost (gp)
+                    </Label>
+                    <Input
+                      id="cost"
+                      defaultValue={itemData.cost}
+                      placeholder="Cost (gp)"
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose>
+                    <Button variant="secondary">Cancel</Button>
+                  </DialogClose>
+                  <DialogClose>
+                    <Button type="submit">Save changes</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </fieldset>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
       <div className="flex flex-row w-full"></div>
-      {/* Update the component name and props */}
       <ItemBlock item={itemData} />
-      <ShareButton id={item.id} type={'creature'} textOverride="Share this item!" />
+      <ShareButton
+        id={item.id}
+        type={'creature'}
+        textOverride="Share this item!"
+      />
       <Button asChild>
         <Link href="/">Create another</Link>
       </Button>
       <Popover>
-        <PopoverTrigger className='mx-4 my-4' asChild>
+        <PopoverTrigger className="mx-4 my-4" asChild>
           <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
             Delete Item
           </Button>
@@ -235,11 +398,7 @@ export function EditItem({
             Are you sure you want to delete this item? This action cannot be
             undone.
           </p>
-          <Button
-            variant="destructive"
-            className="mt-4"
-            onClick={deleteItem}
-          >
+          <Button variant="destructive" className="mt-4" onClick={deleteItem}>
             Delete Item
           </Button>
         </PopoverContent>

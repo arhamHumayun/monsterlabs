@@ -26,7 +26,7 @@ export default function AllMonsters({
 
   useEffect(() => {
     cachedGetAllData(currentPage, monstersPerPage, sortingOrder).then(
-      ({ count, creatures, error }) => {
+      ({ count, creatures }) => {
         setCreatures(creatures || []);
         setMaxCreaturePage(Math.ceil(count / monstersPerPage));
       }
