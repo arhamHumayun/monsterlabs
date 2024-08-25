@@ -14,7 +14,7 @@ export const itemsDocumentSchema = z.object({
   subtype: z.string(),
   rarity: z.enum(itemRarityList),
   requires_attunement: z.boolean(),
-  requires_attunement_types: z.array(z.string()),
+  requires_attunement_specific: z.string().default(''),
   cost_amount: z.number(),
   weight: z.number(),
   description: z.string(),
@@ -36,12 +36,9 @@ export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaTyp
     paragraphs: item.paragraphs,
     type: item.type,
     rarity: item.rarity,
-    requiresAttunement: {
-      requires: item.requires_attunement,
-      requiresSpecific: item.requires_attunement_types,
-    },
+    requiresAttunement: item.requires_attunement,
+    requiresAttunementSpecific: item.requires_attunement_specific,
     cost: item.cost_amount
-
   }
 }
 
@@ -58,8 +55,8 @@ export function itemSchemaTypeToItemDocument(item: itemSchemaType, id: number, u
     weight: item.weight,
     description: item.description,
     paragraphs: item.paragraphs,
-    requires_attunement: item.requiresAttunement.requires,
-    requires_attunement_types: item.requiresAttunement.requiresSpecific,
+    requires_attunement: item.requiresAttunement,
+    requires_attunement_specific: item.requiresAttunementSpecific,
     cost_amount: item.cost,
   }
 }

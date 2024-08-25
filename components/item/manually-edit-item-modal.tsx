@@ -81,7 +81,7 @@ export default function ManuallyEditItemModal({
           Edit Item Manually
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[660px]">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
           <DialogDescription>
@@ -95,7 +95,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel htmlFor="name" className="text-right">
                       Name
                     </FormLabel>
@@ -103,7 +103,7 @@ export default function ManuallyEditItemModal({
                       id="name"
                       defaultValue={itemObject.name}
                       placeholder="Item Name"
-                      className="col-span-3"
+                      className="col-span-4"
                       {...field}
                     />
                   </FormItem>
@@ -113,14 +113,14 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="type"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel className="text-right">Type</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="col-span-3">
+                        <SelectTrigger className="col-span-4">
                           <SelectValue
                             placeholder={itemObject.type}
                             id="type"
@@ -143,7 +143,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="subtype"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <Label htmlFor="subtype" className="text-right">
                       Subtype
                     </Label>
@@ -151,7 +151,7 @@ export default function ManuallyEditItemModal({
                       id="subtype"
                       defaultValue={itemObject.subtype}
                       placeholder="Subtype"
-                      className="col-span-3"
+                      className="col-span-4"
                       {...field}
                     />
                   </FormItem>
@@ -161,7 +161,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="weight"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel htmlFor="weight" className="text-right">
                       Weight
                     </FormLabel>
@@ -169,7 +169,7 @@ export default function ManuallyEditItemModal({
                       id="weight"
                       defaultValue={itemObject.weight}
                       placeholder="Weight"
-                      className="col-span-3"
+                      className="col-span-4"
                       {...field}
                     />
                   </FormItem>
@@ -179,7 +179,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel htmlFor="description" className="text-right">
                       Description
                     </FormLabel>
@@ -187,7 +187,7 @@ export default function ManuallyEditItemModal({
                       id="description"
                       defaultValue={itemObject.description}
                       placeholder="Description"
-                      className="col-span-3"
+                      className="col-span-4"
                       {...field}
                     />
                   </FormItem>
@@ -197,7 +197,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="cost_amount"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel htmlFor="cost" className="text-right">
                       Cost
                     </FormLabel>
@@ -205,7 +205,7 @@ export default function ManuallyEditItemModal({
                       id="cost"
                       defaultValue={itemObject.cost_amount}
                       placeholder="Cost"
-                      className="col-span-3"
+                      className="col-span-4"
                       {...field}
                     />
                   </FormItem>
@@ -215,7 +215,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="rarity"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel htmlFor="rarity" className="text-right">
                       Rarity
                     </FormLabel>
@@ -223,7 +223,7 @@ export default function ManuallyEditItemModal({
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <SelectTrigger className="col-span-3">
+                      <SelectTrigger className="col-span-4">
                         <SelectValue
                           placeholder={itemObject.rarity}
                           id="rarity"
@@ -244,7 +244,7 @@ export default function ManuallyEditItemModal({
                 control={itemForm.control}
                 name="requires_attunement"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel
                       htmlFor="requiresAttunement"
                       className="text-right"
@@ -261,44 +261,22 @@ export default function ManuallyEditItemModal({
               />
               <FormField
                 control={itemForm.control}
-                name="requires_attunement_types"
+                name="requires_attunement_specific"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                  <FormItem className="grid grid-cols-5 items-center gap-4">
                     <FormLabel
-                      htmlFor="requiresAttunementTypes"
+                      htmlFor="requiresAttunementSpecific"
                       className="text-right"
                     >
                       Attunement Restrictions
                     </FormLabel>
-                    <div className="col-span-3">
-                      {itemObject.requires_attunement_types.map(
-                        (attunementRestriction) => (
-                          <div 
-                          key={attunementRestriction} 
-                          className='flex items-center gap-2 mb-2'
-                          >
-                            <Input
-                              defaultValue={attunementRestriction}
-                              placeholder="Add attunement restrictions"
-                              // {...field}
-                            />
-                            <Button variant="destructive"
-                            className='p-2'
-                              onClick={() => {
-                                const newAttunementRestrictions = itemObject.requires_attunement_types.filter(
-                                  (restriction) =>
-                                    restriction !== attunementRestriction
-                                );
-                                setItemObject((prevState) => ({
-                                  ...prevState,
-                                  requires_attunement_types: newAttunementRestrictions,
-                                }));
-                              }}
-                            ><X/></Button>
-                          </div>
-                        )
-                      )}
-                    </div>
+                    <Input
+                      id="requiresAttunementSpecific"
+                      defaultValue={itemObject.requires_attunement_specific}
+                      placeholder="fighter, ranger, or a barbarian"
+                      className="col-span-4"
+                      {...field}
+                    />
                   </FormItem>
                 )}
               />

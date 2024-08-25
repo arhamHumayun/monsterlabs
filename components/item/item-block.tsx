@@ -7,32 +7,21 @@ export default function ItemBlock({ item }: { item: itemSchemaType }) {
     subtype,
     rarity,
     requiresAttunement,
+    requiresAttunementSpecific,
     paragraphs,
     description,
   } = item;
 
-  const requiresAttunementTypes = item.requiresAttunement.requiresSpecific;
-
-  const attunement = () => {
+  const attunementSentence = () => {
     if (requiresAttunement) {
-      if (requiresAttunementTypes.length === 0) {
-        return '(requires attunement)';
-      } else if (requiresAttunementTypes.length === 1) {
-        return `(requires attunement by a ${requiresAttunementTypes[0]})`;
-      } else if (requiresAttunementTypes.length > 1) {
-
-        const attunementSentence = `${requiresAttunementTypes
-          .slice(0, -1)
-          .join(', ')} or a ${requiresAttunementTypes.slice(
-          -1
-        )}`.toLowerCase();
-
-        return `(requires attunement by a ${attunementSentence})`;
+      if (requiresAttunementSpecific) {
+        return `(requires attunement by ${requiresAttunementSpecific})`;
       }
+      return `(requires attunement)`;
     }
-
     return '';
-  };
+  } 
+
 
   const paragraphsList = paragraphs.map((p, i) => (
     <div key={i} className="pb-2">
@@ -50,7 +39,7 @@ export default function ItemBlock({ item }: { item: itemSchemaType }) {
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic pb-2">{`${type}${
           subtype ? ` (${subtype})` : ''
-        }, ${rarity} ${attunement()}`}</p>
+        }, ${rarity} ${attunementSentence()}`}</p>
         <p className="pb-2">{description}</p>
         {paragraphsList}
       </div>

@@ -54,10 +54,8 @@ export function EditItem({
     type: itemObject.type,
     subtype: itemObject.subtype,
     rarity: itemObject.rarity,
-    requiresAttunement: {
-      requires: itemObject.requires_attunement,
-      requiresSpecific: itemObject.requires_attunement_types,
-    },
+    requiresAttunement: itemObject.requires_attunement,
+    requiresAttunementSpecific: itemObject.requires_attunement_specific,
     paragraphs: itemObject.paragraphs,
     weight: itemObject.weight,
     cost: itemObject.cost_amount

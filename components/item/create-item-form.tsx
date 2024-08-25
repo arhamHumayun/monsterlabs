@@ -44,7 +44,6 @@ export function CreateItemForm({
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,7 +51,6 @@ export function CreateItemForm({
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
       console.error('no user?');
@@ -100,6 +98,7 @@ export function CreateItemForm({
       subtype,
       rarity,
       requiresAttunement,
+      requiresAttunementSpecific,
       cost,
       weight,
     } = data;
@@ -116,8 +115,8 @@ export function CreateItemForm({
         type,
         subtype,
         rarity,
-        requires_attunement: requiresAttunement.requires,
-        requires_attunement_types: requiresAttunement.requiresSpecific,
+        requires_attunement: requiresAttunement,
+        requires_attunement_types: requiresAttunementSpecific,
         cost_amount: cost,
         weight,
       })

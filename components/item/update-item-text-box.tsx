@@ -15,7 +15,6 @@ const promptSchema = z.object({
   prompt: z.string(),
 });
 
-
 export default function UpdateItemPromptForm(
   {
     itemObject,
