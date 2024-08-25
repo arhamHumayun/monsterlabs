@@ -37,6 +37,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { updateItem as updateItemToDB } from '@/app/actions';
+import { X } from 'lucide-react';
 
 export default function ManuallyEditItemModal({
   itemObject,
@@ -239,7 +240,7 @@ export default function ManuallyEditItemModal({
                   </FormItem>
                 )}
               />
-                            <FormField
+              <FormField
                 control={itemForm.control}
                 name="requires_attunement"
                 render={({ field }) => (
@@ -255,6 +256,49 @@ export default function ManuallyEditItemModal({
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={itemForm.control}
+                name="requires_attunement_types"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormLabel
+                      htmlFor="requiresAttunementTypes"
+                      className="text-right"
+                    >
+                      Attunement Restrictions
+                    </FormLabel>
+                    <div className="col-span-3">
+                      {itemObject.requires_attunement_types.map(
+                        (attunementRestriction) => (
+                          <div 
+                          key={attunementRestriction} 
+                          className='flex items-center gap-2 mb-2'
+                          >
+                            <Input
+                              defaultValue={attunementRestriction}
+                              placeholder="Add attunement restrictions"
+                              // {...field}
+                            />
+                            <Button variant="destructive"
+                            className='p-2'
+                              onClick={() => {
+                                const newAttunementRestrictions = itemObject.requires_attunement_types.filter(
+                                  (restriction) =>
+                                    restriction !== attunementRestriction
+                                );
+                                setItemObject((prevState) => ({
+                                  ...prevState,
+                                  requires_attunement_types: newAttunementRestrictions,
+                                }));
+                              }}
+                            ><X/></Button>
+                          </div>
+                        )
+                      )}
+                    </div>
                   </FormItem>
                 )}
               />

@@ -2,7 +2,6 @@
 
 import { itemSchema } from '@/types/item'; // Import the item schema
 import ItemBlock from './item-block'; // Import the item block component
-
 import { Button } from '../ui/button';
 import React from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
@@ -11,7 +10,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { User } from '@supabase/supabase-js';
 import { usePreviousState } from '@/lib/hooks';
 import { updateItem as updateItemToDB } from '@/app/actions';
-
 import { doToast } from '@/lib/utils';
 import {
   itemsDocument,
