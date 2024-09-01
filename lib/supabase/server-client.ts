@@ -30,11 +30,3 @@ export async function createSupabaseAppServerClient(serverComponent = false) {
     }
   );
 }
-
-export async function getUser() {
-  const supabase = await createSupabaseAppServerClient();
-  const session = await supabase.auth.getSession();
-  const user = session.data.session?.user;
-
-  return user;
-}

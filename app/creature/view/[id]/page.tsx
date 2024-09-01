@@ -1,7 +1,8 @@
-import { getCreatureById } from "@/app/not-actions";
 import CreatureBlock from "@/components/creature/creature-block";
 import ShareButton from "@/components/share-button";
+import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
 import { creatureSchema } from "@/types/creature";
+import { creaturesDocument } from "@/types/db/creature";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,15 +16,23 @@ export default async function ViewMonster(
 
   const { id } = params;  
 
-  const creature = await getCreatureById(id);
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('creatures')
+    .select(`*`)
+    .eq('id', id)
+    .single();
 
-  if (!creature) {
+  if (error || !data || data.length === 0) {
+    console.error('Failed to get creature by id:', error);
     return (
       <div>
         <h1>Creature not found</h1>
       </div>
-    )
+    );
   }
+
+  const creature = data as creaturesDocument;
 
   const creatureData = creatureSchema.parse({
     name: creature.name,

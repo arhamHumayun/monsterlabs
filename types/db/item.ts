@@ -1,48 +1,43 @@
+import { z } from "zod"
 import { itemSchemaType } from "../item"
 
-export interface itemsDocument {
-  id: number,
-  user_id: string,
-  created_at: Date,
-  updated_at: Date,
-  name: string,
-  type: "Weapon" | "Armor" | "Ammunition" | "Potion" | "Scroll" | "Ring" | "Wand" | "Rod" | "Staff" | "Wondrous item" | "Consumable" | "Tool" | "Trinket",
-  subtype: string,
-  rarity: "common" | "uncommon" | "rare" | "very rare" | "legendary",
-  is_magical: boolean,
-  magic_bonus: number,
-  requires_attunement: boolean,
-  requires_attunement_types: string[],
-  cost_unit: "pp" | "ep" | "gp" | "sp" | "cp",
-  cost_amount: number,
-  weight: number,
-  description: string,
-  paragraphs: {
-    title: string,
-    content: string,
-  }[],
-}
+export const itemTypesList = ["Weapon", "Armor", "Ammunition", "Potion", "Scroll", "Ring", "Wand", "Rod", "Staff", "Wondrous item", "Consumable", "Tool", "Trinket"] as const
+export const itemRarityList = ["common", "uncommon", "rare", "very rare", "legendary"] as const
+
+export const itemsDocumentSchema = z.object({
+  id: z.number(),
+  user_id: z.string(),
+  created_at: z.date(),
+  updated_at: z.date(),
+  name: z.string(),
+  type: z.enum(itemTypesList),
+  subtype: z.string().nullable().default(''),
+  rarity: z.enum(itemRarityList),
+  requires_attunement: z.boolean(),
+  requires_attunement_specific: z.string().nullable().default(''),
+  cost_amount: z.number().transform(value => Math.round(value)),
+  weight: z.number().int(),
+  description: z.string(),
+  paragraphs: z.array(z.object({
+    title: z.string(),
+    content: z.string(),
+  })),
+})
+
+export interface itemsDocument extends z.infer<typeof itemsDocumentSchema> {}
 
 export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaType {
   return {
     name: item.name,
     subtype: item.subtype,
-    isMagical: item.is_magical,
-    magicBonus: item.magic_bonus,
     weight: item.weight,
     description: item.description,
     paragraphs: item.paragraphs,
     type: item.type,
     rarity: item.rarity,
-    requiresAttunement: {
-      requires: item.requires_attunement,
-      requiresSpecific: item.requires_attunement_types,
-    },
-    cost: {
-      unit: item.cost_unit,
-      amount: item.cost_amount,
-    },
-
+    requiresAttunement: item.requires_attunement,
+    requiresAttunementSpecific: item.requires_attunement_specific,
+    cost: item.cost_amount
   }
 }
 
@@ -59,11 +54,8 @@ export function itemSchemaTypeToItemDocument(item: itemSchemaType, id: number, u
     weight: item.weight,
     description: item.description,
     paragraphs: item.paragraphs,
-    is_magical: item.isMagical,
-    requires_attunement: item.requiresAttunement.requires,
-    requires_attunement_types: item.requiresAttunement.requiresSpecific,
-    magic_bonus: item.magicBonus,
-    cost_unit: item.cost.unit,
-    cost_amount: item.cost.amount,
+    requires_attunement: item.requiresAttunement,
+    requires_attunement_specific: item.requiresAttunementSpecific ? item.requiresAttunementSpecific : '',
+    cost_amount: item.cost,
   }
 }

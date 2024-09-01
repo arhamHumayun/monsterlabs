@@ -34,14 +34,3 @@ export async function getItemById(id: number): Promise<itemsDocument | null> {
 
   return data;
 }
-
-
-export async function getUser(): Promise<User | null> {
-  const supabase = await createSupabaseAppServerClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error) {
-    return null;
-  }
-  const { user } = data;
-  return user;
-}

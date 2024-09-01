@@ -25,9 +25,6 @@ import { usePreviousState } from '@/lib/hooks';
 import { updateCreature as updateCreatureToDB } from '@/app/actions';
 import { toast } from 'sonner';
 import { doToast } from '@/lib/utils';
-<<<<<<< Updated upstream
-import { creaturesDocument, creatureDocumentToCreatureSchemaType, creatureSchemaTypeToCreatureDocument } from '@/types/db/creature';
-=======
 import {
   creaturesDocument,
   creatureDocumentToCreatureSchemaType,
@@ -37,7 +34,6 @@ import Link from 'next/link';
 import ShareButton from '../share-button';
 import UpdateCreaturePromptForm from './update-creature-text-box';
 import ManuallyEditCreatureModal from './manually-edit-creature-modal';
->>>>>>> Stashed changes
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -99,10 +95,6 @@ export function EditCreature({
           );
           return;
         } else {
-          console.log(
-            'Successfully created new creature version',
-            updatedCreature.data
-          );
           const updatedCreatureDoc = creatureSchemaTypeToCreatureDocument(
             updatedCreature.data,
             creatureObject.id,
@@ -212,23 +204,9 @@ export function EditCreature({
       })}
       <div className="flex flex-row w-full"></div>
       <CreatureBlock creature={creatureData} onlyBlock={true} />
-<<<<<<< Updated upstream
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
-=======
-      <ShareButton
-        id={creatureObject.id}
-        type={'creature'}
-        textOverride="Share this creature!"
-      />
-      <Button asChild>
-        <Link href="/">Create another</Link>
-      </Button>
-      <Popover>
-        <PopoverTrigger className="mx-4 mb-4" asChild>
-          <Button variant="destructive" className=" rounded">
->>>>>>> Stashed changes
             Delete Creature
           </Button>
         </PopoverTrigger>

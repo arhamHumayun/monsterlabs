@@ -22,7 +22,6 @@ export function LoginButton({
 
     setIsLoading(true);
     if (user && !user.is_anonymous) {
-      console.log('user is already signed in', user.id, user.email);
       return;
     }
 

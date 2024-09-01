@@ -7,6 +7,8 @@ import { CreateCreatureForm } from './creature/create-creature-form';
 import { CreateItemForm } from './item/create-item-form';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { Separator } from './ui/separator';
+import { Label } from './ui/label';
 
 export default function CreateThingBox({
   creatureCount,
@@ -18,6 +20,7 @@ export default function CreateThingBox({
   const [user, setUser] = useState<User | null>(null);
   const [actionCount, setActionCount] = useState(0);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
+  const [mobileMode, setMobileMode] = useState(false);
 
   const supabase = createSupabaseBrowserClient();
 
@@ -34,8 +37,6 @@ export default function CreateThingBox({
         setUser(user);
       }
 
-      console.log('user:', user);
-
       // Initialize action count from localStorage
       const storedCount = localStorage.getItem('action_count');
       setActionCount(storedCount ? parseInt(storedCount, 10) : 0);
@@ -45,11 +46,32 @@ export default function CreateThingBox({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setMobileMode(true);
+      } else {
+        setMobileMode(false);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
-    <div className="grid grid-cols-1 gap-8 max-w-[720px] sm:grid-cols-2 p-4 sm:w-screen">
+    <div className="grid grid-cols-1 gap-12 pl-8 w-screen max-w-[768px] md:grid-cols-2 md:pr-12">
       <div
-        className='rounded-lg  items-center justify-center flex flex-col'
+        className='rounded-lg flex flex-col'
       >
+        <Label
+          className="mb-2 justify-self-start"
+        >Create a creature</Label>
         <CreateCreatureForm
           user={user}
           actionCount={actionCount}
@@ -62,13 +84,22 @@ export default function CreateThingBox({
           created!
         </p>
         <Button variant="outline" asChild>
-          <Link href="/browse/creatures/1">View existing creatures</Link>
+          <Link href="/browse/creatures">View existing creatures</Link>
         </Button>
       </div>
-
+      {
+        mobileMode ? (
+          <div className="col-span-2 items-center pr-12 flex-shrink">
+            <Separator className="col-span-2 mb-4" />
+          </div>
+        ) : null
+      }
       <div
-        className='rounded-lg items-center justify-center flex flex-col'
+        className='rounded-lg flex flex-col'
       >
+        <Label
+          className="mb-2 justify-self-start"
+        >Create an item (New!)</Label>
         <CreateItemForm
           user={user}
           actionCount={actionCount}
@@ -80,7 +111,7 @@ export default function CreateThingBox({
           <span className="font-semibold">{itemCount}</span> items created!
         </p>
         <Button variant="outline" asChild>
-          <Link href="/browse/items/1">View existing items</Link>
+          <Link href="/browse/items">View existing items</Link>
         </Button>
       </div>
     </div>

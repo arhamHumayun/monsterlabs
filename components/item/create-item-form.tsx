@@ -44,7 +44,6 @@ export function CreateItemForm({
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,7 +51,6 @@ export function CreateItemForm({
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
       console.error('no user?');
@@ -87,8 +85,6 @@ export function CreateItemForm({
 
     const { data, error } = createItemResponse;
 
-    console.log('item generated:', data);
-
     if (error || !data) {
       console.error('Failed to create item data:', error);
       return;
@@ -101,9 +97,8 @@ export function CreateItemForm({
       type,
       subtype,
       rarity,
-      isMagical,
       requiresAttunement,
-      magicBonus,
+      requiresAttunementSpecific,
       cost,
       weight,
     } = data;
@@ -120,12 +115,9 @@ export function CreateItemForm({
         type,
         subtype,
         rarity,
-        is_magical: isMagical,
-        magic_bonus: magicBonus,
-        requires_attunement: requiresAttunement.requires,
-        requires_attunement_types: requiresAttunement.requiresSpecific,
-        cost_unit: cost.unit,
-        cost_amount: cost.amount,
+        requires_attunement: requiresAttunement,
+        requires_attunement_specific: requiresAttunementSpecific,
+        cost_amount: cost,
         weight,
       })
       .select();

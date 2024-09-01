@@ -1,4 +1,5 @@
 import ItemBlock from "@/components/item/item-block";
+import { LoginButton } from "@/components/login-button";
 import ShareButton from "@/components/share-button";
 import { createSupabaseAppServerClient } from "@/lib/supabase/server-client";
 import { itemDocumentToItemSchemaType, itemsDocument } from "@/types/db/item";
@@ -32,13 +33,22 @@ export default async function ViewItem(
   }
 
   const item = data as itemsDocument;
-
   const itemAsSchema = itemDocumentToItemSchemaType(item);
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 max-w-3xl">
       <ShareButton id={id} type={'item'} textOverride="Share this item!" />
       <ItemBlock item={itemAsSchema} />
+      <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
+        <h1 className="text-gray-200 text-center">
+          Sign in with Google to save and edit your items. This item
+          will be saved when you sign in. Otherwise you {`won't`} be able to edit it later.
+        </h1>
+        <div className="flex justify-center">
+          <ShareButton id={id} type={'item'} textOverride="Share this item!" />
+          <LoginButton message="Sign in with Google." />
+        </div>
+      </div>
     </div>
   )
 }

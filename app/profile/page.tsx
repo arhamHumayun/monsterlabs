@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { LogOutButton } from '@/components/logout-button';
 import Link from 'next/link';
-import { getCreaturesByUserId, getItemsByUserId } from '../actions';
 import { ThingLink } from '@/components/thing-link';
+import { creaturesDocument } from '@/types/db/creature';
 
 export default async function Profile() {
   const supabase = await createSupabaseAppServerClient();
@@ -19,8 +19,6 @@ export default async function Profile() {
   const user = data?.user;
 
   const userId = user.id;
-
-  console.log('userId', userId);
 
   if (!userId) {
     redirect('/sign-in');
@@ -42,11 +40,6 @@ export default async function Profile() {
   if (!items) {
     console.error('Failed to fetch items');
   }
-
-  // Continue with the successful data
-  console.log('Creatures:', creatures);
-  console.log('Items:', items);
-
 
   return (
     <div className="w-full max-w-5xl mx-auto flex min-h-screen flex-col px-4 sm:px-6 mb-4">
@@ -102,4 +95,33 @@ export default async function Profile() {
       <LogOutButton />
     </div>
   );
+}
+
+
+async function getCreaturesByUserId(userId: string): Promise<creaturesDocument[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('creatures')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
+}
+
+async function getItemsByUserId(userId: string): Promise<creaturesDocument[] | null> {
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('items')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return data;
 }

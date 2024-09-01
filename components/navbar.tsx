@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import Link from 'next/link';
 
 import {
@@ -12,28 +12,34 @@ import { ModeToggle } from './dark-mode-toggle';
 import { User } from '@supabase/supabase-js';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
 import { Button } from './ui/button';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
+import { useEffect, useState } from 'react';
+import { Menu } from 'lucide-react';
 
-export function Navbar(
-  { user }: { user: User | null }
-) {
-
+export function Navbar({ user }: { user: User | null }) {
   const supabase = createSupabaseBrowserClient();
 
-  const loginWithGoogle = async () => {
+  const [mobileMode, setMobileMode] = useState(false);
 
+  const loginWithGoogle = async () => {
     const getURL = () => {
       let url =
         process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
         process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
-        'http://localhost:3000'
+        'http://localhost:3000';
       // Make sure to include `https://` when not localhost.
-      url = url.includes('http') ? url : `https://${url}`
+      url = url.includes('http') ? url : `https://${url}`;
       // Make sure to include a trailing `/`.
-      url = url.charAt(url.length - 1) === '/' ? url : `${url}`
-      return url
-    }
-
-    console.log(`${getURL()}/auth/callback`)
+      url = url.charAt(url.length - 1) === '/' ? url : `${url}`;
+      return url;
+    };
 
     const redirectUrl = `${getURL()}/auth/callback`;
 
@@ -48,7 +54,7 @@ export function Navbar(
             access_type: 'offline',
             prompt: 'consent',
           },
-        }
+        },
       });
     } else {
       await supabase.auth.signInWithOAuth({
@@ -59,52 +65,129 @@ export function Navbar(
             access_type: 'offline',
             prompt: 'consent',
           },
-        }
+        },
       });
     }
-  }
+  };
 
-  let navItemList = [
-    { title: 'Create', href: '/', alignment: 'justify-self-start'},
-    { title: 'Browse Creatures', href: '/browse/creatures/1', alignment: 'justify-self-start'},
-    
-    { title: 'Browse Items', href: '/browse/items/1', alignment: 'justify-self-start'},
-  ];
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setMobileMode(true);
+      } else {
+        setMobileMode(false);
+      }
+    };
 
-  if (!user || user.is_anonymous) {
-    navItemList.push({ title: 'Login', href: '/sign-in', alignment: 'justify-self-end'});
-  } else {
-    navItemList.push({ title: 'Profile', href: '/profile', alignment: 'justify-self-end'});
-  }
+    handleResize();
 
-  const navItems = navItemList.map((navItem, i) => {
-    return (
-      <div className={`p-2 px-4 items-center`} key={i}>
-        <NavigationMenuItem>
-          {
-            navItem.href === '/sign-in' && !user ? (
-              <Button variant='ghost' onClick={loginWithGoogle}>Login</Button>
-            ) : (
-              <Link href={navItem.href} legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {navItem.title}
-              </NavigationMenuLink>
-            </Link>
-            )
-          }
-        </NavigationMenuItem>
-      </div>
-    );
-  });
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
-    <NavigationMenu className='mx-auto max-w-2xl'>
-      <NavigationMenuList>
-        {navItems}
-        <NavigationMenuItem className='p-2 px-4 items-center'>
-          <ModeToggle />
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <div>
+      {mobileMode ? (
+        <Sheet>
+          <SheetTrigger className="top-0 left-0 p-4">
+            <Button variant={'outline'} 
+              className="p-2 rounded"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side={'left'}>
+            <SheetHeader>
+              <SheetTitle
+                className="text-center"
+              >Navigate To</SheetTitle>
+            </SheetHeader>
+            <div className="grid gap-4 py-4">
+              <SheetClose asChild>
+                <Button variant={'ghost'} asChild>
+                  <Link href="/">Create</Link>
+                </Button>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button variant={'ghost'} asChild>
+                  <Link href="/browse/creatures">Browse Creatures</Link>
+                </Button>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button variant={'ghost'} asChild>
+                  <Link href="/browse/items">Browse Items</Link>
+                </Button>
+              </SheetClose>
+              {!user || user.is_anonymous ? (
+                <SheetClose asChild>
+                  <Button variant={'ghost'} onClick={loginWithGoogle}>
+                    Login
+                  </Button>
+                </SheetClose>
+              ) : (
+                <SheetClose asChild>
+                  <Button variant={'ghost'} asChild>
+                    <Link href="/profile">Profile</Link>
+                  </Button>
+                </SheetClose>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <NavigationMenu className="mx-auto max-w-2xl">
+          <NavigationMenuList>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/"
+              >
+                Create
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/browse/creatures"
+              >
+                Browse Creatures
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/browse/items"
+              >
+                Browse Items
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            {!user || user.is_anonymous ? (
+              <NavigationMenuItem className="p-2 px-4 items-center">
+                <Button variant={'ghost'} onClick={loginWithGoogle}>
+                  Login
+                </Button>
+              </NavigationMenuItem>
+            ) : (
+              <NavigationMenuItem className="p-2 px-4 items-center">
+                <NavigationMenuLink
+                  className={navigationMenuTriggerStyle()}
+                  href="/profile"
+                >
+                  Profile
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+            <NavigationMenuItem className="p-2 px-4 items-center">
+              <ModeToggle />
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      )}
+
+      {/* Sheet */}
+    </div>
   );
 }

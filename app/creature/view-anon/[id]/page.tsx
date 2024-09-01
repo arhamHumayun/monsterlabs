@@ -1,8 +1,9 @@
-import { getCreatureById } from '@/app/actions';
 import CreatureBlock from '@/components/creature/creature-block';
 import { LoginButton } from '@/components/login-button';
 import ShareButton from '@/components/share-button';
+import { createSupabaseAppServerClient } from '@/lib/supabase/server-client';
 import { creatureSchema } from '@/types/creature';
+import { creaturesDocument } from '@/types/db/creature';
 
 export default async function ViewAnonMonster({
   params,
@@ -11,9 +12,15 @@ export default async function ViewAnonMonster({
 }) {
   const { id } = params;
 
-  const creature = await getCreatureById(id);
+  const supabase = await createSupabaseAppServerClient();
+  const { data, error } = await supabase
+    .from('creatures')
+    .select(`*`)
+    .eq('id', id)
+    .single();
 
-  if (!creature) {
+  if (error || !data || data.length === 0) {
+    console.error('Failed to get creature by id:', error);
     return (
       <div>
         <h1>Creature not found</h1>
@@ -21,6 +28,7 @@ export default async function ViewAnonMonster({
     );
   }
 
+  const creature = data as creaturesDocument;
   const creatureData = creatureSchema.parse({
     name: creature.name,
     lore: creature.lore,
@@ -37,6 +45,7 @@ export default async function ViewAnonMonster({
 
   return (
     <div>
+      <ShareButton id={id} type={'creature'} textOverride="Share this creature!" />
       <CreatureBlock creature={creatureData} />
       <div className="grid grid-cols-1 gap-4 mt-4 mb-2 place-items-center">
         <h1 className="text-gray-200 text-center">
