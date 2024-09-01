@@ -23,7 +23,6 @@ export interface itemsDocument {
   }[],
 }
 
-
 export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaType {
   return {
     name: item.name,

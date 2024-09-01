@@ -2,7 +2,13 @@
 
 import { creatureSchema } from '@/types/creature';
 import CreatureBlock from './creature-block';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '../ui/form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -19,7 +25,19 @@ import { usePreviousState } from '@/lib/hooks';
 import { updateCreature as updateCreatureToDB } from '@/app/actions';
 import { toast } from 'sonner';
 import { doToast } from '@/lib/utils';
+<<<<<<< Updated upstream
 import { creaturesDocument, creatureDocumentToCreatureSchemaType, creatureSchemaTypeToCreatureDocument } from '@/types/db/creature';
+=======
+import {
+  creaturesDocument,
+  creatureDocumentToCreatureSchemaType,
+  creatureSchemaTypeToCreatureDocument,
+} from '@/types/db/creature';
+import Link from 'next/link';
+import ShareButton from '../share-button';
+import UpdateCreaturePromptForm from './update-creature-text-box';
+import ManuallyEditCreatureModal from './manually-edit-creature-modal';
+>>>>>>> Stashed changes
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -136,38 +154,12 @@ export function EditCreature({
 
   return (
     <div>
-      <Form {...form} aria-busy={isLoading}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="pb-5 basic-1/4">
-          <fieldset disabled={isLoading}>
-            <div className="flex w-full rounded border">
-              <FormField
-                control={form.control}
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormControl>
-                      <Input
-                        className="border-0"
-                        placeholder="Make updates to your creature..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                className="rounded sticky right-0 border-0"
-              >
-                <CornerDownLeft className="h-4 w-4" />
-              </Button>
-            </div>
-          </fieldset>
-        </form>
-        {loading}
-      </Form>
+      {UpdateCreaturePromptForm({
+        creatureObject,
+        setCreatureObject,
+        isLoading,
+        setIsLoading,
+      })}
       <div className="grid grid-cols-4">
         <Button
           variant="secondary"
@@ -212,11 +204,31 @@ export function EditCreature({
           Share
         </Button>
       </div>
+      {ManuallyEditCreatureModal({
+        creatureObject,
+        setCreatureObject,
+        isLoading,
+        setIsLoading,
+      })}
       <div className="flex flex-row w-full"></div>
       <CreatureBlock creature={creatureData} onlyBlock={true} />
+<<<<<<< Updated upstream
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="destructive" className="mb-4 mr-4 p-3 rounded">
+=======
+      <ShareButton
+        id={creatureObject.id}
+        type={'creature'}
+        textOverride="Share this creature!"
+      />
+      <Button asChild>
+        <Link href="/">Create another</Link>
+      </Button>
+      <Popover>
+        <PopoverTrigger className="mx-4 mb-4" asChild>
+          <Button variant="destructive" className=" rounded">
+>>>>>>> Stashed changes
             Delete Creature
           </Button>
         </PopoverTrigger>

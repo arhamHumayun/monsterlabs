@@ -81,9 +81,9 @@ export default function CreatureBlock({
       : '';
 
   return (
-    <div className="max-w-5xl mx-auto" id="creature-block">
+    <div className="max-w-5xl mx-auto" id="creature-block" key={name}>
       {!onlyBlock ? creatureHeader : null}
-      <div className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
+      <div key={name} className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>
         <p className="italic">
           {capitalizeFirstLetters([`${size} ${type}, ${alignment}`])}
@@ -176,6 +176,7 @@ export default function CreatureBlock({
           ))}
         {legendary?.resistance ? (
           <StyledTraitSentences
+            key={legendary.resistance.toString()}
             s1={`Legendary Resistance (${legendary.resistance}/Day).`}
             s2={`If${
               creature.isUnique ? '' : ' the'
@@ -555,7 +556,7 @@ function StatsBlock({ stats }: { stats: statsType }) {
     const short = stat.slice(0, 3).toUpperCase();
 
     return (
-      <div key={short} className="shrink">
+      <div key={stat} className="shrink">
         <div className="text-center font-semibold">{short}</div>
         <div className="text-center">{`${value} (${sign}${Math.abs(
           bonus
@@ -564,7 +565,7 @@ function StatsBlock({ stats }: { stats: statsType }) {
     );
   });
 
-  return <div className="grid grid-cols-6 gap-2 flex">{statBlocks}</div>;
+  return <div className="grid grid-cols-6 gap-2">{statBlocks}</div>;
 }
 
 function StyledTraitSentences({ s1, s2 }: { s1: string; s2: string }) {
@@ -580,13 +581,13 @@ function StyledTraitSentences({ s1, s2 }: { s1: string; s2: string }) {
   );
 }
 
-function StyledStatSentences({ s1, s2 }: { s1: string; s2: string }) {
+function StyledStatSentences({ s1, s2, key }: { s1: string; s2: string, key?: string }) {
   if (s2 === '') {
     return null;
   }
 
   return (
-    <div>
+    <div key={key}>
       <span className="font-semibold">{s1} </span>
       <span>{s2}</span>
     </div>
