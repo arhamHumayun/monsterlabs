@@ -15,6 +15,7 @@ import {
 } from '@/types/creature';
 import { Separator } from '../ui/separator';
 import { capitalizeFirstLetters } from '@/lib/utils';
+import { randomUUID } from 'crypto';
 
 export default function CreatureBlock({
   creature,
@@ -79,7 +80,7 @@ export default function CreatureBlock({
       : '';
 
   return (
-    <div className="max-w-5xl mx-auto" id="creature-block" key={name}>
+    <div className="max-w-5xl mx-auto" id="creature-block" key={(Math.random() * 100).toPrecision(2)}>
       {!onlyBlock ? creatureHeader : null}
       <div key={name} className="p-6 border-2 border-grey-200 rounded duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-4">
         <h1 className="pb-2 text-2xl font-bold">{name}</h1>

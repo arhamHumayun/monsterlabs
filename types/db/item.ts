@@ -26,6 +26,13 @@ export const itemsDocumentSchema = z.object({
 
 export interface itemsDocument extends z.infer<typeof itemsDocumentSchema> {}
 
+export const editItemDocumentSchema = itemsDocumentSchema.omit({
+  id: true,
+  user_id: true,
+  created_at: true,
+  updated_at: true,
+})
+
 export function itemDocumentToItemSchemaType(item: itemsDocument): itemSchemaType {
   return {
     name: item.name,

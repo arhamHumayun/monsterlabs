@@ -1,6 +1,10 @@
 import {
   creaturesDocument,
-  creatureSchemaTypeToCreatureDocument,
+  pronounsList,
+  creatureSizeList,
+  creatureDocumentSchema,
+  editCreatureDocumentSchema,
+  creatureTypesList
 } from '@/types/db/creature';
 import { useForm } from 'react-hook-form';
 import { Button } from '../ui/button';
@@ -12,17 +16,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from '../ui/dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { ScrollArea } from '../ui/scroll-area';
-import { creatureSchema } from '@/types/creature';
-import { Form, FormField, FormItem, FormLabel } from '../ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
-import { DialogClose } from '@radix-ui/react-dialog';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
+import { Checkbox } from '../ui/checkbox';
+import { updateCreature } from '@/app/actions';
 
-const creatureFormSchema = creatureSchema.partial();
+const creatureFormSchema = editCreatureDocumentSchema;
+
 export default function ManuallyEditCreatureModal({
   creatureObject,
   setCreatureObject,
@@ -56,9 +63,18 @@ export default function ManuallyEditCreatureModal({
     const updatedCreature = {
       ...creatureObject,
       ...values,
+      updated_at: new Date(),
     };
 
-    console.log('updatedCreature', updatedCreature);
+    const { data } = await updateCreature(updatedCreature);
+
+    if (!data) {
+      console.error('Failed to update creature');
+      setIsLoading(false);
+      return;
+    }
+
+    setCreatureObject(updatedCreature);
 
     setIsLoading(false);
   }
@@ -92,7 +108,7 @@ export default function ManuallyEditCreatureModal({
                       </FormLabel>
                       <Input
                         id="name"
-                        defaultValue={creatureObject.name}
+                        defaultValue={field.value}
                         placeholder="Item Name"
                         className="col-span-4"
                         {...field}
@@ -110,7 +126,7 @@ export default function ManuallyEditCreatureModal({
                       </FormLabel>
                       <Input
                         id="lore"
-                        defaultValue={creatureObject.lore}
+                        defaultValue={field.value}
                         placeholder="Lore"
                         className="col-span-4"
                         {...field}
@@ -128,7 +144,7 @@ export default function ManuallyEditCreatureModal({
                       </FormLabel>
                       <Input
                         id="appearance"
-                        defaultValue={creatureObject.appearance}
+                        defaultValue={field.value}
                         placeholder="Appearance"
                         className="col-span-4"
                         {...field}
@@ -136,6 +152,138 @@ export default function ManuallyEditCreatureModal({
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={creatureForm.control}
+                  name="pronoun"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel className="text-right">Pronoun</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="col-span-4">
+                            <SelectValue
+                              placeholder={field.value}
+                              id="pronoun"
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {pronounsList.map((pronoun) => (
+                            <SelectItem key={pronoun} value={pronoun}>
+                              {pronoun}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={creatureForm.control}
+                  name="size"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel htmlFor='size' className="text-right">Size</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="col-span-4">
+                            <SelectValue
+                              placeholder={field.value}
+                              id="size"
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {
+                            creatureSizeList.map((size) => (
+                              <SelectItem key={size} value={size}>
+                                {size}
+                              </SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={creatureForm.control}
+                  name='type'
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel htmlFor='type' className="text-right">Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="col-span-4">
+                            <SelectValue
+                              placeholder={field.value}
+                              id="type"
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {
+                            creatureTypesList.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={creatureForm.control}
+                  name="hit_dice_amount"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel htmlFor="hit_dice_amount" className="text-right">
+                        Hit Dice
+                      </FormLabel>
+                      <Input
+                        id="hit_dice_amount"
+                        type="number"
+                        defaultValue={field.value}
+                        placeholder="Amount of Hit Dice"
+                        className="col-span-4"
+                        {...register('hit_dice_amount', { valueAsNumber: true })}
+                      />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={creatureForm.control}
+                  name="is_unique"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel
+                        htmlFor="is_unique"
+                        className="text-right"
+                      >
+                        Unique
+                      </FormLabel>
+                      <Checkbox
+                        id="is_unique"
+                        checked={field.value ? field.value : false}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormItem>
+                  )}
+                />``
               </fieldset>
               <DialogFooter className='pt-2'>
                 <DialogClose asChild>

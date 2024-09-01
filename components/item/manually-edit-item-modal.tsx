@@ -2,7 +2,7 @@ import {
   itemTypesList,
   itemRarityList,
   itemsDocument,
-  itemSchemaTypeToItemDocument,
+  editItemDocumentSchema,
 } from '@/types/db/item';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
@@ -40,15 +40,8 @@ import { z } from 'zod';
 import { updateItem as updateItemToDB } from '@/app/actions';
 import { X } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import { itemSchema } from '@/types/item';
 
-const itemFormSchema = itemSchema.extend({
-  requiresAttunement: z
-    .boolean({
-      required_error: 'Requires Attunement is required',
-    })
-    .default(false),
-});
+const itemFormSchema = editItemDocumentSchema;
 
 export default function ManuallyEditItemModal({
   itemObject,
@@ -84,17 +77,13 @@ export default function ManuallyEditItemModal({
   async function onSubmitManualEdit(values: z.infer<typeof itemFormSchema>) {
     setIsLoading(true);
 
-    const itemDoc = itemSchemaTypeToItemDocument(
-      values,
-      itemObject.id,
-      itemObject.user_id,
-      itemObject.created_at,
-      new Date()
-    );
+    const updatedItem = {
+      ...itemObject,
+      ...values,
+      updated_at: new Date(),
+    };
 
-    itemDoc.cost_amount = Math.round(itemDoc.cost_amount);
-
-    const { data } = await updateItemToDB(itemDoc);
+    const { data } = await updateItemToDB(updatedItem);
 
     if (data) {
       setItemObject(data);
@@ -134,7 +123,7 @@ export default function ManuallyEditItemModal({
                       </FormLabel>
                       <Input
                         id="name"
-                        defaultValue={itemObject.name}
+                        defaultValue={field.value}
                         placeholder="Item Name"
                         className="col-span-4"
                         {...field}
@@ -155,7 +144,7 @@ export default function ManuallyEditItemModal({
                         <FormControl>
                           <SelectTrigger className="col-span-4">
                             <SelectValue
-                              placeholder={itemObject.type}
+                              placeholder={field.value}
                               id="type"
                             />
                           </SelectTrigger>
@@ -183,7 +172,7 @@ export default function ManuallyEditItemModal({
                       <Input
                         id="subtype"
                         defaultValue={
-                          itemObject.subtype ? itemObject.subtype : ''
+                          field.value ? field.value : ''
                         }
                         placeholder="Subtype"
                         className="col-span-4"
@@ -202,19 +191,17 @@ export default function ManuallyEditItemModal({
                       <Input
                         id="weight"
                         type="number"
-                        defaultValue={itemObject.weight}
+                        defaultValue={field.value}
                         placeholder="Weight"
                         className="col-span-4"
                         {...register('weight', { valueAsNumber: true })}
-                        // {...field}
-                        // onChange={(event) => field.onChange(Number(event.target.value))}
                       />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={itemForm.control}
-                  name="cost"
+                  name="cost_amount"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-5 items-center gap-4">
                       <FormLabel htmlFor="cost" className="text-right">
@@ -223,12 +210,10 @@ export default function ManuallyEditItemModal({
                       <Input
                         id="cost"
                         type="number"
-                        defaultValue={itemObject.cost_amount}
+                        defaultValue={field.value}
                         placeholder="Cost in GP"
                         className="col-span-4"
-                        {...register('cost', { valueAsNumber: true })}
-                        // {...field}
-                        // onChange={(event) => field.onChange(Number(event.target.value))}
+                        {...register('cost_amount', { valueAsNumber: true })}
                       />
                     </FormItem>
                   )}
@@ -245,12 +230,14 @@ export default function ManuallyEditItemModal({
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <SelectTrigger className="col-span-4">
-                          <SelectValue
-                            placeholder={itemObject.rarity}
-                            id="rarity"
-                          />
-                        </SelectTrigger>
+                        <FormControl>
+                          <SelectTrigger className="col-span-4">
+                            <SelectValue
+                              placeholder={field.value}
+                              id="rarity"
+                            />
+                          </SelectTrigger>
+                        </FormControl>
                         <SelectContent>
                           {itemRarityList.map((rarity) => (
                             <SelectItem key={rarity} value={rarity}>
@@ -264,17 +251,17 @@ export default function ManuallyEditItemModal({
                 />
                 <FormField
                   control={itemForm.control}
-                  name="requiresAttunement"
+                  name="requires_attunement"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-5 items-center gap-4">
                       <FormLabel
-                        htmlFor="requiresAttunement"
+                        htmlFor="requires_attunement"
                         className="text-right"
                       >
                         Requires Attunement
                       </FormLabel>
                       <Checkbox
-                        id="requiresAttunement"
+                        id="requires_attunement"
                         checked={field.value ? field.value : false}
                         onCheckedChange={field.onChange}
                       />
@@ -283,20 +270,20 @@ export default function ManuallyEditItemModal({
                 />
                 <FormField
                   control={itemForm.control}
-                  name="requiresAttunementSpecific"
+                  name="requires_attunement_specific"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-5 items-center gap-4">
                       <FormLabel
-                        htmlFor="requiresAttunementSpecific"
+                        htmlFor="requires_attunement_specific"
                         className="text-right"
                       >
                         Attunement Restrictions
                       </FormLabel>
                       <Input
-                        id="requiresAttunementSpecific"
+                        id="requires_attunement_specific"
                         defaultValue={
-                          itemObject.requires_attunement_specific
-                            ? itemObject.requires_attunement_specific
+                          field.value
+                            ? field.value
                             : ''
                         }
                         placeholder="requires attunement by a ..."
@@ -315,14 +302,13 @@ export default function ManuallyEditItemModal({
                       </FormLabel>
                       <Input
                         id="description"
-                        defaultValue={itemObject.description}
+                        defaultValue={field.value}
                         placeholder="Description"
                         className="col-span-4"
                       />
                     </FormItem>
                   )}
                 />
-
                 {fields.map((paragraph, index) => (
                   <FormField
                     control={itemForm.control}
@@ -386,6 +372,7 @@ export default function ManuallyEditItemModal({
                 </DialogClose>
               </DialogFooter>
             </form>
+            <p>{JSON.stringify(errors, null, 2)}</p>
           </Form>
         </ScrollArea>
       </DialogContent>

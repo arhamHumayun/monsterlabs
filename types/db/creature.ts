@@ -17,14 +17,21 @@ export const creatureDocumentSchema = z.object({
   pronoun: z.enum(pronounsList),
   type: z.enum(creatureTypesList),
   is_unique: z.boolean(),
-  challenge_rating: z.number(),
+  challenge_rating: z.number().min(25).max(3000),
   alignment: z.enum(creatureAlignmentList),
   size: z.enum(creatureSizeList),
-  hit_dice_amount: z.number(),
+  hit_dice_amount: z.number().min(1),
   json: creatureJsonBlobDocumentSchema,
 })
 
 export type creaturesDocument = z.infer<typeof creatureDocumentSchema>;
+
+export const editCreatureDocumentSchema = creatureDocumentSchema.omit({
+  id: true,
+  user_id: true,
+  created_at: true,
+  updated_at: true,
+})
 
 export function creatureDocumentToCreatureSchemaType(creatureDocument: creaturesDocument): creatureSchemaType {
   return {
