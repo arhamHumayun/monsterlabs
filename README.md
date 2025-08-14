@@ -1,30 +1,50 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MonsterLabs
+
+MonsterLabs is an AI-powered tool for Dungeons & Dragons players and Dungeon Masters to instantly generate creatures and magic items. It lets you customize monsters and items, generates detailed stat blocks, and creates unique images, all in seconds.
+This is hosted at [Monsterlabs.app](https://monsterlabs.app)
+
+> **Note:** This project is **archived** and no longer maintained. The code is provided as-is for reference, learning, or experimentation. It contains many outdated libraries and methods.
+
+---
+
+## Features
+
+- **AI-Generated Creatures** – Create unique monsters with detailed stat blocks.
+- **AI-Generated Magic Items** – Generate balanced, lore-friendly items for your campaign.
+- **Customization** – Tweak monster stats, abilities, and lore before finalizing.
+- **Image Generation** – Automatically create original creature/item art.
+- **Fast & Easy** – Designed to speed up prep time for DMs.
+
+---
+
+## Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/)
+- **Language:** TypeScript
+- **Backend/DB/Auth:** Supabase
+- **Styling:** Tailwind CSS
+- **AI Integration:** OpenAI API
+- **Hosting:** Vercel
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-bun dev
-```
+# 1. Clone the repo
+git clone https://github.com/arhamHumayun/monsterlabs.git
+cd monsterlabs
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# 2. Install dependencies
+bun i
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# 3. Set environment variables
+# Create a .env.local file and add your API keys
+OPENAI_API_KEY=your_openai_api_key
+OTHER_API_KEYS=...
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+# 4. Run the dev server
+bun run dev
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# 5. Open your browser
+http://localhost:3000
