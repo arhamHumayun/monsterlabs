@@ -1,0 +1,46 @@
+import { NextResponse } from 'next/server'
+// The client you created from the Server-Side Auth instructions
+import { createSupabaseSupaService } from '@/lib/supabase/server-client'
+
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url)
+  const code = searchParams.get('code')
+
+  const next = '/sign-in-success'
+
+  if (code) {
+    const supabase = await createSupabaseSupaService()
+    const { data: { user }, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
+      const isLocalEnv = process.env.VERCEL_ENV === 'development'
+
+      if (user) {
+        // Update the profiles table with the user's information
+        await supabase
+          .from('profiles')
+          .upsert({
+            user_id: user.id,
+            name: user.user_metadata.full_name,
+            updated_at: new Date(),
+          })
+      }
+
+      console.log('isLocalEnv', isLocalEnv);
+      console.log('forwardedHost', forwardedHost);
+      console.log('redirecting to', `${origin}${next}`)
+
+      if (isLocalEnv) {
+        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
+        return NextResponse.redirect(`${origin}${next}`)
+      } else if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+      } else {
+        return NextResponse.redirect(`${origin}${next}`)
+      }
+    }
+  }
+
+  // return the user to an error page with instructions
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+}
